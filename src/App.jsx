@@ -16,6 +16,8 @@ import ArtistDetails from "./pages/public/ArtistDetails";
 import CustomArt from "./pages/public/CustomArt";
 import About from "./pages/public/About";
 import Contact from "./pages/public/Contact";
+import Privacy from "./pages/public/Privacy";
+import Terms from "./pages/public/Terms";
 import NotFound from "./pages/public/NotFound";
 
 // Auth pages
@@ -60,7 +62,6 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Navbar + Footer wale pages (public + buyer) */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/discover" element={<Discover />} />
@@ -71,9 +72,10 @@ export default function App() {
           <Route path="/artists/:id" element={<ArtistDetails />} />
           <Route path="/custom-art" element={<CustomArt />} />
           <Route path="/about" element={<About />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
           <Route path="/contact" element={<Contact />} />
 
-          {/* Buyer */}
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
@@ -83,7 +85,6 @@ export default function App() {
           <Route path="/profile" element={<BuyerProfile />} />
         </Route>
 
-        {/* Auth: bina layout ke, poori screen */}
         <Route path="/buyer/login" element={<BuyerLogin />} />
         <Route path="/buyer/register" element={<BuyerRegister />} />
         <Route path="/buyer/forgot-password" element={<BuyerForgotPass />} />
@@ -92,7 +93,6 @@ export default function App() {
         <Route path="/artist/forgot-password" element={<ArtistForgotPass />} />
         <Route path="/admin/login" element={<AdminLogin />} />
 
-        {/* Artist dashboard (sidebar wala) */}
         <Route path="/artist" element={<ArtistLayout />}>
           <Route index element={<ArtistDashboard />} />
           <Route path="artworks" element={<MyArtworks />} />
@@ -106,7 +106,6 @@ export default function App() {
           <Route path="profile" element={<ArtistProfile />} />
         </Route>
 
-        {/* Admin dashboard (sidebar wala) */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="artists" element={<AdminArtists />} />
@@ -117,7 +116,6 @@ export default function App() {
           <Route path="reports" element={<ReportedListings />} />
         </Route>
 
-        {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

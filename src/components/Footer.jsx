@@ -33,9 +33,12 @@ const COLUMNS = [
   },
 ]
 
+const LEGAL = [
+  { label: 'Terms', href: '/terms' },
+  { label: 'Privacy', href: '/privacy' },
+]
+
 const SOCIALS = [
-    { label: 'terms', href: '/terms' },
-    { label: 'privacy', href: '/privacy' },
   { label: 'Instagram', href: 'https://instagram.com' },
   { label: 'Pinterest', href: 'https://pinterest.com' },
   { label: 'X', href: 'https://x.com' },
@@ -120,6 +123,15 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} Athenura. All rights reserved.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5">
+            {LEGAL.map((l) => (
+              <a
+                key={l.label}
+                href={l.href}
+                className="text-[11px] font-semibold uppercase tracking-[0.5px] text-[#7a6a5f] transition-colors duration-150 ease-out hover:text-[#a65335]"
+              >
+                {l.label}
+              </a>
+            ))}
             {SOCIALS.map((s) => (
               <a
                 key={s.label}
