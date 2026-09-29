@@ -16,6 +16,8 @@ import ArtistDetails from "./pages/public/ArtistDetails";
 import CustomArt from "./pages/public/CustomArt";
 import About from "./pages/public/About";
 import Contact from "./pages/public/Contact";
+import Privacy from "./pages/public/Privacy";
+import Terms from "./pages/public/Terms";
 import NotFound from "./pages/public/NotFound";
 
 // Auth pages
@@ -51,16 +53,22 @@ import ArtistProfile from "./pages/artist/Profile";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminArtists from "./pages/admin/Artists";
 import AdminArtworks from "./pages/admin/Artworks";
+import AdminSculptures from "./pages/admin/Sculptures";
+import AdminCollections from "./pages/admin/Collections";
+import AdminCustomArtRequests from "./pages/admin/CustomArtRequests";
 import Users from "./pages/admin/Users";
 import AdminOrders from "./pages/admin/Orders";
-import Categories from "./pages/admin/Categories";
-import ReportedListings from "./pages/admin/ReportedListings";
+import AdminPayments from "./pages/admin/Payments";
+import AdminReviews from "./pages/admin/Reviews";
+import AdminMessages from "./pages/admin/Messages";
+import AdminReports from "./pages/admin/Reports";
+import AdminProfile from "./pages/admin/Profile";
+import AdminSettings from "./pages/admin/Settings";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Navbar + Footer wale pages (public + buyer) */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/discover" element={<Discover />} />
@@ -71,9 +79,10 @@ export default function App() {
           <Route path="/artists/:id" element={<ArtistDetails />} />
           <Route path="/custom-art" element={<CustomArt />} />
           <Route path="/about" element={<About />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
           <Route path="/contact" element={<Contact />} />
 
-          {/* Buyer */}
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
@@ -83,7 +92,6 @@ export default function App() {
           <Route path="/profile" element={<BuyerProfile />} />
         </Route>
 
-        {/* Auth: bina layout ke, poori screen */}
         <Route path="/buyer/login" element={<BuyerLogin />} />
         <Route path="/buyer/register" element={<BuyerRegister />} />
         <Route path="/buyer/forgot-password" element={<BuyerForgotPass />} />
@@ -92,7 +100,6 @@ export default function App() {
         <Route path="/artist/forgot-password" element={<ArtistForgotPass />} />
         <Route path="/admin/login" element={<AdminLogin />} />
 
-        {/* Artist dashboard (sidebar wala) */}
         <Route path="/artist" element={<ArtistLayout />}>
           <Route index element={<ArtistDashboard />} />
           <Route path="artworks" element={<MyArtworks />} />
@@ -106,18 +113,23 @@ export default function App() {
           <Route path="profile" element={<ArtistProfile />} />
         </Route>
 
-        {/* Admin dashboard (sidebar wala) */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="artists" element={<AdminArtists />} />
           <Route path="artworks" element={<AdminArtworks />} />
+          <Route path="sculptures" element={<AdminSculptures />} />
+          <Route path="collections" element={<AdminCollections />} />
+          <Route path="custom-requests" element={<AdminCustomArtRequests />} />
           <Route path="users" element={<Users />} />
           <Route path="orders" element={<AdminOrders />} />
-          <Route path="categories" element={<Categories />} />
-          <Route path="reports" element={<ReportedListings />} />
+          <Route path="payments" element={<AdminPayments />} />
+          <Route path="reviews" element={<AdminReviews />} />
+          <Route path="messages" element={<AdminMessages />} />
+          <Route path="reports" element={<AdminReports />} />
+          <Route path="profile" element={<AdminProfile />} />
+          <Route path="settings" element={<AdminSettings />} />
         </Route>
 
-        {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
