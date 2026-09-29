@@ -1,20 +1,20 @@
 import { ListPage, inr } from "./shared";
-import { ARTWORKS } from "./adminData";
+import { SCULPTURES } from "./adminData";
 
-export default function Artworks() {
+export default function Sculptures() {
   return (
     <ListPage
-      title="Artworks"
-      subtitle="Review, approve and manage the artwork catalogue."
-      data={ARTWORKS}
+      title="Sculptures"
+      subtitle="Manage sculpture listings across the gallery."
+      data={SCULPTURES}
       columns={[
         { label: "Title", key: "title" },
         { label: "Artist", key: "artist" },
-        { label: "Category", key: "category" },
+        { label: "Material", key: "material" },
         { label: "Price", key: "price", fmt: inr },
         { label: "Status", key: "status" },
       ]}
-      searchKeys={["title", "artist", "category"]}
+      searchKeys={["title", "artist", "material"]}
       filterKey="status"
       statusActions={[["Approve", "Approved"], ["Reject", "Rejected"]]}
     />
