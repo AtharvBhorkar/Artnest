@@ -10,7 +10,7 @@ const COLUMNS = [
       { label: 'Artists', href: '/artists' },
       { label: 'Curated Collections', href: '/collections' },
       { label: 'Custom Art', href: '/custom-art' },
-      { label: 'Sculptures', href: '/sculptures' },
+      { label: 'Feed', href: '/feed' },
     ],
   },
   {

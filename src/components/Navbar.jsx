@@ -1,171 +1,307 @@
-import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/logo.png";
-import { MdOutlineVerified, MdMenu, MdClose, MdSearch } from "react-icons/md";
+import {
+  MdClose,
+  MdFavorite,
+  MdFavoriteBorder,
+  MdMenu,
+  MdOutlineShoppingBag,
+  MdPersonOutline,
+} from "react-icons/md";
+import { useWishlist } from "../context/WishlistContext";
+import { useCart } from "../context/CartContext";
+
+/*
+  Abhi login/cart/wishlist ka data nahi hai, isliye neeche mock values hain.
+  - CURRENT_USER = null            -> guest (Login / Register dikhega)
+  - CURRENT_USER.role = "buyer"    -> /profile
+  - CURRENT_USER.role = "artist"   -> /artist/profile
+  - CURRENT_USER.role = "admin"    -> /admin
+  Baad mein developer inhe AuthContext / CartContext se replace kar dega.
+*/
+const CURRENT_USER = {
+  name: "Aarav Mehta",
+  role: "artist",
+  tagline: "Paintings artist",
+  initials: "AM",
+};
+
 
 const NAV_LINKS = [
   { label: "Home", href: "/" },
-  { label: "About ArtNest", href: "/custom-art" },
   { label: "Discover", href: "/discover" },
   { label: "Artists", href: "/artists" },
+  { label: "Custom Art", href: "/custom-art" },
+  { label: "About", href: "/about" },
 ];
+
+const PROFILE_LINK = {
+  buyer: "/profile",
+  artist: "/artist/profile",
+  admin: "/admin",
+};
+
+const ROLE_LABEL = {
+  buyer: "Buyer account",
+  artist: "Artist dashboard",
+  admin: "Admin panel",
+};
+
+function Badge({ count }) {
+  if (!count) return null;
+  return (
+    <span className="absolute -right-[9px] -top-[7px] flex h-4 min-w-4 items-center justify-center rounded-full bg-[#a85a3a] px-1 text-[9px] font-bold text-white">
+      {count > 9 ? "9+" : count}
+    </span>
+  );
+}
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
   const { pathname } = useLocation();
-  const navigate = useNavigate();
-  const isActive = (href) => pathname === href;
+  const { items: wishlistItems } = useWishlist();
+  const { items: cartItems } = useCart();
+  const onWishlist = pathname === "/wishlist";
 
-  const submitSearch = (e) => {
-    e.preventDefault();
-    const q = searchValue.trim();
-    navigate(q ? `/discover?search=${encodeURIComponent(q)}` : "/discover");
-    setSearchOpen(false);
-    setMenuOpen(false);
-  };
+  const isActive = (href) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+  const profileTo = CURRENT_USER ? PROFILE_LINK[CURRENT_USER.role] : "/buyer/login";
+
+  const closeMenu = () => setMenuOpen(false);
+
+
+
+  // Escape dabane par menu / search band ho jaye
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        setMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const iconBtn =
+    "relative flex h-9 w-9 items-center justify-center rounded-full text-[#4d4541] transition-colors hover:bg-[#f1e4d8] hover:text-[#a65335]";
 
   return (
-    <>
-      <nav className="w-full bg-[#fffefe] border-b border-[#eee8e3] font-sans">
-        <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-12">
-          <Link to="/" className="flex shrink-0 items-center">
-            <img src={logo} alt="Athenura" className="h-9 w-auto sm:h-10 lg:h-11" />
-          </Link>
+    <nav className="sticky top-0 z-50 w-full border-b border-[#eee8e3] bg-[#fffefe]/95 font-sans backdrop-blur">
+      <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-12">
+        {/* Logo */}
+        <Link to="/" onClick={closeMenu} className="flex shrink-0 items-center">
+          <img src={logo} alt="ArtNest" className="h-9 w-auto sm:h-10 lg:h-11" />
+        </Link>
 
-          <div className="hidden flex-1 items-center justify-center gap-5 lg:flex xl:gap-[26px]">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.label}
-                to={link.href}
-                className={`whitespace-nowrap text-[13px] transition-colors ${
-                  isActive(link.href)
-                    ? "font-semibold text-[#a65335]"
-                    : "text-[#625650] hover:text-[#a85537]"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-3 sm:gap-[19px]">
-            <div className="relative hidden items-center sm:flex">
-              {searchOpen ? (
-                <form
-                  onSubmit={submitSearch}
-                  className="flex items-center gap-1.5 rounded-full border border-[#e6ded8] bg-white px-3 py-1.5"
-                >
-                  <MdSearch className="shrink-0 text-[#a65335]" size={17} />
-                  <input
-                    autoFocus
-                    type="text"
-                    value={searchValue}
-                    onChange={(e) => setSearchValue(e.target.value)}
-                    onBlur={() => {
-                      if (!searchValue) setSearchOpen(false);
-                    }}
-                    placeholder="Search artworks, artists..."
-                    className="w-36 bg-transparent text-[13px] text-[#29221e] placeholder:text-[#a8917f] focus:outline-none md:w-48"
-                  />
-                </form>
-              ) : (
-                <button
-                  type="button"
-                  aria-label="Search"
-                  onClick={() => setSearchOpen(true)}
-                  className="border-none bg-transparent p-[3px] text-[#4d4541] hover:text-[#a65335] cursor-pointer"
-                >
-                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                    <circle cx="11" cy="11" r="7" />
-                    <path d="M20 20L16.2 16.2" />
-                  </svg>
-                </button>
-              )}
-            </div>
-
+        {/* Desktop links */}
+        <div className="hidden flex-1 items-center justify-center gap-4 lg:flex xl:gap-7">
+          {NAV_LINKS.map((link) => (
             <Link
-              to="/wishlist"
-              aria-label="Wishlist"
-              className="relative border-none bg-transparent p-[3px] text-[#4d4541] hover:text-[#a65335] cursor-pointer"
+              key={link.label}
+              to={link.href}
+              className={`relative whitespace-nowrap py-1 text-[13px] transition-colors ${
+                isActive(link.href)
+                  ? "font-semibold text-[#a65335] after:absolute after:inset-x-0 after:-bottom-[13px] after:h-[2px] after:bg-[#a65335]"
+                  : "text-[#625650] hover:text-[#a85537]"
+              }`}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
-                <path d="M20.8 8.8c0 5.5-8.8 10.2-8.8 10.2S3.2 14.3 3.2 8.8A4.8 4.8 0 0 1 8 4c1.5 0 3 .7 4 2 1-1.3 2.5-2 4-2a4.8 4.8 0 0 1 4.8 4.8Z" />
-              </svg>
-              <span className="absolute -top-[7px] -right-[9px] w-4 h-4 rounded-full bg-[#a85a3a] text-white text-[9px] font-bold flex items-center justify-center">
-                4
-              </span>
+              {link.label}
             </Link>
-
-            <Link
-              to="/cart"
-              aria-label="Cart"
-              className="relative border-none bg-transparent p-[3px] text-[#4d4541] hover:text-[#a65335] cursor-pointer"
-            >
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
-                <path d="M5 8h14l-1 12H6L5 8Z" />
-                <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-              </svg>
-              <span className="absolute -top-[7px] -right-[9px] w-4 h-4 rounded-full bg-[#a85a3a] text-white text-[9px] font-bold flex items-center justify-center">
-                2
-              </span>
-            </Link>
-
-            <div className="hidden h-[30px] w-px bg-[#e6ded8] sm:block" />
-            <Link
-              to="/profile"
-              aria-label="Profile"
-              className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#d6c4ae] to-[#b99a78] text-[9px] font-semibold text-white sm:flex"
-            >
-              AN
-            </Link>
-
-            <button
-              aria-label={menuOpen ? "Close menu" : "Open menu"}
-              aria-expanded={menuOpen}
-              onClick={() => setMenuOpen((v) => !v)}
-              className="flex h-9 w-9 items-center justify-center rounded-[4px] border-none bg-transparent text-[#4d4541] hover:bg-[#f1e4d8] lg:hidden"
-            >
-              {menuOpen ? <MdClose size={22} /> : <MdMenu size={22} />}
-            </button>
-          </div>
+          ))}
         </div>
 
-        {menuOpen && (
-          <div className="border-t border-[#eee8e3] bg-[#fffefe] px-4 pb-4 pt-3 sm:px-6 lg:hidden">
-            <form
-              onSubmit={submitSearch}
-              className="mb-3 flex items-center gap-1.5 rounded-full border border-[#e6ded8] bg-white px-3 py-2"
-            >
-              <MdSearch className="shrink-0 text-[#a65335]" size={17} />
-              <input
-                type="text"
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                placeholder="Search artworks, artists..."
-                className="w-full bg-transparent text-[14px] text-[#29221e] placeholder:text-[#a8917f] focus:outline-none"
-              />
-            </form>
+        {/* Reels 3D button (desktop) */}
+        <div className="hidden lg:block">
+          <Link
+            to="/feed"
+            className={`nav-reel ${pathname.startsWith("/feed") ? "is-active" : ""}`}
+          >
+            Feed
+          </Link>
+        </div>
 
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.label}
-                to={link.href}
-                onClick={() => setMenuOpen(false)}
-                className={`block rounded-[4px] px-2 py-2.5 text-[14px] ${
-                  isActive(link.href)
-                    ? "font-semibold text-[#a65335]"
-                    : "text-[#625650] hover:bg-[#f1e4d8] hover:text-[#a85537]"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+        {/* Right side */}
+        <div className="flex items-center gap-1 sm:gap-2">
+
+
+          {/* Wishlist */}
+          <Link to="/wishlist" aria-label="Wishlist" className={iconBtn}>
+            {onWishlist ? (
+              <MdFavorite
+                size={21}
+                className="animate-[pulse_2.4s_ease-in-out_infinite] text-[#a65335]"
+              />
+            ) : (
+              <MdFavoriteBorder size={21} />
+            )}
+            <Badge count={wishlistItems.length} />
+          </Link>
+
+          {/* Cart */}
+          <Link to="/cart" aria-label="Cart" className={iconBtn}>
+            <MdOutlineShoppingBag size={21} />
+            <Badge count={cartItems.length} />
+          </Link>
+
+          <div className="mx-1 hidden h-[26px] w-px bg-[#e6ded8] sm:block" />
+
+          {/* Profile icon + hover card (desktop) */}
+          <div className="group relative hidden sm:block">
+            <Link
+              to={profileTo}
+              aria-label="Profile"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#d6c4ae] to-[#b99a78] text-[11px] font-semibold text-white"
+            >
+              {CURRENT_USER ? CURRENT_USER.initials : <MdPersonOutline size={19} />}
+            </Link>
+
+            <div className="invisible absolute right-0 top-full z-50 w-64 pt-3 opacity-0 transition duration-150 group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+              <div className="rounded-xl border border-[#e6ded8] bg-white p-4 shadow-[0_15px_30px_rgba(65,43,31,0.12)]">
+                {CURRENT_USER ? (
+                  <>
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#d6c4ae] to-[#b99a78] text-[12px] font-semibold text-white">
+                        {CURRENT_USER.initials}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-[14px] font-semibold text-[#29221e]">
+                          {CURRENT_USER.name}
+                        </p>
+                        <p className="truncate text-[12px] text-[#765e51]">
+                          {CURRENT_USER.tagline}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="mt-3 text-[12px] text-[#a8917f]">
+                      {ROLE_LABEL[CURRENT_USER.role]}
+                    </p>
+                    <Link
+                      to={profileTo}
+                      className="mt-3 inline-block text-[13px] font-semibold text-[#a65335] hover:text-[#8f462c]"
+                    >
+                      Open profile &rarr;
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-[14px] font-semibold text-[#29221e]">
+                      Welcome to ArtNest
+                    </p>
+                    <p className="mt-1 text-[12px] leading-[1.5] text-[#765e51]">
+                      Login karke wishlist, cart aur orders dekho.
+                    </p>
+                    <div className="mt-3 flex gap-2">
+                      <Link
+                        to="/buyer/login"
+                        className="flex-1 rounded-[3px] bg-[#a65335] py-2 text-center text-[13px] font-semibold text-white hover:bg-[#8f462c]"
+                      >
+                        Login
+                      </Link>
+                      <Link
+                        to="/buyer/register"
+                        className="flex-1 rounded-[3px] border border-[#a65335] py-2 text-center text-[13px] font-semibold text-[#a65335] hover:bg-[#f8eadc]"
+                      >
+                        Register
+                      </Link>
+                    </div>
+                    <Link
+                      to="/artist/register"
+                      className="mt-3 inline-block text-[12px] text-[#765e51] hover:text-[#a65335]"
+                    >
+                      Artist ho? Join as artist &rarr;
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
-        )}
-      </nav>
-    </>
+
+          {/* Hamburger (mobile / tablet) */}
+          <button
+            type="button"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((v) => !v)}
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-[4px] text-[#4d4541] hover:bg-[#f1e4d8] lg:hidden"
+          >
+            {menuOpen ? <MdClose size={22} /> : <MdMenu size={22} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile / tablet menu */}
+      {menuOpen && (
+        <div className="max-h-[calc(100vh-64px)] overflow-y-auto border-t border-[#eee8e3] bg-[#fffefe] px-4 pb-5 pt-3 sm:px-6 lg:hidden">
+
+
+          <div className="mb-3 mt-1">
+            <Link
+              to="/feed"
+              onClick={closeMenu}
+              className={`nav-reel !w-full ${pathname.startsWith("/feed") ? "is-active" : ""}`}
+            >
+              Reels
+            </Link>
+          </div>
+
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.label}
+              to={link.href}
+              onClick={closeMenu}
+              className={`block rounded-[4px] px-2 py-2.5 text-[14px] ${
+                isActive(link.href)
+                  ? "bg-[#f8eadc] font-semibold text-[#a65335]"
+                  : "text-[#625650] hover:bg-[#f1e4d8] hover:text-[#a85537]"
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
+
+          <div className="mt-3 border-t border-[#eee8e3] pt-3">
+            {CURRENT_USER ? (
+              <Link
+                to={profileTo}
+                onClick={closeMenu}
+                className="flex items-center gap-3 rounded-[4px] px-2 py-2 hover:bg-[#f1e4d8]"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#d6c4ae] to-[#b99a78] text-[12px] font-semibold text-white">
+                  {CURRENT_USER.initials}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-[14px] font-semibold text-[#29221e]">
+                    {CURRENT_USER.name}
+                  </p>
+                  <p className="truncate text-[12px] text-[#765e51]">
+                    {ROLE_LABEL[CURRENT_USER.role]}
+                  </p>
+                </div>
+              </Link>
+            ) : (
+              <div className="flex gap-2">
+                <Link
+                  to="/buyer/login"
+                  onClick={closeMenu}
+                  className="flex-1 rounded-[3px] bg-[#a65335] py-2.5 text-center text-[14px] font-semibold text-white"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/buyer/register"
+                  onClick={closeMenu}
+                  className="flex-1 rounded-[3px] border border-[#a65335] py-2.5 text-center text-[14px] font-semibold text-[#a65335]"
+                >
+                  Register
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </nav>
   );
 };
 

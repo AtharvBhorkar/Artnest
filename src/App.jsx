@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
 // Layouts
 import PublicLayout from "./layouts/PublicLayout";
 import ArtistLayout from "./layouts/ArtistLayout";
@@ -8,7 +7,6 @@ import AdminLayout from "./layouts/AdminLayout";
 // Public pages
 import Home from "./pages/public/Home";
 import Discover from "./pages/public/Discover";
-import Sculptures from "./pages/public/Sculptures";
 import Collections from "./pages/public/Collections";
 import ArtworkDetail from "./pages/public/ArtworkDetail";
 import Artists from "./pages/public/Artists";
@@ -19,6 +17,7 @@ import Contact from "./pages/public/Contact";
 import Privacy from "./pages/public/Privacy";
 import Terms from "./pages/public/Terms";
 import NotFound from "./pages/public/NotFound";
+import Feed from "./pages/public/Feed";
 
 // Auth pages
 import BuyerLogin from "./pages/auth/BuyerLogin";
@@ -71,7 +70,6 @@ export default function App() {
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/discover" element={<Discover />} />
-          <Route path="/sculptures" element={<Sculptures />} />
           <Route path="/collections" element={<Collections />} />
           <Route path="/artwork/:id" element={<ArtworkDetail />} />
           <Route path="/artists" element={<Artists />} />
@@ -91,6 +89,7 @@ export default function App() {
           <Route path="/profile" element={<BuyerProfile />} />
         </Route>
 
+        <Route path="/feed" element={<Feed />} />
         <Route path="/buyer/login" element={<BuyerLogin />} />
         <Route path="/buyer/register" element={<BuyerRegister />} />
         <Route path="/buyer/forgot-password" element={<BuyerForgotPass />} />

@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import discVideo from "../../assets/disc.mp4";
+import { useWishlist } from "../../context/WishlistContext";
 import {
   Search,
   Heart,
@@ -14,6 +16,7 @@ import {
   Sparkles,
   Eye,
 } from "lucide-react";
+const ITEMS_PER_PAGE = 6;
 const CATEGORIES = [
   { id: "paintings", label: "Paintings", count: 415 },
   { id: "sculptures", label: "Sculptures", count: 226 },
@@ -82,7 +85,7 @@ function Checkbox({ checked, onChange, label, count }) {
 function Hero({ query, setQuery }) {
   return (
     <section className="disc-hero">
-      <div className="disc-hero-bg" />
+      <video className="disc-hero-bg" src={discVideo} poster="https://images.unsplash.com/photo-1577720580479-7d839d829c73?q=80&w=1920&auto=format&fit=crop" autoPlay muted loop playsInline />
       <div className="disc-hero-scrim" />
       <div className="disc-hero-inner">
         <motion.p
@@ -212,20 +215,6 @@ function Sidebar({
           </label>
         ))}
       </div>
-
-      <div className="disc-filter-group">
-        <Checkbox checked={vetted} onChange={() => setVetted((v) => !v)} label="Vetted Master Artists" />
-        <p className="disc-hint">4.8 & above curator rating</p>
-      </div>
-
-      <div className="disc-advisory">
-        <Sparkles size={16} strokeWidth={1.6} />
-        <div>
-          <h4>Private advisory</h4>
-          <p>Looking for bespoke installation or site‑specific architectural work?</p>
-          <button type="button">Talk to a curator</button>
-        </div>
-      </div>
     </>
   );
 
@@ -266,10 +255,8 @@ function ArtworkCard({ art, view, favorite, toggleFavorite, onAcquire }) {
   return (
     <motion.article
       className={`disc-card ${view === "list" ? "is-list" : ""}`}
-      layout
       initial={{ opacity: 0, y: 18, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.97 }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       whileHover={{ y: -6 }}
     >
@@ -301,7 +288,7 @@ function ArtworkCard({ art, view, favorite, toggleFavorite, onAcquire }) {
             <span className="disc-card-value">₹{art.value.toLocaleString()}</span>
           </div>
           <button className="disc-acquire" type="button" onClick={() => onAcquire(art)}>
-            Acquire
+            View
           </button>
         </div>
       </div>
@@ -309,9 +296,26 @@ function ArtworkCard({ art, view, favorite, toggleFavorite, onAcquire }) {
   );
 }
 
-function ArtworkDetailModal({ art, onClose }) {
+function ArtworkDetailModal({ art, onClose, favorite, toggleFavorite }) {
   const [showFullImage, setShowFullImage] = useState(false);
+  const [toast, setToast] = useState("");
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(""), 1800);
+    return () => clearTimeout(t);
+  }, [toast]);
+
   if (!art) return null;
+
+  const handleWishlist = () => {
+    toggleFavorite(art.id);
+    setToast(favorite ? "Removed from wishlist" : "Added to wishlist");
+  };
+
+  const handleCart = () => {
+    setToast("Added to cart");
+  };
   return (
     <>
       <motion.div
@@ -394,9 +398,38 @@ function ArtworkDetailModal({ art, onClose }) {
               <span className="disc-card-value-label">Current value</span>
               <span className="disc-modal-value">₹{art.value.toLocaleString()}</span>
             </div>
-            <button className="disc-acquire" type="button">
-              Confirm Acquisition
-            </button>
+            <div className="disc-modal-actions">
+              <AnimatePresence>
+                {toast && (
+                  <motion.span
+                    key={toast}
+                    className="disc-modal-toast"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 6 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {toast}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+
+              <button
+                className={`disc-wish-btn ${favorite ? "is-fav" : ""}`}
+                type="button"
+                onClick={handleWishlist}
+                data-tip={favorite ? "Remove from wishlist" : "Add to wishlist"}
+                aria-label={favorite ? "Remove from wishlist" : "Add to wishlist"}
+              >
+                <motion.span whileTap={{ scale: 0.8 }} style={{ display: "flex" }}>
+                  <Heart size={18} strokeWidth={1.8} fill={favorite ? "currentColor" : "none"} />
+                </motion.span>
+              </button>
+
+              <button className="disc-acquire" type="button" onClick={handleCart}>
+                Add to cart
+              </button>
+            </div>
           </div>
         </div>
       </motion.div>
@@ -422,9 +455,7 @@ function ArtworkDetailModal({ art, onClose }) {
 export default function Discover() {
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState("");
-  const [activeCategories, setActiveCategories] = useState(
-    CATEGORIES.map((c) => c.id).filter((id) => id !== "digital" && id !== "textile" && id !== "printmaking")
-  );
+  const [activeCategories, setActiveCategories] = useState([]);
 
   // Coming from a Home page "Explore by Medium" card (e.g. /discover?category=paintings)
   // narrows the sidebar down to just that one category. No matching/valid
@@ -445,15 +476,15 @@ export default function Discover() {
     }
   }, [searchParams]);
   const [price, setPrice] = useState([100, 9500]);
-  const [mediums, setMediums] = useState(["Oil", "Stoneware"]);
+  const [mediums, setMediums] = useState([]);
   const [size, setSize] = useState("");
-  const [vetted, setVetted] = useState(true);
+  const [vetted, setVetted] = useState(false);
   const [sort, setSort] = useState("Curated / Recommended");
   const [sortOpen, setSortOpen] = useState(false);
   const [view, setView] = useState("grid");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [page, setPage] = useState(1);
-  const [favorites, setFavorites] = useState(new Set());
+  const { favorites, toggle } = useWishlist();
   const [selectedArt, setSelectedArt] = useState(null);
 
   const toggleCategory = (id) =>
@@ -462,12 +493,10 @@ export default function Discover() {
   const toggleMedium = (m) =>
     setMediums((prev) => (prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]));
 
-  const toggleFavorite = (id) =>
-    setFavorites((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+  const toggleFavorite = (id) => {
+    const art = ARTWORKS.find((a) => a.id === id);
+    if (art) toggle(art);
+  };
 
   const clearAll = () => {
     setActiveCategories([]);
@@ -476,7 +505,9 @@ export default function Discover() {
     setSize("");
     setVetted(false);
   };
-
+  useEffect(() => {
+    setPage(1);
+  }, [activeCategories, price, query]);
   const filtered = useMemo(() => {
     return ARTWORKS.filter((a) => {
       if (activeCategories.length && !activeCategories.includes(a.category)) return false;
@@ -485,6 +516,18 @@ export default function Discover() {
       return true;
     });
   }, [activeCategories, price, query]);
+  const goToPage = (n) => {
+    setPage(n);
+    document
+      .querySelector(".disc-toolbar")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const currentPage = Math.min(page, totalPages);
+  const paginated = filtered.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <div className="disc-app">
@@ -572,20 +615,21 @@ export default function Discover() {
             </div>
           </div>
 
-          <motion.div layout className={`disc-grid ${view === "list" ? "is-list" : ""}`}>
-            <AnimatePresence mode="popLayout">
-              {filtered.map((art) => (
-                <ArtworkCard
-                  key={art.id}
-                  art={art}
-                  view={view}
-                  favorite={favorites.has(art.id)}
-                  toggleFavorite={toggleFavorite}
-                  onAcquire={setSelectedArt}
-                />
-              ))}
-            </AnimatePresence>
-          </motion.div>
+          <div
+            key={`${currentPage}-${view}`}
+            className={`disc-grid ${view === "list" ? "is-list" : ""}`}
+          >
+            {paginated.map((art) => (
+              <ArtworkCard
+                key={art.id}
+                art={art}
+                view={view}
+                favorite={favorites.has(art.id)}
+                toggleFavorite={toggleFavorite}
+                onAcquire={setSelectedArt}
+              />
+            ))}
+          </div>
 
           {filtered.length === 0 && (
             <div className="disc-empty">
@@ -598,24 +642,27 @@ export default function Discover() {
 
           <div className="disc-pagination">
             <button
-              disabled={page === 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              onClick={() => goToPage(Math.max(1, currentPage - 1))}
               type="button"
             >
               <ChevronLeft size={16} />
             </button>
-            {[1, 2, 3].map((n) => (
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
               <button
                 key={n}
-                className={page === n ? "is-active" : ""}
-                onClick={() => setPage(n)}
+                className={currentPage === n ? "is-active" : ""}
+                onClick={() => goToPage(n)}
                 type="button"
               >
                 {n}
               </button>
             ))}
-            <span className="disc-page-dots">…</span>
-            <button onClick={() => setPage((p) => p + 1)} type="button">
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
+              type="button"
+            >
               <ChevronRight size={16} />
             </button>
           </div>
@@ -624,7 +671,12 @@ export default function Discover() {
 
       <AnimatePresence>
         {selectedArt && (
-          <ArtworkDetailModal art={selectedArt} onClose={() => setSelectedArt(null)} />
+          <ArtworkDetailModal
+            art={selectedArt}
+            onClose={() => setSelectedArt(null)}
+            favorite={favorites.has(selectedArt.id)}
+            toggleFavorite={toggleFavorite}
+          />
         )}
       </AnimatePresence>
 
@@ -652,7 +704,7 @@ export default function Discover() {
 
         .disc-hero {
           position: relative;
-          min-height: 78vh;
+          min-height: 100vh;
           display: flex;
           align-items: center;
           overflow: hidden;
@@ -664,14 +716,16 @@ export default function Discover() {
         }
         .disc-hero-bg {
           position: absolute; inset: 0;
-          background-image: url('https://images.unsplash.com/photo-1577720580479-7d839d829c73?q=80&w=1920&auto=format&fit=crop');
+          width: 100%; height: 100%; object-fit: cover;
           background-size: cover;
-          background-position: center 40%;
+          object-position: center 40%;
           transform: scale(1.02);
         }
         .disc-hero-scrim {
           position: absolute; inset: 0;
-          background: linear-gradient(180deg, rgba(20,15,10,.62) 0%, rgba(20,15,10,.5) 40%, rgba(20,15,10,.86) 100%);
+          background:
+            radial-gradient(ellipse 60% 55% at 50% 50%, rgba(20,15,10,.72) 0%, rgba(20,15,10,.45) 55%, rgba(20,15,10,0) 100%),
+            linear-gradient(180deg, rgba(20,15,10,.55) 0%, rgba(20,15,10,.35) 40%, rgba(20,15,10,.86) 100%);
         }
         .disc-hero-fade {
           position: absolute; left: 0; right: 0; bottom: 0; height: 90px;
@@ -683,6 +737,14 @@ export default function Discover() {
           margin: 0 auto;
           padding: 0 28px;
           text-align: center;
+        }
+        .disc-hero-inner::before {
+          content: "";
+          position: absolute; z-index: -1;
+          inset: -60px -80px;
+          background: radial-gradient(ellipse at center, rgba(20,15,10,.6) 0%, rgba(20,15,10,.3) 50%, rgba(20,15,10,0) 75%);
+          filter: blur(20px);
+          pointer-events: none;
         }
         .disc-hero-eyebrow {
           font-size: 13px; letter-spacing: .04em;
@@ -833,6 +895,7 @@ export default function Discover() {
         .disc-toolbar {
           display: flex; align-items: center; gap: 18px;
           margin-bottom: 22px; flex-wrap: wrap;
+          scroll-margin-top: 90px;
         }
         .disc-filter-toggle {
           display: none; align-items: center; gap: 6px;
@@ -976,11 +1039,11 @@ export default function Discover() {
           .disc-grid { grid-template-columns: 1fr; }
           .disc-card.is-list { flex-direction: column; }
           .disc-card.is-list .disc-card-media { width: 100%; aspect-ratio: 4/3.1; }
-          .disc-hero { min-height: 88vh; }
+          .disc-hero { min-height: 100vh; }
         }
 
         @media (max-width: 480px) {
-          .disc-hero { min-height: 92vh; }
+          .disc-hero { min-height: 100vh; }
           .disc-hero-inner { padding: 0 18px; }
           .disc-hero-search { flex-wrap: wrap; padding: 10px 10px; border-radius: 22px; }
           .disc-hero-search input { width: 100%; order: 3; padding: 4px 2px 2px; }
@@ -1085,6 +1148,39 @@ export default function Discover() {
           padding-top: 14px;
         }
         .disc-modal-value { font-family: var(--serif); font-size: 22px; font-weight: 500; display: block; }
+
+        .disc-modal-actions {
+          position: relative; display: flex; align-items: center; gap: 10px;
+        }
+        .disc-wish-btn {
+          position: relative;
+          width: 40px; height: 40px; border-radius: 50%;
+          border: 1px solid var(--line); background: var(--paper-2);
+          display: flex; align-items: center; justify-content: center;
+          color: var(--ink-soft); cursor: pointer;
+          transition: color .2s ease, border-color .2s ease;
+        }
+        .disc-wish-btn:hover { border-color: var(--wine); color: var(--wine); }
+        .disc-wish-btn.is-fav { color: var(--wine); border-color: var(--wine); }
+        .disc-wish-btn::after {
+          content: attr(data-tip);
+          position: absolute; bottom: calc(100% + 8px); left: 50%;
+          transform: translateX(-50%) translateY(4px);
+          background: var(--ink); color: var(--paper);
+          font-size: 11.5px; white-space: nowrap;
+          padding: 5px 9px; border-radius: 6px;
+          opacity: 0; pointer-events: none;
+          transition: opacity .15s ease, transform .15s ease;
+        }
+        .disc-wish-btn:hover::after {
+          opacity: 1; transform: translateX(-50%) translateY(0);
+        }
+        .disc-modal-toast {
+          position: absolute; right: 0; bottom: calc(100% + 46px);
+          background: var(--brass-deep); color: var(--paper);
+          font-size: 12px; padding: 6px 12px; border-radius: 999px;
+          white-space: nowrap; box-shadow: 0 8px 20px rgba(0,0,0,.18);
+        }
 
         @media (max-width: 900px) {
           .disc-modal { grid-template-columns: 1fr; height: min(90vh, 680px); }

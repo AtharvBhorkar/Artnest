@@ -589,7 +589,7 @@ const Home = () => {
               </h2>
             </div>
             <Link
-              to="/sculptures"
+              to="/discover?category=sculptures"
               className="shrink-0 border-b border-[#a65335]/40 pb-0.5 text-[13px] font-semibold text-[#a65335] transition-colors hover:border-[#8f462c] hover:text-[#8f462c]"
             >
               View all sculptures
