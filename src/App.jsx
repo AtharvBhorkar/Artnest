@@ -62,7 +62,6 @@ import AdminPayments from "./pages/admin/Payments";
 import AdminReviews from "./pages/admin/Reviews";
 import AdminMessages from "./pages/admin/Messages";
 import AdminReports from "./pages/admin/Reports";
-import AdminProfile from "./pages/admin/Profile";
 import AdminSettings from "./pages/admin/Settings";
 
 export default function App() {
@@ -126,7 +125,6 @@ export default function App() {
           <Route path="reviews" element={<AdminReviews />} />
           <Route path="messages" element={<AdminMessages />} />
           <Route path="reports" element={<AdminReports />} />
-          <Route path="profile" element={<AdminProfile />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>
 
