@@ -29,6 +29,7 @@ import ArtistForgotPass from "./pages/auth/ArtistForgotPass";
 import AdminLogin from "./pages/auth/AdminLogin";
 
 // Buyer pages
+import BuyerDashboard from "./pages/buyer/Dashboard";
 import Wishlist from "./pages/buyer/Wishlist";
 import Cart from "./pages/buyer/Cart";
 import Checkout from "./pages/buyer/Checkout";
@@ -80,6 +81,7 @@ export default function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/contact" element={<Contact />} />
 
+          <Route path="/dashboard" element={<BuyerDashboard />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />

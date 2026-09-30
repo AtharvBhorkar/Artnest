@@ -39,7 +39,7 @@ const NAV_LINKS = [
 ];
 
 const PROFILE_LINK = {
-  buyer: "/profile",
+  buyer: "/dashboard",
   artist: "/artist/profile",
   admin: "/admin",
 };

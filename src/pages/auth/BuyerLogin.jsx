@@ -115,7 +115,7 @@ export default function BuyerLogin() {
             type="button"
             onClick={() => {
               login("buyer");
-              navigate("/");
+              navigate("/dashboard");
             }}
             className="w-full flex items-center justify-center gap-2 rounded-lg bg-[#A5522F] py-2.5 text-[13px] font-semibold text-white shadow-sm transition hover:bg-[#8f4526]"
           >
