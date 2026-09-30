@@ -1,56 +1,238 @@
-import { useState } from "react";
-import { PageHeader, Card, Field } from "./shared";
+import React, { useState } from "react";
+import { Mail, ChevronDown } from "lucide-react";
+
+function Card({ title, children }) {
+  return (
+    <div className="bg-white border border-[#E8E1DB] rounded-2xl p-6 shadow-sm">
+      <h2 className="font-['Playfair_Display'] text-[22px] text-[#362F26] mb-6">{title}</h2>
+      {children}
+    </div>
+  );
+}
+
+function Field({ label, type = "text", value, onChange, placeholder, icon, className = "" }) {
+  return (
+    <div className={className}>
+      <label className="text-[14px] text-[#A28F7D] mb-2 block">{label}</label>
+      <div className="relative">
+        <input
+          type={type}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          className="w-full h-12 px-4 rounded-lg border border-[#E8E1DB] bg-[#F9F8F6] text-[14px] text-[#362F26] placeholder:text-[#A28F7D] focus:outline-none focus:border-[#9F5639] transition-colors"
+        />
+        {icon && (
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#2D6A4F]">
+            {icon}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Select({ label, value, onChange, options, className = "" }) {
+  return (
+    <div className={className}>
+      <label className="text-[14px] text-[#A28F7D] mb-2 block">{label}</label>
+      <div className="relative">
+        <select
+          value={value}
+          onChange={onChange}
+          className="w-full h-12 pl-4 pr-10 rounded-lg border border-[#E8E1DB] bg-[#F9F8F6] text-[14px] text-[#362F26] focus:outline-none focus:border-[#9F5639] transition-colors appearance-none cursor-pointer"
+        >
+          {options.map((o) => (
+            <option key={o} value={o}>{o}</option>
+          ))}
+        </select>
+        <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A28F7D] pointer-events-none" />
+      </div>
+    </div>
+  );
+}
 
 function Toggle({ label, hint, checked, onChange }) {
   return (
-    <div className="flex items-center justify-between border-b border-[#efe7de] py-3 last:border-0">
+    <div className="flex items-center justify-between border-b border-[#E8E1DB] py-4 last:border-b-0">
       <div>
-        <p className="text-[14px]">{label}</p>
-        <p className="text-[12px] text-[#736153]">{hint}</p>
+        <p className="text-[14px] font-medium text-[#362F26]">{label}</p>
+        <p className="text-[13px] text-[#A28F7D] mt-0.5">{hint}</p>
       </div>
       <button
         type="button"
         onClick={() => onChange(!checked)}
-        aria-pressed={checked}
-        className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${checked ? "bg-[#9f5639]" : "bg-[#d9cdbd]"}`}
+        className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${
+          checked ? "bg-[#9F5639]" : "bg-[#E8E1DB]"
+        }`}
       >
-        <span className={`absolute top-[3px] h-[18px] w-[18px] rounded-full bg-white transition-transform ${checked ? "translate-x-[22px]" : "translate-x-[3px]"}`} />
+        <span
+          className={`absolute top-[3px] w-[18px] h-[18px] rounded-full bg-white transition-transform ${
+            checked ? "translate-x-[23px]" : "translate-x-[3px]"
+          }`}
+        />
       </button>
     </div>
   );
 }
 
 export default function Settings() {
-  const [form, setForm] = useState({ name: "ArtNest", email: "support@artnest.in", commission: "15" });
-  const [alerts, setAlerts] = useState({ orders: true, artists: true, reviews: false });
+  const [general, setGeneral] = useState({
+    websiteName: "ArtNest",
+    logoUrl: "/assets/artnest-logo.svg",
+    contactEmail: "hello@artnest.com",
+    phone: "+91 98765 43210",
+    address: "14, MG Road, Bengaluru, Karnataka",
+  });
+
+  const [admin, setAdmin] = useState({
+    name: "Amara Deshmukh",
+    email: "amara@artnest.com",
+    imageUrl: "/assets/admin-avatar.jpg",
+    password: "••••••••",
+  });
+
+  const [notifs, setNotifs] = useState({
+    email: true,
+    orders: true,
+    artists: false,
+    reviews: true,
+  });
+
+  const [payment, setPayment] = useState({
+    currency: "INR (₹)",
+    tax: "18",
+    methods: "UPI, Cards, Bank transfer",
+  });
+
   const [saved, setSaved] = useState(false);
 
-  const set = (k) => (e) => { setForm({ ...form, [k]: e.target.value }); setSaved(false); };
-  const toggle = (k) => (v) => { setAlerts({ ...alerts, [k]: v }); setSaved(false); };
+  function handleSave() {
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  }
 
   return (
-    <div className="max-w-[720px] space-y-6">
-      <PageHeader title="Settings" subtitle="Configure the storefront and admin preferences." />
-
-      <Card title="Store details">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Store name" value={form.name} onChange={set("name")} />
-          <Field label="Support email" type="email" value={form.email} onChange={set("email")} />
-          <Field label="Platform commission (%)" type="number" value={form.commission} onChange={set("commission")} />
+    <div className="p-6 max-w-[1400px] mx-auto space-y-6 font-['Plus_Jakarta_Sans']">
+      <Card title="General">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <Field
+            label="Website name"
+            value={general.websiteName}
+            onChange={(e) => setGeneral({ ...general, websiteName: e.target.value })}
+          />
+          <Field
+            label="Website logo URL"
+            value={general.logoUrl}
+            onChange={(e) => setGeneral({ ...general, logoUrl: e.target.value })}
+          />
+          <Field
+            label="Contact email"
+            type="email"
+            value={general.contactEmail}
+            onChange={(e) => setGeneral({ ...general, contactEmail: e.target.value })}
+            icon={<Mail size={18} />}
+          />
+          <Field
+            label="Phone"
+            value={general.phone}
+            onChange={(e) => setGeneral({ ...general, phone: e.target.value })}
+          />
+          <Field
+            label="Address"
+            value={general.address}
+            onChange={(e) => setGeneral({ ...general, address: e.target.value })}
+            className="md:col-span-2"
+          />
         </div>
       </Card>
 
-      <Card title="Email alerts">
-        <Toggle label="New orders" hint="Get an email for every order placed." checked={alerts.orders} onChange={toggle("orders")} />
-        <Toggle label="New artist sign-ups" hint="When an artist applies for verification." checked={alerts.artists} onChange={toggle("artists")} />
-        <Toggle label="Flagged reviews" hint="When a buyer review needs moderation." checked={alerts.reviews} onChange={toggle("reviews")} />
+      <Card title="Admin profile">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <Field
+            label="Name"
+            value={admin.name}
+            onChange={(e) => setAdmin({ ...admin, name: e.target.value })}
+          />
+          <Field
+            label="Email"
+            type="email"
+            value={admin.email}
+            onChange={(e) => setAdmin({ ...admin, email: e.target.value })}
+            icon={<Mail size={18} />}
+          />
+          <Field
+            label="Profile image URL"
+            value={admin.imageUrl}
+            onChange={(e) => setAdmin({ ...admin, imageUrl: e.target.value })}
+          />
+          <Field
+            label="New password"
+            type="password"
+            value={admin.password}
+            onChange={(e) => setAdmin({ ...admin, password: e.target.value })}
+          />
+        </div>
       </Card>
 
-      <div className="flex items-center gap-3">
-        <button type="button" onClick={() => setSaved(true)} className="rounded-lg bg-[#9f5639] px-5 py-2.5 text-[14px] font-medium text-white hover:bg-[#8a4a30]">
-          Save changes
+      <Card title="Notifications">
+        <Toggle
+          label="Email notifications"
+          hint="Receive a daily summary email"
+          checked={notifs.email}
+          onChange={(v) => setNotifs({ ...notifs, email: v })}
+        />
+        <Toggle
+          label="Order notifications"
+          hint="Alert on every new order"
+          checked={notifs.orders}
+          onChange={(v) => setNotifs({ ...notifs, orders: v })}
+        />
+        <Toggle
+          label="Artist notifications"
+          hint="New artist sign-ups and submissions"
+          checked={notifs.artists}
+          onChange={(v) => setNotifs({ ...notifs, artists: v })}
+        />
+        <Toggle
+          label="Review notifications"
+          hint="New review left on any artwork"
+          checked={notifs.reviews}
+          onChange={(v) => setNotifs({ ...notifs, reviews: v })}
+        />
+      </Card>
+
+      <Card title="Payment settings">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <Select
+            label="Currency"
+            value={payment.currency}
+            onChange={(e) => setPayment({ ...payment, currency: e.target.value })}
+            options={["INR (₹)", "USD ($)"]}
+          />
+          <Field
+            label="Tax (%)"
+            type="number"
+            value={payment.tax}
+            onChange={(e) => setPayment({ ...payment, tax: e.target.value })}
+          />
+          <Select
+            label="Payment methods"
+            value={payment.methods}
+            onChange={(e) => setPayment({ ...payment, methods: e.target.value })}
+            options={["UPI, Cards, Bank transfer", "UPI only", "Cards only"]}
+          />
+        </div>
+      </Card>
+
+      <div className="flex justify-end pt-2">
+        <button
+          type="button"
+          onClick={handleSave}
+          className="h-12 px-7 rounded-full bg-[#9F5639] text-white text-[14px] font-medium hover:bg-[#8A4930] transition-colors"
+        >
+          {saved ? "Saved ✓" : "Save changes"}
         </button>
-        {saved && <span className="text-[13px] text-emerald-700">Changes saved.</span>}
       </div>
     </div>
   );

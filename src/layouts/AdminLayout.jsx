@@ -17,7 +17,7 @@ const NAV = [
   ]],
   ["Sales", [
     ["Orders", "/admin/orders", ShoppingBag],
-    ["Custom Art Requests", "/admin/custom-art", Palette],
+    ["Custom Art Requests", "/admin/custom-requests", Palette],
     ["Payments", "/admin/payments", CreditCard],
   ]],
   ["Community", [
@@ -28,7 +28,6 @@ const NAV = [
   ["Insights", [["Reports", "/admin/reports", TrendingUp]]],
   ["Account", [
     ["Settings", "/admin/settings", Settings],
-    ["Profile", "/admin/profile", User],
   ]],
 ];
 
@@ -45,7 +44,7 @@ function SideNav({ onNavigate }) {
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-4">
+      <nav className="flex-1 overflow-y-auto px-3 py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {NAV.map(([section, items]) => (
           <div key={section} className="mb-4">
             <p className="px-3 pb-2 font-serif text-[11px] font-semibold uppercase tracking-[0.12em] text-[#9a8b78]">
