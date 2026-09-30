@@ -8,7 +8,7 @@ const COLUMNS = [
     links: [
       { label: 'Discover', href: '/discover' },
       { label: 'Artists', href: '/artists' },
-      { label: 'Curated Collections', href: '/curated-collections' },
+      { label: 'Curated Collections', href: '/collections' },
       { label: 'Custom Art', href: '/custom-art' },
       { label: 'Sculptures', href: '/sculptures' },
     ],
@@ -16,7 +16,7 @@ const COLUMNS = [
   {
     heading: 'Company',
     links: [
-      { label: 'About', href: '/about' },
+      { label: 'About ArtNest', href: '/about' },
       { label: 'The Journal', href: '/journal' },
       { label: 'Sell your work', href: '/sell' },
       { label: 'Careers', href: '/careers' },

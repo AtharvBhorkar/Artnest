@@ -5,12 +5,10 @@ import { MdOutlineVerified, MdMenu, MdClose, MdSearch } from "react-icons/md";
 
 const NAV_LINKS = [
   { label: "Home", href: "/" },
+  { label: "About ArtNest", href: "/custom-art" },
   { label: "Discover", href: "/discover" },
   { label: "Artists", href: "/artists" },
   { label: "Sculptures", href: "/sculptures" },
-  { label: "Curated Collections", href: "/curated-collections" },
-  { label: "Custom Art", href: "/custom-art" },
-  { label: "About", href: "/about" },
 ];
 
 const Navbar = () => {
