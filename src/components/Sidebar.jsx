@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import {
   LayoutDashboard, Image, ShoppingBag, Palette, Wallet, Star,
   MessageSquare, CircleUser, LogOut, Sparkles,
@@ -28,6 +29,7 @@ const linkCls = ({ isActive }) =>
 
 export default function Sidebar() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   return (
     <aside className="sticky top-0 hidden h-screen w-[280px] shrink-0 flex-col bg-[#362F26] text-[#E3D8CC] lg:flex">
@@ -67,7 +69,10 @@ export default function Sidebar() {
         </NavLink>
         <button
           type="button"
-          onClick={() => navigate("/artist/login")}
+          onClick={() => {
+            logout();
+            navigate("/artist/login");
+          }}
           className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-[15px] text-[#E3D8CC] transition-colors hover:bg-[#40372E]"
         >
           <LogOut size={19} className="shrink-0" />

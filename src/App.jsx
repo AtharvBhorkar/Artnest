@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 // Layouts
 import PublicLayout from "./layouts/PublicLayout";
 import ArtistLayout from "./layouts/ArtistLayout";
@@ -126,6 +126,22 @@ export default function App() {
           <Route path="reports" element={<AdminReports />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>
+
+        {/* short aliases */}
+        <Route path="/adminLogin" element={<Navigate to="/admin/login" replace />} />
+        <Route path="/artistLogin" element={<Navigate to="/artist/login" replace />} />
+        <Route path="/artistReg" element={<Navigate to="/artist/register" replace />} />
+        <Route path="/artistForgotPass" element={<Navigate to="/artist/forgot-password" replace />} />
+        <Route path="/buyerLogin" element={<Navigate to="/buyer/login" replace />} />
+        <Route path="/buyerReg" element={<Navigate to="/buyer/register" replace />} />
+        <Route path="/buyerForgotPass" element={<Navigate to="/buyer/forgot-password" replace />} />
+
+        <Route path="/login/buyer" element={<Navigate to="/buyer/login" replace />} />
+        <Route path="/login/artist" element={<Navigate to="/artist/login" replace />} />
+        <Route path="/register/buyer" element={<Navigate to="/buyer/register" replace />} />
+        <Route path="/register/artist" element={<Navigate to="/artist/register" replace />} />
+        <Route path="/forgot-password/buyer" element={<Navigate to="/buyer/forgot-password" replace />} />
+        <Route path="/forgot-password/artist" element={<Navigate to="/artist/forgot-password" replace />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

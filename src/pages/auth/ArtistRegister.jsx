@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Percent, ShieldCheck, Truck, Check } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 48 48">
@@ -57,6 +58,7 @@ const FEATURES = [
 const MEDIUMS = ["Painting", "Sculptures", "Ceramics", "Mixed Media", "Photography"];
 
 export default function ArtistSignup() {
+  const navigate = useNavigate();
   const [selected, setSelected] = useState(["Painting", "Sculptures"]);
   const [agree, setAgree] = useState(false);
 
@@ -211,6 +213,14 @@ export default function ArtistSignup() {
             variants={item}
             whileHover={{ y: -1 }}
             whileTap={{ scale: 0.98 }}
+            type="button"
+            onClick={() => {
+              if (!agree) {
+                alert("Please accept the terms to continue.");
+                return;
+              }
+              navigate("/artist/login");
+            }}
             className="w-full flex items-center justify-center gap-2 rounded-lg bg-[#A5522F] py-2.5 text-[13px] font-semibold text-white shadow-sm transition hover:bg-[#8f4526]"
           >
             Create Artist Account <ArrowRight size={14} />

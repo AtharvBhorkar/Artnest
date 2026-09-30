@@ -1,16 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/logo.png";
 import {
   MdClose,
   MdFavorite,
   MdFavoriteBorder,
+  MdKeyboardArrowDown,
   MdMenu,
   MdOutlineShoppingBag,
   MdPersonOutline,
 } from "react-icons/md";
 import { useWishlist } from "../context/WishlistContext";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 
 /*
   Abhi login/cart/wishlist ka data nahi hai, isliye neeche mock values hain.
@@ -62,6 +64,9 @@ const Navbar = () => {
   const { pathname } = useLocation();
   const { items: wishlistItems } = useWishlist();
   const { items: cartItems } = useCart();
+  const { user: CURRENT_USER, logout } = useAuth();
+  const [loginOpen, setLoginOpen] = useState(false);
+  const loginRef = useRef(null);
   const onWishlist = pathname === "/wishlist";
 
   const isActive = (href) =>
@@ -78,10 +83,18 @@ const Navbar = () => {
     const onKey = (e) => {
       if (e.key === "Escape") {
         setMenuOpen(false);
+        setLoginOpen(false);
       }
     };
+    const onClick = (e) => {
+      if (loginRef.current && !loginRef.current.contains(e.target)) setLoginOpen(false);
+    };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("mousedown", onClick);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("mousedown", onClick);
+    };
   }, []);
 
   const iconBtn =
@@ -147,7 +160,53 @@ const Navbar = () => {
 
           <div className="mx-1 hidden h-[26px] w-px bg-[#e6ded8] sm:block" />
 
-          {/* Profile icon + hover card (desktop) */}
+          {/* Guest: Login button + Buyer/Artist options (desktop) */}
+          {!CURRENT_USER && (
+            <div ref={loginRef} className="relative hidden sm:block">
+              <button
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded={loginOpen}
+                onClick={() => setLoginOpen((v) => !v)}
+                className="flex h-9 cursor-pointer items-center gap-1 rounded-full bg-[#a65335] pl-4 pr-3 text-[13px] font-semibold text-white transition-colors hover:bg-[#8f462c]"
+              >
+                Login
+                <MdKeyboardArrowDown
+                  size={18}
+                  className={`transition-transform ${loginOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+
+              {loginOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border border-[#e6ded8] bg-white p-1.5 shadow-[0_15px_30px_rgba(65,43,31,0.12)]"
+                >
+                  <Link
+                    to="/buyer/login"
+                    role="menuitem"
+                    onClick={() => setLoginOpen(false)}
+                    className="block rounded-lg px-3 py-2.5 hover:bg-[#f8eadc]"
+                  >
+                    <span className="block text-[13px] font-semibold text-[#29221e]">Login as Buyer</span>
+                    <span className="block text-[11.5px] text-[#765e51]">Browse, save and buy art</span>
+                  </Link>
+                  <Link
+                    to="/artist/login"
+                    role="menuitem"
+                    onClick={() => setLoginOpen(false)}
+                    className="block rounded-lg px-3 py-2.5 hover:bg-[#f8eadc]"
+                  >
+                    <span className="block text-[13px] font-semibold text-[#29221e]">Login as Artist</span>
+                    <span className="block text-[11.5px] text-[#765e51]">Manage your studio and sales</span>
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Logged in: profile avatar + hover card (desktop) */}
+          {CURRENT_USER && (
           <div className="group relative hidden sm:block">
             <Link
               to={profileTo}
@@ -183,6 +242,13 @@ const Navbar = () => {
                     >
                       Open profile &rarr;
                     </Link>
+                    <button
+                      type="button"
+                      onClick={logout}
+                      className="mt-3 block cursor-pointer text-[13px] font-semibold text-[#765e51] hover:text-[#a65335]"
+                    >
+                      Logout
+                    </button>
                   </>
                 ) : (
                   <>
@@ -217,6 +283,7 @@ const Navbar = () => {
               </div>
             </div>
           </div>
+          )}
 
           {/* Hamburger (mobile / tablet) */}
           <button
@@ -287,16 +354,29 @@ const Navbar = () => {
                   onClick={closeMenu}
                   className="flex-1 rounded-[3px] bg-[#a65335] py-2.5 text-center text-[14px] font-semibold text-white"
                 >
-                  Login
+                  Buyer Login
                 </Link>
                 <Link
-                  to="/buyer/register"
+                  to="/artist/login"
                   onClick={closeMenu}
                   className="flex-1 rounded-[3px] border border-[#a65335] py-2.5 text-center text-[14px] font-semibold text-[#a65335]"
                 >
-                  Register
+                  Artist Login
                 </Link>
               </div>
+            )}
+
+            {CURRENT_USER && (
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  closeMenu();
+                }}
+                className="mt-2 w-full cursor-pointer rounded-[3px] border border-[#e6ded8] py-2.5 text-[14px] font-semibold text-[#765e51]"
+              >
+                Logout
+              </button>
             )}
           </div>
         </div>

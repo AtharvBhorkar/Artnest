@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Eye, EyeOff, Percent, ShieldCheck, Truck } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 48 48">
@@ -33,6 +34,7 @@ const FEATURES = [
 ];
 
 export default function ArtistLogin() {
+  const navigate = useNavigate();
   const [showPw, setShowPw] = useState(false);
   const [remember, setRemember] = useState(true);
 
@@ -160,6 +162,8 @@ export default function ArtistLogin() {
             variants={item}
             whileHover={{ y: -1 }}
             whileTap={{ scale: 0.98 }}
+            type="button"
+            onClick={() => navigate("/")}
             className="w-full flex items-center justify-center gap-2 rounded-lg bg-[#A5522F] py-2.5 text-[13px] font-semibold text-white shadow-sm transition hover:bg-[#8f4526]"
           >
             Sign In <ArrowRight size={14} />
