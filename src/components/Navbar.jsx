@@ -8,7 +8,6 @@ const NAV_LINKS = [
   { label: "About ArtNest", href: "/custom-art" },
   { label: "Discover", href: "/discover" },
   { label: "Artists", href: "/artists" },
-  { label: "Sculptures", href: "/sculptures" },
 ];
 
 const Navbar = () => {
