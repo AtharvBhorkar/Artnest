@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { Heart } from "lucide-react";
+import { motion } from "framer-motion";
 import { IoMdBrush } from "react-icons/io";
 import { IoCameraOutline, IoColorPaletteOutline } from "react-icons/io5";
 import heroImage from "../../assets/Hero-img.png";
@@ -197,6 +199,19 @@ const ARTISTS = [
   },
 ];
 
+const CURATED_ARTWORKS = [
+  PAINTINGS[0],
+  PAINTINGS[1],
+  PAINTINGS[2],
+  PAINTINGS[3],
+  PAINTINGS[4],
+  PAINTINGS[5],
+  PAINTINGS[6],
+  PAINTINGS[7],
+  SCULPTURES[0],
+  SCULPTURES[1],
+];
+
 function EyebrowLabel({ children }) {
   return (
     <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.8px] text-[#984c30] sm:text-xs">
@@ -212,9 +227,8 @@ function ArtworkCard({ work, tall = false }) {
       className="group block overflow-hidden rounded-[10px] border border-[#eee8e3] bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(80,50,30,0.10)]"
     >
       <div
-        className={`overflow-hidden bg-[#f8eadc] p-3 ${
-          tall ? "aspect-[4/5]" : "aspect-square"
-        }`}
+        className={`overflow-hidden bg-[#f8eadc] p-3 ${tall ? "aspect-[4/5]" : "aspect-square"
+          }`}
       >
         <img
           src={work.img}
@@ -270,7 +284,123 @@ function ArtistCard({ artist }) {
   );
 }
 
+
+function CuratedArtworkCard({ work, index, onAddToWishlist, isWishlisted }) {
+  const directions = [
+    { x: -120, y: -60 },
+    { x: 0, y: -120 },
+    { x: 120, y: -60 },
+    { x: 120, y: 80 },
+    { x: -100, y: 0 },
+    { x: 0, y: 120 },
+    { x: 100, y: 40 },
+    { x: -100, y: 80 },
+    { x: -80, y: 120 },
+    { x: 120, y: 100 },
+  ];
+
+  const direction = directions[index];
+
+  return (
+    <motion.div
+      initial={{
+        opacity: 0,
+        x: direction.x,
+        y: direction.y,
+        scale: 0.94,
+      }}
+      whileInView={{
+        opacity: 1,
+        x: 0,
+        y: 0,
+        scale: 1,
+      }}
+      viewport={{
+        once: true,
+        amount: 0.2,
+      }}
+      transition={{
+        duration: 0.75,
+        delay: index * 0.08,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      className="group relative h-full overflow-hidden rounded-[12px] bg-[#eaded5]"
+    >
+      {/* Artwork */}
+      <img
+        src={work.img}
+        alt={work.title}
+        className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
+      />
+
+      {/* Bottom gradient */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[rgba(20,13,9,0.85)] via-[rgba(20,13,9,0.18)] to-transparent" />
+
+      {/* Wishlist */}
+      <button
+        onClick={() => onAddToWishlist(work)}
+        className={`absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:bg-white ${isWishlisted
+            ? "text-[#a85431]"
+            : "text-[#4a3429]"
+          }`}
+        aria-label="Add to wishlist"
+      >
+        <Heart
+          size={19}
+          strokeWidth={1.8}
+          fill={isWishlisted ? "currentColor" : "none"}
+        />
+      </button>
+
+      {/* Artwork details */}
+      <div className="absolute inset-x-0 bottom-0 z-10 p-5">
+        <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.8px] text-[#f3dfd0]">
+          {work.medium}
+        </p>
+
+        <h3 className="font-serif text-[21px] leading-[1.1] text-white">
+          {work.title}
+        </h3>
+
+        <p className="mt-1 text-[12px] text-[#eadfd8]">
+          {work.artist}
+        </p>
+
+        <p className="mt-1 text-[13px] font-medium text-white">
+          {work.price}
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
 const Home = () => {
+  const [wishlist, setWishlist] = useState(() => {
+    return JSON.parse(localStorage.getItem("artnest-wishlist")) || [];
+  });
+
+  const addToWishlist = (work) => {
+    setWishlist((currentWishlist) => {
+
+      const alreadyExists = currentWishlist.some(
+        (item) => item.title === work.title
+      );
+
+      const updatedWishlist = alreadyExists
+        ? currentWishlist.filter(
+          (item) => item.title !== work.title
+        )
+        : [...currentWishlist, work];
+
+      localStorage.setItem(
+        "artnest-wishlist",
+        JSON.stringify(updatedWishlist)
+      );
+
+      return updatedWishlist;
+    });
+  };
+
   return (
     <div>
       <section className="w-full bg-[#fff8f3]">
@@ -336,13 +466,13 @@ const Home = () => {
           </div>
 
           <div className="w-full max-w-[340px] lg:hidden">
-  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[7px] bg-[#d7c8b8] shadow-[0_15px_30px_rgba(65,43,31,0.13)]">
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[7px] bg-[#d7c8b8] shadow-[0_15px_30px_rgba(65,43,31,0.13)]">
               <img
                 src={heroImage}
                 alt="Original sculpture"
                 className="block h-full w-full object-cover"
               />
-              
+
             </div>
           </div>
 
@@ -353,7 +483,7 @@ const Home = () => {
                 alt="Original sculpture"
                 className="block h-full w-full object-cover"
               />
-              
+
             </div>
 
             <div className="absolute right-[55px] top-0 h-[150px] w-[130px] overflow-hidden rounded-[6px] bg-white shadow-[0_8px_20px_rgba(60,42,31,0.12)]">
@@ -489,10 +619,9 @@ const Home = () => {
                 >
                   <span
                     className={`
-                      ${
-                        medium.name === "Textile"
-                          ? "text-[17px] font-semibold tracking-[-2px]"
-                          : "text-[25px]"
+                      ${medium.name === "Textile"
+                        ? "text-[17px] font-semibold tracking-[-2px]"
+                        : "text-[25px]"
                       }
                     `}
                   >
@@ -628,54 +757,147 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="w-full bg-white px-5 sm:px-8 lg:px-[5%] py-12 sm:py-14 lg:py-16">
-        <div className="mx-auto max-w-[1600px]">
-          <EyebrowLabel>Curated Collections</EyebrowLabel>
-          <h2 className="font-serif text-[34px] leading-none text-[#201a17] sm:text-[40px] lg:text-[42px]">
-            Two ways into the collection
-          </h2>
+      {/* =========================================================
+    CURATED COLLECTION
+========================================================= */}
 
-          <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
-            <Link
-              to="/collections"
-              className="group relative overflow-hidden rounded-[10px]"
-            >
-              <img
-                src="https://picsum.photos/seed/collection-coastal/900/650"
-                alt="Coastal Light collection"
-                className="aspect-[4/3] w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[rgba(25,17,12,0.75)] via-transparent to-transparent" />
-              <div className="absolute bottom-0 left-0 p-6">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.5px] text-[#f0dfd0]">
-                  Collection
-                </span>
-                <h3 className="mt-1 font-serif text-[26px] leading-none text-white">
-                  Coastal Light
-                </h3>
-              </div>
-            </Link>
-            <Link
-              to="/collections"
-              className="group relative overflow-hidden rounded-[10px]"
-            >
-              <img
-                src="https://picsum.photos/seed/collection-form/900/650"
-                alt="Studies in Form collection"
-                className="aspect-[4/3] w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[rgba(25,17,12,0.75)] via-transparent to-transparent" />
-              <div className="absolute bottom-0 left-0 p-6">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.5px] text-[#f0dfd0]">
-                  Collection
-                </span>
-                <h3 className="mt-1 font-serif text-[26px] leading-none text-white">
-                  Studies in Form
-                </h3>
-              </div>
-            </Link>
+      <section className="w-full bg-[#fff8f3] px-5 py-16 sm:px-8 lg:px-[5%] lg:py-20">
+
+        <div className="mx-auto max-w-[1600px]">
+
+          {/* Heading */}
+          <div className="mb-10 flex flex-col gap-5 border-b border-[#e8ddd5] pb-6 sm:flex-row sm:items-end sm:justify-between">
+
+            <div>
+              <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[1px] text-[#a85431]">
+                CURATED COLLECTION
+              </span>
+
+              <h2 className="font-serif text-[36px] font-normal leading-[1.05] text-[#201a17] sm:text-[42px] lg:text-[46px]">
+                Art worth making room for
+              </h2>
+            </div>
+
+            <p className="max-w-[430px] text-[14px] leading-[1.6] text-[#665650] sm:text-[15px]">
+              A considered selection of paintings and sculptures
+              from artists worth discovering.
+            </p>
+
           </div>
+
+
+          {/* Bento Grid */}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4 lg:[grid-auto-rows:150px]">
+
+            {/* Card 1 */}
+            <div className="h-[400px] sm:h-auto lg:col-span-1 lg:row-span-3">
+              <CuratedArtworkCard
+                work={CURATED_ARTWORKS[0]}
+                index={0}
+                onAddToWishlist={addToWishlist}
+                isWishlisted={wishlist.some(
+                  (item) => item.id === CURATED_ARTWORKS[0].id
+                )}
+              />
+            </div>
+
+
+            {/* Card 2 */}
+            <div className="h-[260px] sm:h-auto lg:col-span-1 lg:row-span-1">
+              <CuratedArtworkCard
+                work={CURATED_ARTWORKS[1]}
+                index={1}
+                onAddToWishlist={addToWishlist}
+                isWishlisted={wishlist.some(
+                  (item) => item.id === CURATED_ARTWORKS[1].id
+                )}
+              />
+            </div>
+
+
+            {/* Card 3 */}
+            <div className="h-[260px] sm:h-auto lg:col-span-1 lg:row-span-1">
+              <CuratedArtworkCard
+                work={CURATED_ARTWORKS[2]}
+                index={2}
+                onAddToWishlist={addToWishlist}
+                isWishlisted={wishlist.some(
+                  (item) => item.id === CURATED_ARTWORKS[2].id
+                )}
+              />
+            </div>
+
+
+            {/* Card 4 */}
+            <div className="h-[400px] sm:h-auto lg:col-span-1 lg:row-span-2">
+              <CuratedArtworkCard
+                work={CURATED_ARTWORKS[3]}
+                index={3}
+                onAddToWishlist={addToWishlist}
+                isWishlisted={wishlist.some(
+                  (item) => item.id === CURATED_ARTWORKS[3].id
+                )}
+              />
+            </div>
+
+
+            {/* Card 5 */}
+            <div className="h-[260px] sm:h-auto lg:col-span-1 lg:row-span-1">
+              <CuratedArtworkCard
+                work={CURATED_ARTWORKS[4]}
+                index={4}
+                onAddToWishlist={addToWishlist}
+                isWishlisted={wishlist.some(
+                  (item) => item.id === CURATED_ARTWORKS[4].id
+                )}
+              />
+            </div>
+
+
+            {/* Card 6 */}
+            <div className="h-[400px] sm:h-auto lg:col-span-1 lg:row-span-2">
+              <CuratedArtworkCard
+                work={CURATED_ARTWORKS[5]}
+                index={5}
+                onAddToWishlist={addToWishlist}
+                isWishlisted={wishlist.some(
+                  (item) => item.id === CURATED_ARTWORKS[5].id
+                )}
+              />
+            </div>
+
+
+            {/* Card 7 */}
+            <div className="h-[260px] sm:h-auto lg:col-span-1 lg:row-span-1">
+              <CuratedArtworkCard
+                work={CURATED_ARTWORKS[6]}
+                index={6}
+                onAddToWishlist={addToWishlist}
+                isWishlisted={wishlist.some(
+                  (item) => item.id === CURATED_ARTWORKS[6].id
+                )}
+              />
+            </div>
+
+
+            {/* Card 8 */}
+            <div className="h-[260px] sm:h-auto lg:col-span-1 lg:row-span-1">
+              <CuratedArtworkCard
+                work={CURATED_ARTWORKS[7]}
+                index={7}
+                onAddToWishlist={addToWishlist}
+                isWishlisted={wishlist.some(
+                  (item) => item.id === CURATED_ARTWORKS[7].id
+                )}
+              />
+            </div>
+
+
+
+          </div>
+
         </div>
+
       </section>
 
       <section className="w-full border-y border-[#eee8e3] bg-[#fff8f3]">
