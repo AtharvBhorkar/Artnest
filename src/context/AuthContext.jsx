@@ -3,10 +3,10 @@ import { createContext, useCallback, useContext, useMemo, useState } from "react
 const STORAGE_KEY = "artnest_user";
 const AuthContext = createContext(null);
 
-// Backend abhi nahi hai, isliye role ke hisaab se demo profile banti hai.
 const DEMO_USERS = {
   buyer: { name: "Aarav Nair", tagline: "Art collector", initials: "AN", role: "buyer" },
   artist: { name: "Aarav Mehta", tagline: "Paintings artist", initials: "AM", role: "artist" },
+  admin: { name: "ArtNest Admin", tagline: "Administrator", initials: "AD", role: "admin" },
 };
 
 function load() {
@@ -27,7 +27,6 @@ export function AuthProvider({ children }) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
     } catch {
-      /* ignore */
     }
   }, []);
 
@@ -36,7 +35,6 @@ export function AuthProvider({ children }) {
     try {
       localStorage.removeItem(STORAGE_KEY);
     } catch {
-      /* ignore */
     }
   }, []);
 
