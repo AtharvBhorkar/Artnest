@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { Navigate, NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Users, Image, Gem, LayoutGrid, ShoppingBag, Palette,
   CreditCard, UserCog, Star, MessageSquare, TrendingUp, Settings, User,
-  Menu, Sparkles,
+  Menu, Sparkles, LogOut,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
-// [label, path, icon, badge?]
 const NAV = [
   ["Overview", [["Dashboard", "/admin", LayoutDashboard]]],
   ["Catalogue", [
@@ -31,7 +31,7 @@ const NAV = [
   ]],
 ];
 
-function SideNav({ onNavigate }) {
+function SideNav({ onNavigate, onLogout }) {
   return (
     <div className="flex h-full flex-col bg-[#352d25] text-[#d9cdbd]">
       <div className="flex items-center gap-3 border-b border-white/10 px-5 py-5">
@@ -81,24 +81,45 @@ function SideNav({ onNavigate }) {
           </div>
         ))}
       </nav>
+
+      <div className="border-t border-white/10 p-3">
+        <button
+          type="button"
+          onClick={onLogout}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[14px] transition-colors hover:bg-white/5 hover:text-white"
+        >
+          <LogOut size={18} strokeWidth={1.6} />
+          Log out
+        </button>
+      </div>
     </div>
   );
 }
 
 export default function AdminLayout() {
   const [open, setOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  // sirf admin andar aa sakta hai
+  if (!user || user.role !== "admin") return <Navigate to="/admin/login" replace />;
+
+  const signOut = () => {
+    logout();
+    navigate("/admin/login");
+  };
 
   return (
     <div className="flex min-h-screen bg-[#f6f1ea] text-[#29221e]">
       <aside className="sticky top-0 hidden h-screen w-[250px] shrink-0 lg:block">
-        <SideNav />
+        <SideNav onLogout={signOut} />
       </aside>
 
       {open && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} />
           <aside className="absolute inset-y-0 left-0 w-[260px]">
-            <SideNav onNavigate={() => setOpen(false)} />
+            <SideNav onNavigate={() => setOpen(false)} onLogout={signOut} />
           </aside>
         </div>
       )}

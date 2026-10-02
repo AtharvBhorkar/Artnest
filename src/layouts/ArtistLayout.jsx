@@ -1,6 +1,7 @@
-import { Outlet, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { Bell, ChevronDown } from "lucide-react";
 import Sidebar from "../components/Sidebar";
+import { useAuth } from "../context/AuthContext";
 
 const TITLES = {
   "/artist": ["Dashboard", "Your studio at a glance."],
@@ -22,7 +23,10 @@ function titleFor(pathname) {
 
 export default function ArtistLayout() {
   const { pathname } = useLocation();
+  const { user } = useAuth();
   const [title, subtitle] = titleFor(pathname);
+
+  if (!user || user.role !== "artist") return <Navigate to="/artist/login" replace />;
 
   return (
     <div className="flex min-h-screen bg-[#F9F8F6]">
