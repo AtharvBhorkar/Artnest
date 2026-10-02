@@ -10,12 +10,20 @@ const INITIAL = [
   { id: "ORD-10242", buyer: "Vikram Nair", item: "City in Ochre", amount: 21800, date: "17 Sep 2026", status: "Delivered" },
   { id: "ORD-10241", buyer: "Ishaan Joshi", item: "Still Water Study", amount: 15600, date: "16 Sep 2026", status: "Cancelled" },
 ];
-const TABS = ["All", "Processing", "Shipped", "Delivered"];
+const TABS = ["All", "New", "Confirmed", "Packed"];
 const ACTIONS = {
-  Processing: [["Mark shipped", "Shipped", "primary"], ["Cancel", "Cancelled", "danger"]],
-  Shipped: [], 
-  Delivered: [],
-  Cancelled: [["Reopen", "Processing", "ghost"]],
+  New: [["Order confirmed", "Confirmed", "primary"]],
+  Confirmed: [["Packed", "Packed", "primary"]],
+  Packed: [],
+};
+const STAGE_KEY = "artnest_order_stage";
+const STATUS_OF = ["New", "Confirmed", "Packed"];
+const readStages = () => {
+  try {
+    return JSON.parse(localStorage.getItem(STAGE_KEY)) || {};
+  } catch {
+    return {};
+  }
 };
 const BTN = {
   primary: "bg-[#9F5639] text-white hover:bg-[#8A4A30]",
@@ -24,9 +32,8 @@ const BTN = {
 };
 
 const ALL_ACTIONS = [
-  ["Mark shipped", "Shipped", "primary"],
-  ["Cancel order", "Cancelled", "danger"],
-  ["Reopen order", "Processing", "ghost"],
+  ["Order confirmed", "Confirmed", "primary"],
+  ["Packed", "Packed", "primary"],
 ];
 
 const DETAILS = {
@@ -37,17 +44,31 @@ const DETAILS = {
   "ORD-10241": { phone: "+91 99300 55667", payment: "UPI", address: "5 Park Street, Kolkata, West Bengal 700016" },
 };
 const FALLBACK = { phone: "—", payment: "—", address: "Address not provided" };
-const STEPS = ["Placed", "Processing", "Shipped", "Delivered"];
-const STEP_INDEX = { Processing: 1, Shipped: 2, Delivered: 3 };
+const STEPS = ["Placed", "Confirmed", "Packed"];
+const STEP_INDEX = { Confirmed: 1, Packed: 2 };
 
 export default function Orders() {
   const [orders, setOrders] = useState(() => {
-    let received = [];
+    const stages = readStages();
+    let placed = [];
     try {
-      received = JSON.parse(localStorage.getItem("artnest_received_orders")) || [];
+      placed = (JSON.parse(localStorage.getItem("artnest_orders")) || [])
+        .filter((o) => o?.items?.length)
+        .map((o) => ({
+          id: o.id,
+          buyer: o.address?.name || "Buyer",
+          item: o.items.length > 1 ? `${o.items[0].title} + ${o.items.length - 1} more` : o.items[0].title,
+          amount: o.total,
+          date: new Date(o.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
+          phone: o.address?.phone,
+          payment: o.payment,
+          address: o.address
+            ? [o.address.line, o.address.city, [o.address.state, o.address.pin].filter(Boolean).join(" ")].filter(Boolean).join(", ")
+            : undefined,
+        }));
     } catch {
     }
-    return INITIAL.map((o) => (received.includes(o.id) ? { ...o, status: "Delivered", byBuyer: true } : o));
+    return [...placed, ...INITIAL].map((o) => ({ ...o, status: STATUS_OF[stages[o.id] ?? 0] }));
   });
   const [tab, setTab] = useState("All");
   const [viewId, setViewId] = useState(null);
@@ -55,8 +76,15 @@ export default function Orders() {
 
   const shown = orders.filter((o) => tab === "All" || o.status === tab);
   const count = (t) => (t === "All" ? orders.length : orders.filter((o) => o.status === t).length);
-  const advance = (id, status) =>
+  const advance = (id, status) => {
     setOrders((os) => os.map((o) => (o.id === id ? { ...o, status } : o)));
+    try {
+      const stages = readStages();
+      stages[id] = STATUS_OF.indexOf(status);
+      localStorage.setItem(STAGE_KEY, JSON.stringify(stages));
+    } catch {
+    }
+  };
 
   const change = (o, next) => {
     if (next === "Cancelled" && !window.confirm(`Cancel ${o.id}?`)) return;
@@ -143,7 +171,11 @@ export default function Orders() {
       </div>
 
             {current && (() => {
-        const d = DETAILS[current.id] || FALLBACK;
+        const d = DETAILS[current.id] || {
+          phone: current.phone || FALLBACK.phone,
+          payment: current.payment || FALLBACK.payment,
+          address: current.address || FALLBACK.address,
+        };
         const step = STEP_INDEX[current.status] ?? 0;
         const cancelled = current.status === "Cancelled";
 
@@ -230,13 +262,8 @@ export default function Orders() {
                       );
                     })}
                   </div>
-                  {current.status === "Shipped" && (
-                    <p className="mt-2 text-[12.5px] text-[#A28F7D]">Waiting for the buyer to confirm they received it.</p>
-                  )}
-                  {current.status === "Delivered" && (
-                    <p className="mt-2 text-[12.5px] text-[#4C6B3F]">
-                      {current.byBuyer ? "Buyer confirmed receipt." : "This order is delivered."}
-                    </p>
+                  {current.status === "Packed" && (
+                    <p className="mt-2 text-[12.5px] text-[#4C6B3F]">Order packed. Buyer ko update mil gaya.</p>
                   )}
                 </div>
               </div>

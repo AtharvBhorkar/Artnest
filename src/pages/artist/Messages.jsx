@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Send } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 const INITIAL = [
   { id: 1, name: "Priya Sharma", subject: "Portrait Commission", unread: true, msgs: [
@@ -15,9 +16,28 @@ const INITIAL = [
   ] },
 ];
 
+const MSG_KEY = "artnest_messages";
+const readStored = () => {
+  try {
+    return JSON.parse(localStorage.getItem(MSG_KEY)) || [];
+  } catch {
+    return [];
+  }
+};
+const fromStored = (name) =>
+  readStored().filter((t) => t.artist === name).map((t) => ({
+    id: `o-${t.id}`,
+    orderId: t.id,
+    name: t.buyer,
+    subject: t.subject,
+    unread: t.msgs[t.msgs.length - 1]?.from === "buyer",
+    msgs: t.msgs.map((m) => ({ from: m.from === "artist" ? "me" : "them", text: m.text, time: m.time })),
+  }));
+
 export default function Messages() {
-  const [threads, setThreads] = useState(INITIAL);
-  const [activeId, setActiveId] = useState(INITIAL[0].id);
+  const { user } = useAuth();
+  const [threads, setThreads] = useState(() => [...fromStored(user?.name), ...INITIAL]);
+  const [activeId, setActiveId] = useState(() => (fromStored(user?.name)[0] || INITIAL[0]).id);
   const [text, setText] = useState("");
 
   const active = threads.find((t) => t.id === activeId);
@@ -35,6 +55,15 @@ export default function Messages() {
     setThreads((ts) =>
       ts.map((t) => (t.id === activeId ? { ...t, msgs: [...t.msgs, { from: "me", text: body, time }] } : t))
     );
+    if (active.orderId) {
+      try {
+        const list = readStored().map((t) =>
+          t.id === active.orderId ? { ...t, msgs: [...t.msgs, { from: "artist", text: body, time }] } : t
+        );
+        localStorage.setItem(MSG_KEY, JSON.stringify(list));
+      } catch {
+      }
+    }
     setText("");
   };
 
