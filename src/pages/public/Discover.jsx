@@ -33,7 +33,7 @@ const MEDIUMS = [
   "Marble", "Porcelain", "Watercolor", "Charcoal", "Wood", "Glass",
 ];
 
-const ARTWORKS = [
+const BASE_ARTWORKS = [
   { id: 1, title: "Resonance in Sienna No. IV", artist: "Elena Voss", location: "Lyon, France", category: "paintings", medium: "Oil on Heavy Canvas", dims: "120 x 90 cm", value: 4200, img: "https://images.unsplash.com/photo-1541961017774-22349e4a1262?q=80&w=900&auto=format&fit=crop", tag: "Original Oil" },
   { id: 2, title: "Volcanic Tellic Amphora", artist: "Renzo Takahashi", location: "Kyoto, Japan", category: "ceramics", medium: "Stoneware & Ash Glaze", dims: "44 x 28 cm", value: 850, img: "https://images.unsplash.com/photo-1610701596007-11502861dcfa?q=80&w=900&auto=format&fit=crop", tag: "Wood-Fired Stoneware" },
   { id: 3, title: "Tectonic Equilibrium", artist: "Matteo Rinni", location: "Carrara, Italy", category: "sculptures", medium: "Hand-Carved Marble", dims: "60 x 38 x 30 cm", value: 7800, img: "https://images.unsplash.com/photo-1554188248-986adbb73be4?q=80&w=900&auto=format&fit=crop", tag: "Carved Travertine" },
@@ -55,6 +55,16 @@ const ARTWORKS = [
   { id: 19, title: "Riverbed Monotype III", artist: "Ananya Deshpande", location: "Jaipur, India", category: "printmaking", medium: "Monotype on Rag Paper", dims: "38 x 50 cm", value: 540, img: "https://images.unsplash.com/photo-1578301978018-3005759f48f7?q=80&w=900&auto=format&fit=crop", tag: "Monotype Print" },
   { id: 20, title: "Threadbare Constellations", artist: "Julian Cross", location: "London, UK", category: "textile", medium: "Embroidery on Linen", dims: "60 x 60 cm", value: 1290, img: "https://images.unsplash.com/photo-1520222984843-df35ebc0f24d?q=80&w=900&auto=format&fit=crop", tag: "Hand Embroidery" },
 ];
+
+const loadArtistArtworks = () => {
+  try {
+    return (JSON.parse(localStorage.getItem("artnest_artist_artworks")) || []).filter(
+      (a) => a.status === "Published" && a.img
+    );
+  } catch {
+    return [];
+  }
+};
 
 function Chip({ active, onClick, children }) {
   return (
@@ -383,6 +393,7 @@ function ArtworkDetailModal({ art, onClose, favorite, toggleFavorite }) {
 
           <div className="disc-modal-desc">
             <h4>About this piece</h4>
+            {art.description && <p>{art.description}</p>}
             <p>
               "{art.title}" is an original work by {art.artist}, created in {art.location}.
               Rendered in {art.medium.toLowerCase()}, this piece measures {art.dims} and
@@ -490,6 +501,7 @@ export default function Discover() {
   const [page, setPage] = useState(1);
   const { favorites, toggle } = useWishlist();
   const [selectedArt, setSelectedArt] = useState(null);
+  const ARTWORKS = useMemo(() => [...loadArtistArtworks(), ...BASE_ARTWORKS], []);
 
   const toggleCategory = (id) =>
     setActiveCategories((prev) => (prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]));
@@ -519,7 +531,7 @@ export default function Discover() {
       if (query && !`${a.title} ${a.artist}`.toLowerCase().includes(query.toLowerCase())) return false;
       return true;
     });
-  }, [activeCategories, price, query]);
+  }, [ARTWORKS, activeCategories, price, query]);
   const goToPage = (n) => {
     setPage(n);
     document

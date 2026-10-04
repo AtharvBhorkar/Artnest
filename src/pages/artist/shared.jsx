@@ -15,7 +15,7 @@ const TONES = {
   gray: "bg-[#EFE9E1] text-[#736153]",
 };
 const MAP = {
-  New: "amber", "In Progress": "amber", Processing: "amber", Pending: "amber", Shipped: "amber",
+  New: "amber", "In Progress": "amber", Processing: "amber", Pending: "amber", Shipped: "amber", Confirmed: "amber", Packed: "green",
   Completed: "green", Delivered: "green", Paid: "green", Published: "green",
   Declined: "red", Cancelled: "red",
   Draft: "gray", Sold: "gray",

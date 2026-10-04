@@ -131,7 +131,7 @@ const Navbar = () => {
             to="/feed"
             className={`nav-reel ${pathname.startsWith("/feed") ? "is-active" : ""}`}
           >
-            Feed
+            Offer Feed
           </Link>
         </div>
 

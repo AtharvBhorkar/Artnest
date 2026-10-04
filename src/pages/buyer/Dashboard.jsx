@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { Heart, ShoppingBag, Package, Wallet, Palette, Truck, Check, Star } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
@@ -7,7 +7,8 @@ import { useWishlist } from "../../context/WishlistContext";
 import { ARTWORKS, getArtwork } from "../../data/artworks";
 
 const inr = (n) => "₹" + Number(n).toLocaleString("en-IN");
-const STAGES = ["Placed", "Shipped", "Delivered"];
+const STAGES = ["Placed", "Confirmed", "Packed"];
+const STAGE_KEY = "artnest_order_stage";
 const DELIVERED = 2;
 
 const ORDERS = [
@@ -212,6 +213,76 @@ function ReviewModal({ order, buyer, onClose }) {
   );
 }
 
+const MSG_KEY = "artnest_messages";
+function readThreads() {
+  try {
+    return JSON.parse(localStorage.getItem(MSG_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function MessageModal({ order, buyer, onClose }) {
+  const [msgs, setMsgs] = useState(() => readThreads().find((t) => t.id === order.id)?.msgs || []);
+  const [text, setText] = useState("");
+
+  const send = (e) => {
+    e.preventDefault();
+    const body = text.trim();
+    if (!body) return;
+    const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const existing = readThreads().find((t) => t.id === order.id)?.msgs || [];
+    const next = [...existing, { from: "buyer", text: body, time }];
+    const rest = readThreads().filter((t) => t.id !== order.id);
+    try {
+      localStorage.setItem(
+        MSG_KEY,
+        JSON.stringify([{ id: order.id, artist: order.art.artist, buyer, subject: `Order ${order.id} · ${order.art.title}`, msgs: next }, ...rest])
+      );
+    } catch {
+    }
+    setMsgs(next);
+    setText("");
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center p-4">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative flex h-[520px] max-h-[90vh] w-full max-w-[460px] flex-col rounded-2xl bg-white shadow-xl">
+        <div className="flex items-center justify-between border-b border-[#E8E1DB] px-5 py-4">
+          <div>
+            <p className="text-[16px] text-[#362F26]">{order.art.artist}</p>
+            <p className="text-[12.5px] text-[#A28F7D]">Order {order.id} · {order.art.title}</p>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Close" className="text-[20px] leading-none text-[#736153]">×</button>
+        </div>
+        <div className="flex-1 space-y-3 overflow-y-auto p-5">
+          {!msgs.length && <p className="text-center text-[13.5px] text-[#A28F7D]">Start the conversation with the artist.</p>}
+          {msgs.map((m, i) => (
+            <div key={i} className={`flex ${m.from === "buyer" ? "justify-end" : ""}`}>
+              <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-[14px] ${m.from === "buyer" ? "bg-[#9F5639] text-white" : "bg-[#F3ECE5] text-[#362F26]"}`}>
+                <p>{m.text}</p>
+                <p className={`mt-1 text-[11px] ${m.from === "buyer" ? "text-white/70" : "text-[#A28F7D]"}`}>{m.time}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <form onSubmit={send} className="flex gap-3 border-t border-[#E8E1DB] p-4">
+          <input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Type a message…"
+            className="h-11 flex-1 rounded-full border border-[#E8E1DB] px-4 text-[14px] outline-none focus:border-[#9F5639]"
+          />
+          <button type="submit" disabled={!text.trim()} className="rounded-full bg-[#9F5639] px-5 text-[14px] text-white hover:bg-[#8A4A30] disabled:opacity-50">
+            Send
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function loadPlacedOrders() {
   try {
     const list = JSON.parse(localStorage.getItem("artnest_orders")) || [];
@@ -247,6 +318,15 @@ export default function BuyerDashboard() {
     }
   });
   const [reviewFor, setReviewFor] = useState(null);
+  const [chatFor, setChatFor] = useState(null);
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (e.key === STAGE_KEY) setTick((t) => t + 1);
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
   const markReceived = (order) => {
     const next = [...received, order.id];
     setReceived(next);
@@ -262,9 +342,14 @@ export default function BuyerDashboard() {
   const demoOrders = ORDERS.map((o) => ({ ...o, art: getArtwork(o.artId) }))
     .filter((o) => o.art)
     .map((o) => ({ ...o, amount: o.art.value }));
+  let artistStages = {};
+  try {
+    artistStages = JSON.parse(localStorage.getItem(STAGE_KEY)) || {};
+  } catch {
+  }
   const orders = [...loadPlacedOrders(), ...demoOrders].map((o) => ({
     ...o,
-    stage: received.includes(o.id) ? DELIVERED : o.stage,
+    stage: artistStages[o.id] ?? o.stage,
   }));
   const active = orders.find((o) => o.stage === 1) || orders.find((o) => o.stage < DELIVERED);
   const spent = orders.reduce((s, o) => s + o.amount, 0);
@@ -277,6 +362,7 @@ export default function BuyerDashboard() {
   return (
     <div className="bg-[#F9F8F6]">
       {reviewFor && <ReviewModal order={reviewFor} buyer={user.name} onClose={() => setReviewFor(null)} />}
+      {chatFor && <MessageModal order={chatFor} buyer={user.name} onClose={() => setChatFor(null)} />}
       <div className="mx-auto max-w-[1200px] space-y-6 px-6 py-10">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -285,8 +371,8 @@ export default function BuyerDashboard() {
               {!active
                 ? "Nothing in transit right now. Find your next piece."
                 : active.stage === 0
-                ? `${active.art.title} is confirmed. The artist is preparing it.`
-                : `${active.art.title} is on its way. ${active.eta}.`}
+                ? `${active.art.title} is placed. Waiting for the artist to confirm.`
+                : `${active.art.title} is confirmed. The artist is packing it.`}
             </p>
           </div>
           <Link to="/discover" className="rounded-full bg-[#9F5639] px-5 py-2.5 text-[14px] text-white transition-colors hover:bg-[#8A4A30]">Browse artworks</Link>
@@ -315,11 +401,9 @@ export default function BuyerDashboard() {
                   </div>
                 </div>
                 <Tracker stage={active.stage} />
-                {active.stage === 1 && (
-                  <button type="button" onClick={() => markReceived(active)} className="mt-4 rounded-full bg-[#9F5639] px-5 py-2 text-[14px] text-white transition-colors hover:bg-[#8A4A30]">
-                    Mark as received
-                  </button>
-                )}
+                <button type="button" onClick={() => setChatFor(active)} className="mt-4 rounded-full border border-[#E8E1DB] bg-white px-5 py-2 text-[14px] text-[#362F26] transition-colors hover:bg-[#F9F8F6]">
+                  Message {active.art.artist}
+                </button>
               </div>
             )}
             <ul className="divide-y divide-[#E8E1DB]">
@@ -336,6 +420,11 @@ export default function BuyerDashboard() {
                       <span className={`text-[12px] ${o.stage === DELIVERED ? "text-[#4C6B3F]" : "text-[#8A5A22]"}`}>{STAGES[o.stage]}</span>
                     </span>
                   </Link>
+                  <div className="pb-3 pl-16">
+                    <button type="button" onClick={() => setChatFor(o)} className="text-[13px] text-[#9F5639] hover:underline">
+                      Message {o.art.artist}
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
