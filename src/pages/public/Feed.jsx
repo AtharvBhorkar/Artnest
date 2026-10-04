@@ -292,7 +292,6 @@ function ShareModal({ art, onClose, onCopied }) {
       await navigator.share({ title: art.title, text, url });
       onClose();
     } catch {
-      /* user cancelled */
     }
   };
 
@@ -496,7 +495,6 @@ export default function Feed() {
         ])
       );
     } catch {
-      /* ignore */
     }
     setMessageArt(null);
     setToast(`Message sent to ${art.artist}`);
@@ -512,7 +510,7 @@ export default function Feed() {
             <div style={{ height: "100%", display: "grid", placeItems: "center", textAlign: "center", color: "#EAD9C6", padding: 24 }}>
               <div>
                 <p style={{ fontSize: 22, marginBottom: 8 }}>No offers right now</p>
-                <p style={{ opacity: 0.7 }}>Artists ke live offers yahan dikhenge.</p>
+                <p style={{ opacity: 0.7 }}>Live offers from artists will appear here.</p>
               </div>
             </div>
           )}

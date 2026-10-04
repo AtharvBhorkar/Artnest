@@ -101,7 +101,6 @@ export default function AdminLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  // sirf admin andar aa sakta hai
   if (!user || user.role !== "admin") return <Navigate to="/admin/login" replace />;
 
   const signOut = () => {
