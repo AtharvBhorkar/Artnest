@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import discVideo from "../../assets/disc.mp4";
 import { useWishlist } from "../../context/WishlistContext";
+import { useCart } from "../../context/CartContext";
 import {
   Search,
   Heart,
@@ -299,6 +300,8 @@ function ArtworkCard({ art, view, favorite, toggleFavorite, onAcquire }) {
 function ArtworkDetailModal({ art, onClose, favorite, toggleFavorite }) {
   const [showFullImage, setShowFullImage] = useState(false);
   const [toast, setToast] = useState("");
+  const { inCart, toggleCart } = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!toast) return;
@@ -313,7 +316,14 @@ function ArtworkDetailModal({ art, onClose, favorite, toggleFavorite }) {
     setToast(favorite ? "Removed from wishlist" : "Added to wishlist");
   };
 
+  const carted = inCart.has(art.id);
+
   const handleCart = () => {
+    if (carted) {
+      navigate("/cart");
+      return;
+    }
+    toggleCart(art);
     setToast("Added to cart");
   };
   return (
@@ -427,7 +437,7 @@ function ArtworkDetailModal({ art, onClose, favorite, toggleFavorite }) {
               </button>
 
               <button className="disc-acquire" type="button" onClick={handleCart}>
-                Add to cart
+                {carted ? "View cart" : "Add to cart"}
               </button>
             </div>
           </div>
@@ -456,10 +466,6 @@ export default function Discover() {
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState("");
   const [activeCategories, setActiveCategories] = useState([]);
-
-  // Coming from a Home page "Explore by Medium" card (e.g. /discover?category=paintings)
-  // narrows the sidebar down to just that one category. No matching/valid
-  // category param (or none at all) leaves the default selection above untouched.
   useEffect(() => {
     const categoryParam = searchParams.get("category");
     if (categoryParam && CATEGORIES.some((c) => c.id === categoryParam)) {
@@ -467,8 +473,6 @@ export default function Discover() {
     }
   }, [searchParams]);
 
-  // Coming from the Navbar's search box (/discover?search=...) seeds this
-  // page's own search input/filter with that text.
   useEffect(() => {
     const searchParam = searchParams.get("search");
     if (searchParam) {

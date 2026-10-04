@@ -6,15 +6,14 @@ import { Badge, PAGE, inr } from "./shared";
 const INITIAL = [
   { id: "ORD-10245", buyer: "Priya Sharma", item: "Golden Silence", amount: 18500, date: "18 Sep 2026", status: "Delivered" },
   { id: "ORD-10244", buyer: "Rahul Kapoor", item: "Monsoon Reverie", amount: 32400, date: "18 Sep 2026", status: "Processing" },
-  { id: "ORD-10243", buyer: "Sneha Iyer", item: "Bronze Whisper", amount: 64200, date: "17 Sep 2026", status: "Shipped" },
+  { id: "ART-2041", buyer: "Sneha Iyer", item: "Bronze Whisper", amount: 64200, date: "17 Sep 2026", status: "Shipped" },
   { id: "ORD-10242", buyer: "Vikram Nair", item: "City in Ochre", amount: 21800, date: "17 Sep 2026", status: "Delivered" },
   { id: "ORD-10241", buyer: "Ishaan Joshi", item: "Still Water Study", amount: 15600, date: "16 Sep 2026", status: "Cancelled" },
 ];
 const TABS = ["All", "Processing", "Shipped", "Delivered"];
-// har status ke liye: [button label, naya status, style]
 const ACTIONS = {
   Processing: [["Mark shipped", "Shipped", "primary"], ["Cancel", "Cancelled", "danger"]],
-  Shipped: [["Mark delivered", "Delivered", "primary"]],
+  Shipped: [], 
   Delivered: [],
   Cancelled: [["Reopen", "Processing", "ghost"]],
 };
@@ -24,19 +23,16 @@ const BTN = {
   danger: "border border-[#F0CFC8] bg-white text-[#9B3B2E] hover:bg-[#F6DFDA]",
 };
 
-// popup ke "Update status" section ke saare options
 const ALL_ACTIONS = [
   ["Mark shipped", "Shipped", "primary"],
-  ["Mark delivered", "Delivered", "primary"],
   ["Cancel order", "Cancelled", "danger"],
   ["Reopen order", "Processing", "ghost"],
 ];
 
-// popup ke extra details (baad mein API se aayenge)
 const DETAILS = {
   "ORD-10245": { phone: "+91 98200 11223", payment: "UPI", address: "12 MG Road, Bengaluru, Karnataka 560001" },
   "ORD-10244": { phone: "+91 98110 44556", payment: "Card", address: "45 Connaught Place, New Delhi 110001" },
-  "ORD-10243": { phone: "+91 97650 77889", payment: "Net banking", address: "8 Marine Drive, Mumbai, Maharashtra 400020" },
+  "ART-2041": { phone: "+91 97650 77889", payment: "Net banking", address: "8 Marine Drive, Mumbai, Maharashtra 400020" },
   "ORD-10242": { phone: "+91 98450 22334", payment: "UPI", address: "21 Anna Salai, Chennai, Tamil Nadu 600002" },
   "ORD-10241": { phone: "+91 99300 55667", payment: "UPI", address: "5 Park Street, Kolkata, West Bengal 700016" },
 };
@@ -45,7 +41,14 @@ const STEPS = ["Placed", "Processing", "Shipped", "Delivered"];
 const STEP_INDEX = { Processing: 1, Shipped: 2, Delivered: 3 };
 
 export default function Orders() {
-  const [orders, setOrders] = useState(INITIAL);
+  const [orders, setOrders] = useState(() => {
+    let received = [];
+    try {
+      received = JSON.parse(localStorage.getItem("artnest_received_orders")) || [];
+    } catch {
+    }
+    return INITIAL.map((o) => (received.includes(o.id) ? { ...o, status: "Delivered", byBuyer: true } : o));
+  });
   const [tab, setTab] = useState("All");
   const [viewId, setViewId] = useState(null);
   const current = orders.find((o) => o.id === viewId);
@@ -113,7 +116,10 @@ export default function Orders() {
                 <td className="truncate px-6 text-[14px] text-[#362F26]">{o.item}</td>
                 <td className="px-6 text-[14px] font-medium tabular-nums text-[#362F26]">{inr(o.amount)}</td>
                 <td className="whitespace-nowrap px-6 text-[13.5px] text-[#A28F7D]">{o.date}</td>
-                <td className="px-6"><Badge status={o.status} /></td>
+                <td className="px-6">
+                  <Badge status={o.status} />
+                  {o.byBuyer && <span className="mt-1 block text-[11px] text-[#4C6B3F]">Buyer confirmed</span>}
+                </td>
                 <td className="px-6">
                   <div className="flex justify-end">
                     <button
@@ -224,8 +230,13 @@ export default function Orders() {
                       );
                     })}
                   </div>
-                  {!ACTIONS[current.status].length && (
-                    <p className="mt-2 text-[12.5px] text-[#A28F7D]">This order is delivered, so its status can't be changed.</p>
+                  {current.status === "Shipped" && (
+                    <p className="mt-2 text-[12.5px] text-[#A28F7D]">Waiting for the buyer to confirm they received it.</p>
+                  )}
+                  {current.status === "Delivered" && (
+                    <p className="mt-2 text-[12.5px] text-[#4C6B3F]">
+                      {current.byBuyer ? "Buyer confirmed receipt." : "This order is delivered."}
+                    </p>
                   )}
                 </div>
               </div>

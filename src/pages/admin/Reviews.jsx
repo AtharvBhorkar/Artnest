@@ -8,6 +8,21 @@ const REVIEWS = [
   { id: "REV-4", customer: "Kunal Bose", piece: "Marble Repose", artist: "Kabir Verma", rating: 2, review: "Piece arrived with a small chip on the base.", date: "15 Sep 2026", status: "Hidden" },
 ];
 
+const REVIEWS_KEY = "artnest_reviews";
+const loadNew = () => {
+  try {
+    return JSON.parse(localStorage.getItem(REVIEWS_KEY)) || [];
+  } catch {
+    return [];
+  }
+};
+const saveNew = (list) => {
+  try {
+    localStorage.setItem(REVIEWS_KEY, JSON.stringify(list));
+  } catch {
+  }
+};
+
 function StatusBadge({ status }) {
   const map = {
     Published: "bg-[#E7EEDD] text-[#4C6B3F]",
@@ -23,14 +38,22 @@ function StatusBadge({ status }) {
 }
 
 export default function Reviews() {
-  const [reviews, setReviews] = useState(REVIEWS);
+  const [reviews, setReviews] = useState(() => [
+    ...loadNew().map((r) => ({ ...r, customer: r.buyer, piece: r.artwork, review: r.comment })),
+    ...REVIEWS,
+  ]);
+
+  function commit(next) {
+    setReviews(next);
+    saveNew(next.filter((r) => r.orderId));
+  }
 
   function setStatus(id, status) {
-    setReviews((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
+    commit(reviews.map((r) => (r.id === id ? { ...r, status } : r)));
   }
 
   function remove(id) {
-    setReviews((prev) => prev.filter((r) => r.id !== id));
+    commit(reviews.filter((r) => r.id !== id));
   }
 
   return (
@@ -51,6 +74,10 @@ export default function Reviews() {
                 <span className="flex items-center gap-1 text-[14px] font-medium text-[#362F26]">
                   <Star size={16} className="fill-[#9F5639] text-[#9F5639]" /> {r.rating}
                 </span>
+                {r.artistRating && (
+                  <span className="text-[13px] text-[#A28F7D]">Artist: {r.artistRating}★</span>
+                )}
+
                 <StatusBadge status={r.status} />
               </div>
             </div>

@@ -1,11 +1,14 @@
 import { useState } from "react";
+import { inputCls, btnPrimary, btnGhost } from "./shared";
 
 const inr = (n) => "₹" + Number(n).toLocaleString("en-IN");
 
+const STEPS = ["Not started", "Sketching", "In progress", "Finishing"];
+
 const INITIAL = [
-  { id: "CR-501", title: "Portrait Commission", customer: "Priya Sharma", requested: "18 Sep 2026", budget: 45000, deadline: "05 Oct 2026", status: "New" },
-  { id: "CR-497", title: "Family Portrait", customer: "Ishaan Joshi", requested: "10 Sep 2026", budget: 52000, deadline: "01 Oct 2026", status: "In Progress" },
-  { id: "CR-490", title: "Landscape Commission", customer: "Rohit Malhotra", requested: "30 Aug 2026", budget: 34000, deadline: "15 Sep 2026", status: "Completed" },
+  { id: "CR-501", title: "Portrait Commission", customer: "Priya Sharma", requested: "18 Sep 2026", budget: 45000, deadline: "05 Oct 2026", status: "New", quote: "", eta: "", note: "", progress: 0 },
+  { id: "CR-497", title: "Family Portrait", customer: "Ishaan Joshi", requested: "10 Sep 2026", budget: 52000, deadline: "01 Oct 2026", status: "In Progress", quote: 52000, eta: "Ready by 20 Nov", note: "Sketch approved, colour layers are underway.", progress: 2 },
+  { id: "CR-490", title: "Landscape Commission", customer: "Rohit Malhotra", requested: "30 Aug 2026", budget: 34000, deadline: "15 Sep 2026", status: "Completed", quote: 34000, eta: "Delivered 10 Sep", note: "", progress: 4 },
 ];
 
 const TONE = {
@@ -17,9 +20,8 @@ const TONE = {
 
 export default function CustomRequests() {
   const [requests, setRequests] = useState(INITIAL);
-
-  const setStatus = (id, status) =>
-    setRequests((rs) => rs.map((r) => (r.id === id ? { ...r, status } : r)));
+  const update = (id, patch) =>
+    setRequests((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch } : r)));
 
   return (
     <div className="mx-auto max-w-[1400px] space-y-5 p-6">
@@ -48,33 +50,92 @@ export default function CustomRequests() {
             </p>
           </div>
 
-          <div className="mt-5 flex min-h-[61px] items-center gap-3 border-t border-[#E8E1DB] pt-4">
+          <div className="mt-5 space-y-4 border-t border-[#E8E1DB] pt-4">
             {r.status === "New" && (
               <>
-                <button
-                  type="button"
-                  onClick={() => setStatus(r.id, "In Progress")}
-                  className="rounded-full bg-[#9F5639] px-5 py-2.5 text-[14px] text-white transition-colors hover:bg-[#8A4A30]"
-                >
-                  Accept
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStatus(r.id, "Declined")}
-                  className="rounded-full border border-[#E8E1DB] bg-white px-5 py-2.5 text-[14px] text-[#362F26] transition-colors hover:bg-[#F9F8F6]"
-                >
-                  Decline
-                </button>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <input
+                    type="number"
+                    min="0"
+                    value={r.quote}
+                    onChange={(e) => update(r.id, { quote: e.target.value })}
+                    placeholder="Your quote (₹)"
+                    aria-label="Your quote"
+                    className={inputCls}
+                  />
+                  <input
+                    value={r.eta}
+                    onChange={(e) => update(r.id, { eta: e.target.value })}
+                    placeholder="When will you start? e.g. Starts 12 Oct"
+                    aria-label="Start date or ETA"
+                    className={inputCls}
+                  />
+                </div>
+                <input
+                  value={r.note}
+                  onChange={(e) => update(r.id, { note: e.target.value })}
+                  placeholder="Message to buyer (add a reason if you decline)"
+                  aria-label="Message to buyer"
+                  className={inputCls}
+                />
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    disabled={!r.quote || !r.eta}
+                    onClick={() => update(r.id, { status: "In Progress", progress: 0 })}
+                    className={btnPrimary}
+                  >
+                    Accept
+                  </button>
+                  <button type="button" onClick={() => update(r.id, { status: "Declined" })} className={btnGhost}>
+                    Decline
+                  </button>
+                </div>
               </>
             )}
+
             {r.status === "In Progress" && (
-              <button
-                type="button"
-                onClick={() => setStatus(r.id, "Completed")}
-                className="rounded-full bg-[#9F5639] px-5 py-2.5 text-[14px] text-white transition-colors hover:bg-[#8A4A30]"
-              >
-                Mark completed
-              </button>
+              <>
+                <div>
+                  <p className="mb-2 text-[13px] text-[#A28F7D]">Update progress (buyer sees this)</p>
+                  <div className="flex flex-wrap gap-2">
+                    {STEPS.map((s, i) => (
+                      <button
+                        key={s}
+                        type="button"
+                        aria-pressed={r.progress === i}
+                        onClick={() => update(r.id, { progress: i })}
+                        className={`rounded-full border px-4 py-2 text-[13px] transition-colors ${
+                          r.progress === i
+                            ? "border-[#9F5639] bg-[#9F5639] text-white"
+                            : "border-[#E8E1DB] bg-white text-[#362F26] hover:bg-[#F9F8F6]"
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <input
+                    value={r.eta}
+                    onChange={(e) => update(r.id, { eta: e.target.value })}
+                    placeholder="Start date / ETA"
+                    aria-label="Start date or ETA"
+                    className={inputCls}
+                  />
+                  <input
+                    value={r.note}
+                    onChange={(e) => update(r.id, { note: e.target.value })}
+                    placeholder="Short update for the buyer"
+                    aria-label="Update for buyer"
+                    className={inputCls}
+                  />
+                </div>
+                <button type="button" onClick={() => update(r.id, { status: "Completed", progress: 4 })} className={btnPrimary}>
+                  Mark completed
+                </button>
+              </>
             )}
           </div>
         </div>

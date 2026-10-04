@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Search, Eye, ChevronDown } from "lucide-react";
+import { Modal } from "./shared";
 
 export function formatINR(amount) {
   return new Intl.NumberFormat("en-IN", {
@@ -22,6 +23,25 @@ const ORDERS = [
 
 const STATUSES = ["All statuses", "Completed", "Processing", "Pending", "Cancelled"];
 
+const DETAILS = {
+  "ORD-10245": { phone: "+91 98200 11223", payment: "UPI", address: "12 MG Road, Bengaluru, Karnataka 560001" },
+  "ORD-10244": { phone: "+91 98110 44556", payment: "Card", address: "45 Connaught Place, New Delhi 110001" },
+  "ORD-10243": { phone: "+91 97650 77889", payment: "Net banking", address: "8 Marine Drive, Mumbai, Maharashtra 400020" },
+  "ORD-10242": { phone: "+91 98450 22334", payment: "UPI", address: "21 Anna Salai, Chennai, Tamil Nadu 600002" },
+  "ORD-10241": { phone: "+91 99300 55667", payment: "UPI", address: "5 Park Street, Kolkata, West Bengal 700016" },
+  "ORD-10240": { phone: "+91 98765 43210", payment: "Card", address: "14 Jubilee Hills, Hyderabad, Telangana 500033" },
+  "ORD-10239": { phone: "+91 98300 12345", payment: "Net banking", address: "22 Salt Lake, Kolkata, West Bengal 700091" },
+  "ORD-10238": { phone: "+91 94470 67890", payment: "UPI", address: "9 MG Road, Kochi, Kerala 682016" },
+};
+const FALLBACK = { phone: "—", payment: "—", address: "Address not provided" };
+
+const ORDER_ACTIONS = {
+  Pending: [["Mark processing", "Processing"], ["Cancel order", "Cancelled", true]],
+  Processing: [["Cancel order", "Cancelled", true]],
+  Completed: [],
+  Cancelled: [],
+};
+
 function StatusBadge({ status }) {
   const map = {
     Completed: "bg-[#E7EEDD] text-[#4C6B3F]",
@@ -40,9 +60,11 @@ function StatusBadge({ status }) {
 export default function Orders() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState(STATUSES[0]);
+  const [rows, setRows] = useState(ORDERS);
+  const [viewId, setViewId] = useState(null);
 
   const filtered = useMemo(() => {
-    return ORDERS.filter((o) => {
+    return rows.filter((o) => {
       if (status !== STATUSES[0] && o.status !== status) return false;
       const q = search.toLowerCase();
       return (
@@ -51,7 +73,16 @@ export default function Orders() {
         o.piece.toLowerCase().includes(q)
       );
     });
-  }, [search, status]);
+  }, [search, status, rows]);
+
+  const current = rows.find((o) => o.id === viewId);
+  const d = current ? DETAILS[current.id] || FALLBACK : null;
+  const actions = current ? ORDER_ACTIONS[current.status] || [] : [];
+
+  const changeStatus = (o, next) => {
+    if (next === "Cancelled" && !window.confirm(`Cancel ${o.id}?`)) return;
+    setRows((rs) => rs.map((r) => (r.id === o.id ? { ...r, status: next } : r)));
+  };
 
   return (
     <div className="p-6 max-w-[1400px] mx-auto space-y-6 font-['Plus_Jakarta_Sans']">
@@ -105,7 +136,12 @@ export default function Orders() {
                 <td className="px-6 py-5 text-[14px] text-[#A28F7D] whitespace-nowrap">{o.date}</td>
                 <td className="px-6 py-5"><StatusBadge status={o.status} /></td>
                 <td className="px-6 py-5">
-                  <button className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#9F5639] hover:text-[#8A4930] transition-colors">
+                  <button
+                    type="button"
+                    onClick={() => setViewId(o.id)}
+                    aria-label={`View ${o.id}`}
+                    className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#9F5639] hover:text-[#8A4930] transition-colors"
+                  >
                     <Eye size={16} /> View
                   </button>
                 </td>
@@ -121,6 +157,68 @@ export default function Orders() {
           </tbody>
         </table>
       </div>
+
+      {current && (
+        <Modal
+          title={current.id}
+          onClose={() => setViewId(null)}
+          footer={
+            actions.length
+              ? actions.map(([label, next, danger]) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => changeStatus(current, next)}
+                    className={
+                      danger
+                        ? "rounded-lg border border-[#F0CFC8] bg-white px-4 py-2 text-[13px] font-medium text-[#9B3B2E] hover:bg-[#F6DFDA]"
+                        : "rounded-lg bg-[#9F5639] px-4 py-2 text-[13px] font-medium text-white hover:bg-[#8A4A30]"
+                    }
+                  >
+                    {label}
+                  </button>
+                ))
+              : null
+          }
+        >
+          <div className="space-y-5">
+            <div className="flex items-center justify-between">
+              <StatusBadge status={current.status} />
+              <span className="text-[13px] text-[#A28F7D]">{current.date}</span>
+            </div>
+
+            <dl className="grid grid-cols-2 gap-x-6 gap-y-4 text-[14px]">
+              {[
+                ["Customer", current.buyer],
+                ["Phone", d.phone],
+                ["Artwork", current.piece],
+                ["Artist", current.artist],
+                ["Amount", formatINR(current.amount)],
+                ["Payment", d.payment],
+              ].map(([k, v]) => (
+                <div key={k}>
+                  <dt className="text-[12px] text-[#A28F7D]">{k}</dt>
+                  <dd className="mt-0.5 text-[#362F26]">{v}</dd>
+                </div>
+              ))}
+            </dl>
+
+            <div className="rounded-xl bg-[#F9F8F6] p-4">
+              <p className="text-[12px] text-[#A28F7D]">Shipping address</p>
+              <p className="mt-1 text-[14px] leading-relaxed text-[#362F26]">{d.address}</p>
+            </div>
+
+            {(current.status === "Pending" || current.status === "Processing") && (
+              <p className="text-[12.5px] text-[#A28F7D]">
+                Delivery is confirmed by the buyer, so an order can't be marked completed from here.
+              </p>
+            )}
+            {current.status === "Cancelled" && (
+              <p className="text-[12.5px] text-[#9B3B2E]">This order was cancelled.</p>
+            )}
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
