@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -15,9 +15,19 @@ import {
   ChevronDown,
 } from "lucide-react";
 import Navbar from "../../components/Navbar";
-import { ARTWORKS } from "../../data/artworks";
 import { useWishlist } from "../../context/WishlistContext";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
+
+const loadOffers = () => {
+  try {
+    return (JSON.parse(localStorage.getItem("artnest_offers")) || []).filter(
+      (o) => o.img && (!o.offerEnds || new Date(`${o.offerEnds}T23:59:59`) >= new Date())
+    );
+  } catch {
+    return [];
+  }
+};
 
 const initials = (name) =>
   name
@@ -50,20 +60,32 @@ async function copyText(text) {
   }
 }
 
-function Reel({ art, index, favorite, inCart, onLike, onCart, onMessage, onShare }) {
-  const [burst, setBurst] = useState(0);
+function Reel({ art, index, isActive, favorite, inCart, onLike, onCart, onMessage, onShare }) {
+  const [hearts, setHearts] = useState([]);
+  const lastTap = useRef(0);
+  const cardRef = useRef(null);
 
-  const handleDoubleTap = () => {
-    if (!favorite) onLike(art, true);
-    setBurst((b) => b + 1);
+  const handlePointerUp = (e) => {
+    if (e.target.closest("a, button")) return;
+    const now = Date.now();
+    if (now - lastTap.current < 300) {
+      const rect = cardRef.current.getBoundingClientRect();
+      const id = now + Math.random();
+      setHearts((h) => [...h, { id, x: e.clientX - rect.left, y: e.clientY - rect.top }]);
+      setTimeout(() => setHearts((h) => h.filter((x) => x.id !== id)), 850);
+      if (!favorite) onLike(art, true);
+      lastTap.current = 0;
+    } else {
+      lastTap.current = now;
+    }
   };
 
   return (
-    <section className="fd-reel" data-index={index}>
+    <section className={`fd-reel ${isActive ? "is-active" : ""}`} data-index={index}>
       <div className="fd-reel-bg" style={{ backgroundImage: `url(${art.img})` }} />
 
       <div className="fd-stage">
-        <div className="fd-card" onDoubleClick={handleDoubleTap}>
+        <div className="fd-card" ref={cardRef} onPointerUp={handlePointerUp}>
           <img
             src={art.img}
             alt={art.title}
@@ -71,24 +93,25 @@ function Reel({ art, index, favorite, inCart, onLike, onCart, onMessage, onShare
             loading={index < 2 ? "eager" : "lazy"}
           />
           <div className="fd-card-shade" />
-          <span className="fd-tag">{art.tag}</span>
+          <span className="fd-tag">{art.offerNote || art.tag}</span>
 
-          {burst > 0 && (
+          {hearts.map((h) => (
             <motion.div
-              key={burst}
+              key={h.id}
               className="fd-burst"
-              initial={{ scale: 0.4, opacity: 0 }}
-              animate={{ scale: [0.4, 1.25, 1], opacity: [0, 1, 0] }}
-              transition={{ duration: 0.85, ease: "easeOut" }}
+              style={{ left: h.x, top: h.y }}
+              initial={{ scale: 0.3, opacity: 0, rotate: -12 }}
+              animate={{ scale: [0.3, 1.2, 1, 1.5], opacity: [0, 1, 1, 0], rotate: [-12, 8, 0, 0] }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
             >
-              <Heart size={96} fill="currentColor" strokeWidth={0} />
+              <Heart size={90} fill="currentColor" strokeWidth={0} />
             </motion.div>
-          )}
+          ))}
 
           <div className="fd-info">
             <div className="fd-artist">
               <span className="fd-avatar">{initials(art.artist)}</span>
-              <div>
+              <div className="fd-artist-text">
                 <p>{art.artist}</p>
                 <span>{art.location}</span>
               </div>
@@ -98,9 +121,19 @@ function Reel({ art, index, favorite, inCart, onLike, onCart, onMessage, onShare
             </Link>
             <p className="fd-medium">
               {art.medium} · {art.dims}
+              {art.offerEnds &&
+                ` · Offer ends ${new Date(art.offerEnds).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`}
             </p>
             <div className="fd-price-row">
-              <strong>₹{art.value.toLocaleString()}</strong>
+              <strong>
+                ₹{art.value.toLocaleString()}
+                {art.originalValue && (
+                  <>
+                    <s className="fd-old">₹{art.originalValue.toLocaleString()}</s>
+                    <span className="fd-off">{art.offerPct}% OFF</span>
+                  </>
+                )}
+              </strong>
               <Link to={`/artwork/${art.id}`} className="fd-view">
                 View details
               </Link>
@@ -116,8 +149,14 @@ function Reel({ art, index, favorite, inCart, onLike, onCart, onMessage, onShare
             aria-label={favorite ? "Remove from wishlist" : "Add to wishlist"}
           >
             <span className="fd-act-btn">
-              <motion.span whileTap={{ scale: 0.75 }} style={{ display: "flex" }}>
-                <Heart size={22} strokeWidth={1.8} fill={favorite ? "currentColor" : "none"} />
+              <motion.span
+                key={favorite ? "on" : "off"}
+                initial={favorite ? { scale: 0.5 } : false}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 500, damping: 14 }}
+                style={{ display: "flex" }}
+              >
+                <Heart size={24} strokeWidth={1.8} fill={favorite ? "currentColor" : "none"} />
               </motion.span>
             </span>
             <em>{favorite ? "Saved" : "Wishlist"}</em>
@@ -130,36 +169,31 @@ function Reel({ art, index, favorite, inCart, onLike, onCart, onMessage, onShare
             aria-label={inCart ? "Remove from cart" : "Add to cart"}
           >
             <span className="fd-act-btn">
-              <ShoppingBag size={21} strokeWidth={1.8} fill={inCart ? "currentColor" : "none"} />
+              <ShoppingBag size={23} strokeWidth={1.8} fill={inCart ? "currentColor" : "none"} />
             </span>
             <em>{inCart ? "In cart" : "Cart"}</em>
           </button>
 
-          <button
-            type="button"
-            className="fd-act"
-            onClick={() => onMessage(art)}
-            aria-label={`Message ${art.artist}`}
-          >
+          <button type="button" className="fd-act" onClick={() => onMessage(art)} aria-label={`Message ${art.artist}`}>
             <span className="fd-act-btn">
-              <MessageCircle size={21} strokeWidth={1.8} />
+              <MessageCircle size={23} strokeWidth={1.8} />
             </span>
             <em>Message</em>
           </button>
 
           <button type="button" className="fd-act" onClick={() => onShare(art)} aria-label="Share">
             <span className="fd-act-btn">
-              <Share2 size={20} strokeWidth={1.8} />
+              <Share2 size={22} strokeWidth={1.8} />
             </span>
             <em>Share</em>
           </button>
+
+          <span className="fd-disc" style={{ backgroundImage: `url(${art.img})` }} aria-hidden="true" />
         </div>
       </div>
     </section>
   );
 }
-
-/* ------------------------------ Message popup ------------------------------ */
 
 const QUICK_MESSAGES = [
   "Is this piece still available?",
@@ -187,10 +221,10 @@ function MessageModal({ art, onClose, onSend }) {
       <motion.div
         className="fd-modal"
         onClick={(e) => e.stopPropagation()}
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 30 }}
-        transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+        exit={{ opacity: 0, y: 40 }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
       >
         <button className="fd-modal-close" type="button" onClick={onClose} aria-label="Close">
           <X size={18} />
@@ -223,7 +257,7 @@ function MessageModal({ art, onClose, onSend }) {
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder={`Write to ${art.artist} about “${art.title}”…`}
+          placeholder={`Write to ${art.artist} about "${art.title}"…`}
           rows={4}
           maxLength={500}
           autoFocus
@@ -236,8 +270,6 @@ function MessageModal({ art, onClose, onSend }) {
     </div>
   );
 }
-
-/* ------------------------------- Share popup ------------------------------- */
 
 function ShareModal({ art, onClose, onCopied }) {
   const url = artworkUrl(art);
@@ -260,7 +292,6 @@ function ShareModal({ art, onClose, onCopied }) {
       await navigator.share({ title: art.title, text, url });
       onClose();
     } catch {
-      /* user cancelled */
     }
   };
 
@@ -277,10 +308,10 @@ function ShareModal({ art, onClose, onCopied }) {
       <motion.div
         className="fd-modal"
         onClick={(ev) => ev.stopPropagation()}
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 30 }}
-        transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+        exit={{ opacity: 0, y: 40 }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
       >
         <button className="fd-modal-close" type="button" onClick={onClose} aria-label="Close">
           <X size={18} />
@@ -329,36 +360,42 @@ function ShareModal({ art, onClose, onCopied }) {
   );
 }
 
-/* ---------------------------------- Page ---------------------------------- */
-
 export default function Feed() {
   const [searchParams] = useSearchParams();
   const { favorites, toggle } = useWishlist();
   const { inCart, toggleCart } = useCart();
+  const { user } = useAuth();
+  const ARTWORKS = useMemo(loadOffers, []);
 
   const scrollerRef = useRef(null);
   const [active, setActive] = useState(0);
   const [messageArt, setMessageArt] = useState(null);
   const [shareArt, setShareArt] = useState(null);
   const [toast, setToast] = useState("");
+  const [hintGone, setHintGone] = useState(false);
 
   const anyModal = !!messageArt || !!shareArt;
 
-  // Feed page owns the viewport: stop the body from scrolling behind it
   useEffect(() => {
     const root = document.documentElement;
     const prev = {
+      htmlOverflow: root.style.overflow,
+      gutter: root.style.scrollbarGutter,
       overflow: document.body.style.overflow,
       bg: root.style.backgroundColor,
       scrollbarColor: root.style.scrollbarColor,
       colorScheme: root.style.colorScheme,
     };
     document.body.style.overflow = "hidden";
-    root.style.backgroundColor = "#100c09";
-    root.style.scrollbarColor = "#100c09 #100c09";
+    root.style.overflow = "hidden";
+    root.style.scrollbarGutter = "auto";
+    root.style.backgroundColor = "#000";
+    root.style.scrollbarColor = "#000 #000";
     root.style.colorScheme = "dark";
     return () => {
       document.body.style.overflow = prev.overflow;
+      root.style.overflow = prev.htmlOverflow;
+      root.style.scrollbarGutter = prev.gutter;
       root.style.backgroundColor = prev.bg;
       root.style.scrollbarColor = prev.scrollbarColor;
       root.style.colorScheme = prev.colorScheme;
@@ -371,20 +408,26 @@ export default function Feed() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const scrollToIndex = useCallback((i, smooth = true) => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    const clamped = Math.max(0, Math.min(ARTWORKS.length - 1, i));
-    el.scrollTo({ top: clamped * el.clientHeight, behavior: smooth ? "smooth" : "auto" });
-  }, []);
+  useEffect(() => {
+    if (active > 0) setHintGone(true);
+  }, [active]);
 
-  // /feed?art=5 opens directly on that artwork
+  const scrollToIndex = useCallback(
+    (i, smooth = true) => {
+      const el = scrollerRef.current;
+      if (!el) return;
+      const clamped = Math.max(0, Math.min(ARTWORKS.length - 1, i));
+      el.scrollTo({ top: clamped * el.clientHeight, behavior: smooth ? "smooth" : "auto" });
+    },
+    [ARTWORKS]
+  );
+
   useEffect(() => {
     const id = searchParams.get("art");
     if (!id) return;
     const i = ARTWORKS.findIndex((a) => String(a.id) === id);
     if (i > 0) scrollToIndex(i, false);
-  }, [searchParams, scrollToIndex]);
+  }, [searchParams, scrollToIndex, ARTWORKS]);
 
   useEffect(() => {
     const root = scrollerRef.current;
@@ -401,7 +444,6 @@ export default function Feed() {
     return () => io.disconnect();
   }, []);
 
-  // Keyboard: arrows / j / k
   useEffect(() => {
     const onKey = (e) => {
       if (anyModal) return;
@@ -433,14 +475,26 @@ export default function Feed() {
   };
 
   const handleSend = (art, message) => {
-    // TODO: replace with a real API call. Stored locally for now.
     try {
-      const key = "artnest_feed_messages";
-      const list = JSON.parse(localStorage.getItem(key) || "[]");
-      list.push({ artworkId: art.id, artist: art.artist, message, at: Date.now() });
-      localStorage.setItem(key, JSON.stringify(list));
+      const tid = `enq-${art.id}`;
+      const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      const list = JSON.parse(localStorage.getItem("artnest_messages")) || [];
+      const prev = list.find((t) => t.id === tid)?.msgs || [];
+      const rest = list.filter((t) => t.id !== tid);
+      localStorage.setItem(
+        "artnest_messages",
+        JSON.stringify([
+          {
+            id: tid,
+            artist: art.artist,
+            buyer: user?.name || "Guest buyer",
+            subject: `Offer · ${art.title}`,
+            msgs: [...prev, { from: "buyer", text: message, time }],
+          },
+          ...rest,
+        ])
+      );
     } catch {
-      /* ignore */
     }
     setMessageArt(null);
     setToast(`Message sent to ${art.artist}`);
@@ -452,11 +506,20 @@ export default function Feed() {
 
       <div className="fd-body">
         <div className="fd-scroll" ref={scrollerRef}>
+          {!ARTWORKS.length && (
+            <div style={{ height: "100%", display: "grid", placeItems: "center", textAlign: "center", color: "#EAD9C6", padding: 24 }}>
+              <div>
+                <p style={{ fontSize: 22, marginBottom: 8 }}>No offers right now</p>
+                <p style={{ opacity: 0.7 }}>Live offers from artists will appear here.</p>
+              </div>
+            </div>
+          )}
           {ARTWORKS.map((art, i) => (
             <Reel
               key={art.id}
               art={art}
               index={i}
+              isActive={i === active}
               favorite={favorites.has(art.id)}
               inCart={inCart.has(art.id)}
               onLike={handleLike}
@@ -466,6 +529,29 @@ export default function Feed() {
             />
           ))}
         </div>
+
+        {ARTWORKS.length > 1 && (
+          <div className="fd-dots" aria-hidden="true">
+            {ARTWORKS.slice(Math.max(0, active - 3), active + 4).map((a) => (
+              <span key={a.id} className={a.id === ARTWORKS[active].id ? "on" : ""} />
+            ))}
+          </div>
+        )}
+
+        <AnimatePresence>
+          {!hintGone && ARTWORKS.length > 1 && (
+            <motion.div
+              className="fd-hint"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ delay: 1.2, duration: 0.4 }}
+            >
+              <ChevronUp size={20} />
+              <span>Swipe up</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="fd-nav">
           <button type="button" onClick={() => scrollToIndex(active - 1)} disabled={active === 0} aria-label="Previous">
@@ -483,16 +569,9 @@ export default function Feed() {
       </div>
 
       <AnimatePresence>
-        {messageArt && (
-          <MessageModal key="msg" art={messageArt} onClose={() => setMessageArt(null)} onSend={handleSend} />
-        )}
+        {messageArt && <MessageModal key="msg" art={messageArt} onClose={() => setMessageArt(null)} onSend={handleSend} />}
         {shareArt && (
-          <ShareModal
-            key="share"
-            art={shareArt}
-            onClose={() => setShareArt(null)}
-            onCopied={(m) => setToast(m)}
-          />
+          <ShareModal key="share" art={shareArt} onClose={() => setShareArt(null)} onCopied={(m) => setToast(m)} />
         )}
       </AnimatePresence>
 
@@ -521,7 +600,7 @@ export default function Feed() {
           --sans: "Work Sans", "Inter", system-ui, sans-serif;
           height: 100vh; height: 100dvh;
           display: flex; flex-direction: column;
-          background: #100c09; color: var(--paper);
+          background: #000; color: #fff;
           font-family: var(--sans); overflow: hidden;
         }
         .fd-app * { box-sizing: border-box; }
@@ -530,6 +609,7 @@ export default function Feed() {
         .fd-scroll {
           height: 100%; overflow-y: scroll;
           scroll-snap-type: y mandatory; overscroll-behavior: contain;
+          scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
           scrollbar-width: none;
         }
         .fd-scroll::-webkit-scrollbar { display: none; }
@@ -540,93 +620,176 @@ export default function Feed() {
         }
         .fd-reel-bg {
           position: absolute; inset: -40px; background-size: cover; background-position: center;
-          filter: blur(40px) brightness(.32) saturate(1.25); transform: scale(1.1);
+          filter: blur(46px) brightness(.3) saturate(1.3); transform: scale(1.1);
+          opacity: .7; transition: opacity .5s ease;
         }
+        .fd-reel.is-active .fd-reel-bg { opacity: 1; }
+
         .fd-stage {
           position: relative; z-index: 1; height: 100%;
-          display: flex; align-items: flex-end; justify-content: center;
-          gap: 18px; padding: 16px 0;
+          display: grid; grid-template-columns: 1fr auto 1fr;
+          align-items: end; padding: 12px 0;
         }
 
         .fd-card {
+          grid-column: 2;
           position: relative; height: 100%; aspect-ratio: 9 / 16;
-          max-width: min(460px, 100vw); border-radius: 22px; overflow: hidden;
-          background: #000; box-shadow: 0 30px 70px rgba(0,0,0,.5);
-          user-select: none; -webkit-user-select: none;
+          max-width: min(460px, 100vw); border-radius: 18px; overflow: hidden;
+          background: #000; box-shadow: 0 30px 70px rgba(0,0,0,.55);
+          user-select: none; -webkit-user-select: none; touch-action: manipulation;
+          transform: scale(.93); opacity: .55;
+          transition: transform .55s cubic-bezier(.2,.8,.2,1), opacity .45s ease;
         }
-        .fd-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .fd-reel.is-active .fd-card { transform: scale(1); opacity: 1; }
+
+        .fd-card img {
+          width: 100%; height: 100%; object-fit: cover; display: block;
+          transform: scale(1); transform-origin: 50% 55%;
+        }
+        .fd-reel.is-active .fd-card img { animation: fd-kenburns 10s ease-out forwards; }
+        @keyframes fd-kenburns { from { transform: scale(1); } to { transform: scale(1.1); } }
+
         .fd-card-shade {
           position: absolute; inset: 0; pointer-events: none;
-          background: linear-gradient(180deg, rgba(0,0,0,.28) 0%, transparent 22%, transparent 48%, rgba(0,0,0,.85) 100%);
+          background:
+            linear-gradient(180deg, rgba(0,0,0,.4) 0%, transparent 18%),
+            linear-gradient(0deg, rgba(0,0,0,.88) 0%, rgba(0,0,0,.45) 28%, transparent 55%);
         }
         .fd-tag {
-          position: absolute; top: 16px; left: 16px;
-          background: rgba(20,15,10,.6); backdrop-filter: blur(6px);
-          font-size: 11.5px; padding: 6px 12px; border-radius: 999px; color: #f1e8d4;
+          position: absolute; top: 14px; left: 14px;
+          background: rgba(0,0,0,.45); backdrop-filter: blur(8px);
+          font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 999px; color: #fff;
         }
         .fd-burst {
-          position: absolute; inset: 0; margin: auto; width: 96px; height: 96px;
-          color: #ee6a5f; pointer-events: none; opacity: 0;
-          filter: drop-shadow(0 8px 24px rgba(0,0,0,.4));
+          position: absolute; width: 90px; height: 90px; margin: -45px 0 0 -45px;
+          color: #fff; pointer-events: none; opacity: 0;
+          filter: drop-shadow(0 6px 22px rgba(0,0,0,.45));
         }
 
-        .fd-info { position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 22px 24px; }
-        .fd-artist { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-        .fd-artist p { margin: 0; font-size: 14px; font-weight: 600; }
-        .fd-artist span { font-size: 12px; color: #d9cdb6; }
+        .fd-info { position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 18px 22px; }
+        .fd-info > * { opacity: 0; transform: translateY(18px); }
+        .fd-reel.is-active .fd-info > * { animation: fd-up .5s cubic-bezier(.2,.8,.2,1) forwards; }
+        .fd-reel.is-active .fd-info > :nth-child(1) { animation-delay: .12s; }
+        .fd-reel.is-active .fd-info > :nth-child(2) { animation-delay: .2s; }
+        .fd-reel.is-active .fd-info > :nth-child(3) { animation-delay: .27s; }
+        .fd-reel.is-active .fd-info > :nth-child(4) { animation-delay: .34s; }
+        @keyframes fd-up { to { opacity: 1; transform: none; } }
+
+        .fd-artist { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .fd-artist-text { min-width: 0; }
+        .fd-artist p { margin: 0; font-size: 14px; font-weight: 600; text-shadow: 0 1px 6px rgba(0,0,0,.5); }
+        .fd-artist span { font-size: 12px; color: rgba(255,255,255,.75); }
         .fd-avatar {
           width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
           display: flex; align-items: center; justify-content: center;
           background: linear-gradient(135deg, #d6c4ae, #b99a78);
           color: #fff; font-size: 12px; font-weight: 600;
+          box-shadow: 0 0 0 2px #fff;
         }
-        .fd-avatar.lg { width: 46px; height: 46px; font-size: 14px; }
+        .fd-avatar.lg { width: 46px; height: 46px; font-size: 14px; box-shadow: none; }
+
         .fd-title {
           display: block; font-family: var(--serif); font-weight: 500;
           font-size: 24px; line-height: 1.2; color: #fff; text-decoration: none; margin-bottom: 6px;
+          text-shadow: 0 2px 12px rgba(0,0,0,.4);
         }
-        .fd-medium { margin: 0 0 14px; font-size: 13px; color: #d9cdb6; }
-        .fd-price-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-        .fd-price-row strong { font-family: var(--serif); font-weight: 500; font-size: 22px; }
+        .fd-medium { margin: 0 0 14px; font-size: 13px; color: rgba(255,255,255,.8); }
+        .fd-price-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+        .fd-price-row strong {
+          font-family: var(--serif); font-weight: 500; font-size: 22px;
+          display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; white-space: nowrap;
+        }
+        .fd-old { font-family: var(--sans); font-weight: 400; font-size: 14px; opacity: .65; }
+        .fd-off {
+          font-family: var(--sans); font-size: 11.5px; font-weight: 600; letter-spacing: .02em;
+          background: #9F5639; color: #fff; border-radius: 999px; padding: 3px 9px; white-space: nowrap;
+        }
         .fd-view {
-          background: rgba(246,241,230,.94); color: var(--ink); text-decoration: none;
-          font-size: 12.5px; font-weight: 500; padding: 8px 16px; border-radius: 999px;
-          transition: background .2s ease;
+          background: #fff; color: #111; text-decoration: none;
+          font-size: 13px; font-weight: 600; padding: 0 18px; min-height: 38px; border-radius: 8px;
+          display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;
+          transition: background .2s ease, transform .15s ease;
         }
-        .fd-view:hover { background: #fff; }
+        .fd-view:hover { background: #ececec; }
+        .fd-view:active { transform: scale(.97); }
 
-        .fd-rail { display: flex; flex-direction: column; align-items: center; gap: 18px; padding-bottom: 6px; }
-        .fd-act {
-          background: none; border: none; color: #f6f1e6; cursor: pointer;
-          display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 0;
+        .fd-rail {
+          grid-column: 3; justify-self: start; margin-left: 16px;
+          display: flex; flex-direction: column; align-items: center; gap: 18px; padding-bottom: 6px;
         }
+        .fd-act {
+          background: none; border: none; color: #fff; cursor: pointer;
+          display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 0;
+          opacity: 0; transform: scale(.6);
+        }
+        .fd-reel.is-active .fd-act { animation: fd-pop .45s cubic-bezier(.2,1.4,.4,1) forwards; }
+        .fd-reel.is-active .fd-act:nth-child(1) { animation-delay: .15s; }
+        .fd-reel.is-active .fd-act:nth-child(2) { animation-delay: .22s; }
+        .fd-reel.is-active .fd-act:nth-child(3) { animation-delay: .29s; }
+        .fd-reel.is-active .fd-act:nth-child(4) { animation-delay: .36s; }
+        @keyframes fd-pop { to { opacity: 1; transform: none; } }
+
         .fd-act-btn {
-          width: 50px; height: 50px; border-radius: 50%;
+          width: 48px; height: 48px; border-radius: 50%;
           display: flex; align-items: center; justify-content: center;
-          background: rgba(246,241,230,.13); border: 1px solid rgba(246,241,230,.16);
-          backdrop-filter: blur(10px);
+          background: rgba(255,255,255,.12); backdrop-filter: blur(10px);
           transition: background .2s ease, transform .2s ease, color .2s ease;
         }
-        .fd-act:hover .fd-act-btn { background: rgba(246,241,230,.24); transform: scale(1.06); }
-        .fd-act em { font-style: normal; font-size: 11px; color: #e7ddc9; }
-        .fd-act.is-on .fd-act-btn { color: #ee6a5f; background: rgba(238,106,95,.16); border-color: rgba(238,106,95,.4); }
-        .fd-act.is-cart .fd-act-btn { color: #e0b969; background: rgba(224,185,105,.16); border-color: rgba(224,185,105,.4); }
+        .fd-act:hover .fd-act-btn { background: rgba(255,255,255,.22); }
+        .fd-act:active .fd-act-btn { transform: scale(.88); }
+        .fd-act em { font-style: normal; font-size: 11.5px; font-weight: 500; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
+        .fd-act.is-on .fd-act-btn { color: #ff3b57; }
+        .fd-act.is-cart .fd-act-btn { color: #f2c26b; }
+
+        .fd-disc {
+          width: 34px; height: 34px; border-radius: 9px; margin-top: 4px;
+          background-size: cover; background-position: center;
+          border: 2px solid #fff; opacity: 0;
+        }
+        .fd-reel.is-active .fd-disc { opacity: 1; animation: fd-wobble 5s linear infinite; transition: opacity .4s ease .5s; }
+        @keyframes fd-wobble { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
+
+        .fd-act:focus-visible .fd-act-btn,
+        .fd-nav button:focus-visible,
+        .fd-view:focus-visible,
+        .fd-send:focus-visible,
+        .fd-quick button:focus-visible,
+        .fd-linkbox button:focus-visible,
+        .fd-share-grid a:focus-visible,
+        .fd-share-grid button:focus-visible,
+        .fd-modal-close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
         .fd-nav {
-          position: absolute; right: 26px; top: 50%; transform: translateY(-50%);
+          position: absolute; right: 22px; top: 50%; transform: translateY(-50%);
           z-index: 5; display: flex; flex-direction: column; gap: 10px;
         }
         .fd-nav button {
-          width: 42px; height: 42px; border-radius: 50%; cursor: pointer; color: #f6f1e6;
-          background: rgba(246,241,230,.12); border: 1px solid rgba(246,241,230,.16);
+          width: 42px; height: 42px; border-radius: 50%; cursor: pointer; color: #fff;
+          background: rgba(255,255,255,.12); border: none;
           display: flex; align-items: center; justify-content: center; transition: background .2s ease;
         }
-        .fd-nav button:hover:not(:disabled) { background: rgba(246,241,230,.26); }
+        .fd-nav button:hover:not(:disabled) { background: rgba(255,255,255,.26); }
         .fd-nav button:disabled { opacity: .3; cursor: default; }
 
-        /* Popups */
+        .fd-dots {
+          position: absolute; left: 22px; top: 50%; transform: translateY(-50%); z-index: 5;
+          display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+        }
+        .fd-dots span { width: 4px; height: 4px; border-radius: 4px; background: rgba(255,255,255,.35); transition: height .3s ease, background .3s ease; }
+        .fd-dots span.on { height: 22px; background: #fff; }
+
+        .fd-hint {
+          position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 6;
+          display: flex; flex-direction: column; align-items: center; gap: 2px;
+          font-size: 12px; font-weight: 500; color: #fff; pointer-events: none;
+          background: rgba(0,0,0,.45); backdrop-filter: blur(8px); padding: 10px 16px; border-radius: 999px;
+        }
+        .fd-hint svg { animation: fd-bob 1.1s ease-in-out infinite; }
+        @keyframes fd-bob { 0%, 100% { transform: translateY(3px); } 50% { transform: translateY(-4px); } }
+
         .fd-modal-wrap {
           position: fixed; inset: 0; z-index: 100; padding: 20px;
-          background: rgba(10,8,6,.66); backdrop-filter: blur(3px);
+          background: rgba(0,0,0,.6); backdrop-filter: blur(3px);
           display: flex; align-items: center; justify-content: center;
         }
         .fd-modal {
@@ -635,7 +798,7 @@ export default function Feed() {
           box-shadow: 0 30px 80px rgba(0,0,0,.45);
         }
         .fd-modal-close {
-          position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border-radius: 50%;
+          position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; border-radius: 50%;
           background: var(--paper-2); border: none; cursor: pointer; color: var(--ink);
           display: flex; align-items: center; justify-content: center;
         }
@@ -653,7 +816,7 @@ export default function Feed() {
         .fd-quick { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
         .fd-quick button {
           border: 1px solid var(--line); background: var(--paper-2); color: #4a423a;
-          padding: 6px 12px; border-radius: 999px; font-size: 12px; cursor: pointer;
+          padding: 8px 14px; min-height: 36px; border-radius: 999px; font-size: 12.5px; cursor: pointer;
           font-family: var(--sans); transition: all .15s ease;
         }
         .fd-quick button:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
@@ -667,9 +830,10 @@ export default function Feed() {
         .fd-send {
           width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
           background: var(--ink); color: var(--paper); border: none; border-radius: 999px;
-          padding: 12px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: var(--sans);
-          transition: background .2s ease;
+          padding: 0 12px; min-height: 46px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: var(--sans);
+          transition: background .2s ease, transform .15s ease;
         }
+        .fd-send:active:not(:disabled) { transform: scale(.98); }
         .fd-send:hover:not(:disabled) { background: var(--wine); }
         .fd-send:disabled { opacity: .45; cursor: default; }
 
@@ -700,25 +864,40 @@ export default function Feed() {
         .fd-toast {
           position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%); z-index: 120;
           display: flex; align-items: center; gap: 8px; white-space: nowrap;
-          background: var(--paper); color: var(--ink); font-size: 13px; font-weight: 500;
+          background: rgba(30,30,30,.92); color: #fff; font-size: 13px; font-weight: 500;
           padding: 10px 18px; border-radius: 999px; box-shadow: 0 14px 34px rgba(0,0,0,.4);
         }
 
         @media (max-width: 900px) {
-          .fd-nav { display: none; }
+          .fd-nav, .fd-dots { display: none; }
+          .fd-stage { padding: 0; }
         }
+
         @media (max-width: 640px) {
-          .fd-stage { padding: 0; gap: 0; }
-          .fd-card { width: 100%; max-width: none; aspect-ratio: auto; border-radius: 0; }
-          .fd-rail { position: absolute; right: 10px; bottom: 132px; z-index: 3; gap: 14px; }
-          .fd-act-btn { width: 46px; height: 46px; }
-          .fd-info { padding: 24px 74px 22px 18px; }
+          .fd-stage { display: block; padding: 0; }
+          .fd-card {
+            width: 100%; height: 100%; max-width: none; aspect-ratio: auto;
+            border-radius: 0; box-shadow: none; transform: scale(.96);
+          }
+          .fd-reel.is-active .fd-card { transform: scale(1); }
+          .fd-rail { position: absolute; right: 10px; bottom: 112px; z-index: 3; gap: 16px; margin: 0; }
+          .fd-act em { font-size: 11px; }
+          .fd-act-btn { width: 44px; height: 44px; background: transparent; backdrop-filter: none; }
+          .fd-act-btn svg { filter: drop-shadow(0 1px 6px rgba(0,0,0,.55)); }
+          .fd-info { padding: 24px 76px 20px 16px; }
           .fd-title { font-size: 21px; }
+          .fd-hint { bottom: 120px; }
           .fd-modal-wrap { align-items: flex-end; padding: 0; }
-          .fd-modal { width: 100%; border-radius: 22px 22px 0 0; }
+          .fd-modal { width: 100%; border-radius: 22px 22px 0 0; padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+          .fd-toast { bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+        }
+        @media (hover: none) {
+          .fd-act:hover .fd-act-btn { background: transparent; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .fd-app * { transition: none !important; }
+          .fd-app *, .fd-app *::before, .fd-app *::after { transition: none !important; animation: none !important; }
+          .fd-info > *, .fd-act { opacity: 1 !important; transform: none !important; }
+          .fd-card { opacity: 1; transform: none; }
           .fd-scroll { scroll-behavior: auto; }
         }
       `}</style>

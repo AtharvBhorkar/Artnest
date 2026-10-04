@@ -32,4 +32,12 @@ export const CATEGORY_LABELS = {
   printmaking: "Printmaking & Monotype",
 };
 
-export const getArtwork = (id) => ARTWORKS.find((a) => String(a.id) === String(id));
+const readArtistArtworks = () => {
+  try {
+    return JSON.parse(localStorage.getItem("artnest_artist_artworks")) || [];
+  } catch {
+    return [];
+  }
+};
+export const getArtwork = (id) =>
+  [...readArtistArtworks(), ...ARTWORKS].find((a) => String(a.id) === String(id));
