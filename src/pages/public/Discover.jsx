@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import discVideo from "../../assets/disc.mp4";
 import { useWishlist } from "../../context/WishlistContext";
 import { useCart } from "../../context/CartContext";
 import {
   Search, Heart, SlidersHorizontal, X, ChevronDown, ChevronLeft, ChevronRight,
-  LayoutGrid, List, Eye, ArrowUpRight, ShoppingBag, Check, MapPin, Ruler,
+  LayoutGrid, List, Eye, ArrowUpRight, ShoppingBag, Check, MapPin, Ruler, Sparkles,
 } from "lucide-react";
 
 const ITEMS_PER_PAGE = 6;
@@ -22,6 +22,13 @@ const CATEGORIES = [
   { id: "digital", label: "Digital & New Media", count: 84 },
   { id: "textile", label: "Textile & Fiber Art", count: 61 },
   { id: "printmaking", label: "Printmaking & Monotype", count: 42 },
+];
+
+const QUICK_PICKS = [
+  { id: "paintings", label: "Paintings" },
+  { id: "sculptures", label: "Sculptures" },
+  { id: "ceramics", label: "Ceramics" },
+  { id: "photography", label: "Photography" },
 ];
 
 const MEDIUMS = ["Oil", "Acrylic", "Stoneware", "Bronze", "Linen", "Archival Ink", "Marble", "Porcelain", "Watercolor", "Charcoal", "Wood", "Glass"];
@@ -62,6 +69,7 @@ const loadArtistArtworks = () => {
 
 const longestSide = (dims = "") => Math.max(0, ...(dims.match(/\d+(\.\d+)?/g) || []).map(Number));
 const catLabel = (id) => CATEGORIES.find((c) => c.id === id)?.label;
+const scrollToToolbar = () => document.querySelector(".disc-toolbar")?.scrollIntoView({ behavior: "smooth", block: "start" });
 
 function Chip({ active, onClick, children }) {
   return (
@@ -87,34 +95,48 @@ function Checkbox({ checked, onChange, label, count }) {
   );
 }
 
-function Hero({ query, setQuery }) {
+function Hero({ query, setQuery, onPick }) {
+  const reduce = useReducedMotion();
   const rise = (delay) => ({
-    initial: { opacity: 0, y: 16 },
+    initial: reduce ? false : { opacity: 0, y: 18 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.7, delay, ease: EASE },
+    transition: { duration: 0.8, delay, ease: EASE },
   });
+  const slide = (delay) => ({
+    initial: reduce ? false : { y: "115%" },
+    animate: { y: 0 },
+    transition: { duration: 0.9, delay, ease: EASE },
+  });
+
   return (
     <section className="disc-hero">
-      <video className="disc-hero-bg" src={discVideo} poster={"https://images.unsplash.com/photo-1577720580479-7d839d829c73?q=80&w=1920&auto=format&fit=crop"} autoPlay muted loop playsInline />
-      <div className="disc-hero-scrim" />
+      <video className="disc-hero-bg" src={discVideo} poster="https://images.unsplash.com/photo-1577720580479-7d839d829c73?q=80&w=1920&auto=format&fit=crop" autoPlay muted loop playsInline aria-hidden="true" />
+      <div className="disc-hero-scrim" aria-hidden="true" />
+
       <div className="disc-hero-inner">
         <motion.p className="disc-hero-eyebrow" {...rise(0)}>
-          <span className="disc-hero-rule" /> The Foundry Collection <span className="disc-hero-rule" />
+          <Sparkles size={13} /> The Foundry Collection
         </motion.p>
-        <motion.h1 className="disc-hero-title" {...rise(0.08)}>
-          Original works, chosen
-          <br />
-          by hand, held in trust.
-        </motion.h1>
-        <motion.p className="disc-hero-sub" {...rise(0.18)}>
+
+        <h1 className="disc-hero-title">
+          <span className="disc-line">
+            <motion.span {...slide(0.1)}>Original works, chosen</motion.span>
+          </span>
+          <span className="disc-line">
+            <motion.span className="disc-title-accent" {...slide(0.25)}>by hand, held in trust.</motion.span>
+          </span>
+        </h1>
+
+        <motion.p className="disc-hero-sub" {...rise(0.4)}>
           Browse a living archive of paintings, sculpture, ceramics and print, each piece vetted by a curator before it reaches you.
         </motion.p>
+
         <motion.form
           className="disc-hero-search"
-          {...rise(0.28)}
+          {...rise(0.52)}
           onSubmit={(e) => {
             e.preventDefault();
-            document.querySelector(".disc-toolbar")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            scrollToToolbar();
           }}
         >
           <Search size={18} strokeWidth={1.8} />
@@ -131,13 +153,25 @@ function Hero({ query, setQuery }) {
           )}
           <button type="submit" className="disc-hero-go">Explore</button>
         </motion.form>
+
+        <motion.div className="disc-hero-quick" {...rise(0.64)}>
+          <span>Popular</span>
+          {QUICK_PICKS.map((p) => (
+            <button key={p.id} type="button" onClick={() => onPick(p.id)}>{p.label}</button>
+          ))}
+        </motion.div>
       </div>
-      <div className="disc-hero-fade" />
+
+      <div className="disc-hero-fade" aria-hidden="true" />
+      <button type="button" className="disc-hero-scroll" onClick={scrollToToolbar} aria-label="Scroll to artworks">
+        <ChevronDown size={18} />
+      </button>
     </section>
   );
 }
 
 function Sidebar({ activeCategories, toggleCategory, price, setPrice, mediums, toggleMedium, size, setSize, onClear, mobileOpen, setMobileOpen }) {
+  const reduce = useReducedMotion();
   const pct = ((price[1] - 100) / (9500 - 100)) * 100;
   const content = (
     <>
@@ -196,7 +230,15 @@ function Sidebar({ activeCategories, toggleCategory, price, setPrice, mediums, t
 
   return (
     <>
-      <aside className="disc-sidebar">{content}</aside>
+      <motion.aside
+        className="disc-sidebar"
+        initial={reduce ? false : { opacity: 0, x: -36 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: "0px 0px -60px 0px" }}
+        transition={{ duration: 0.85, ease: EASE }}
+      >
+        {content}
+      </motion.aside>
       <AnimatePresence>
         {mobileOpen && (
           <>
@@ -215,13 +257,16 @@ function Sidebar({ activeCategories, toggleCategory, price, setPrice, mediums, t
   );
 }
 
-function ArtworkCard({ art, view, favorite, toggleFavorite, onOpen, onPreview }) {
+function ArtworkCard({ art, index, view, favorite, toggleFavorite, onOpen, onPreview }) {
+  const reduce = useReducedMotion();
+  const delay = view === "list" ? 0 : (index % 3) * 0.1;
   return (
     <motion.article
       className={`disc-card ${view === "list" ? "is-list" : ""}`}
-      initial={{ opacity: 0, y: 18 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, ease: EASE }}
+      initial={reduce ? false : { opacity: 0, y: 36, scale: 0.97 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: "0px 0px -60px 0px" }}
+      transition={{ duration: 0.8, delay, ease: EASE }}
     >
       <div className="disc-card-media" onClick={() => onOpen(art)}>
         <img src={art.img} alt={art.title} loading="lazy" />
@@ -406,6 +451,7 @@ function ArtworkDetailModal({ art, onClose, favorite, toggleFavorite }) {
 
 export default function Discover() {
   const [searchParams] = useSearchParams();
+  const reduce = useReducedMotion();
   const [query, setQuery] = useState("");
   const [activeCategories, setActiveCategories] = useState([]);
   const [price, setPrice] = useState([100, 9500]);
@@ -455,6 +501,10 @@ export default function Discover() {
     setSize("");
     setQuery("");
   };
+  const pickCategory = (id) => {
+    setActiveCategories([id]);
+    scrollToToolbar();
+  };
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -479,7 +529,7 @@ export default function Discover() {
 
   const goToPage = (n) => {
     setPage(n);
-    document.querySelector(".disc-toolbar")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    scrollToToolbar();
   };
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const currentPage = Math.min(page, totalPages);
@@ -494,7 +544,7 @@ export default function Discover() {
 
   return (
     <div className="disc-app">
-      <Hero query={query} setQuery={setQuery} />
+      <Hero query={query} setQuery={setQuery} onPick={pickCategory} />
 
       <div className="disc-shell">
         <Sidebar
@@ -506,7 +556,13 @@ export default function Discover() {
         />
 
         <main className="disc-main">
-          <div className="disc-toolbar">
+          <motion.div
+            className="disc-toolbar"
+            initial={reduce ? false : { opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "0px 0px -40px 0px" }}
+            transition={{ duration: 0.8, delay: 0.1, ease: EASE }}
+          >
             <button className="disc-filter-toggle" onClick={() => setMobileOpen(true)} type="button">
               <SlidersHorizontal size={16} strokeWidth={1.8} /> Filters
               {activeChips.length > 0 && <b>{activeChips.length}</b>}
@@ -551,7 +607,7 @@ export default function Discover() {
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {activeChips.length > 0 && (
             <div className="disc-active">
@@ -565,9 +621,9 @@ export default function Discover() {
           )}
 
           <div key={`${currentPage}-${view}`} className={`disc-grid ${view === "list" ? "is-list" : ""}`}>
-            {paginated.map((art) => (
+            {paginated.map((art, i) => (
               <ArtworkCard
-                key={art.id} art={art} view={view}
+                key={art.id} art={art} index={i} view={view}
                 favorite={favorites.has(art.id)}
                 toggleFavorite={toggleFavorite}
                 onOpen={setSelectedArt}
@@ -627,7 +683,7 @@ export default function Discover() {
         )}
       </AnimatePresence>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Work+Sans:wght@400;500;600&display=swap');
 
         .disc-app {
           --ink: #1c1712; --ink-soft: #4a423a; --muted: #8c7f68;
@@ -644,40 +700,58 @@ export default function Discover() {
         .disc-app :focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
         .disc-sr { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
 
-        .disc-hero { position: relative; min-height: 100vh; display: flex; align-items: center; overflow: hidden; color: #f6f1e6; padding-top: 64px; }
-        .disc-hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 40%; transform: scale(1.02); }
+        .disc-hero { position: relative; isolation: isolate; min-height: 100vh; min-height: 100svh; display: flex; align-items: center; justify-content: center; overflow: hidden; color: #f6f1e6; padding: 120px 0 120px; background: #2a1a10; }
+        .disc-hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 40%; z-index: 0; transform: scale(1.04); filter: saturate(1.05) contrast(1.03); }
         .disc-hero-scrim {
-          position: absolute; inset: 0;
+          position: absolute; inset: 0; z-index: 1;
           background:
-            radial-gradient(ellipse 60% 55% at 50% 50%, rgba(20,15,10,.72) 0%, rgba(20,15,10,.4) 55%, rgba(20,15,10,0) 100%),
-            linear-gradient(180deg, rgba(20,15,10,.55) 0%, rgba(20,15,10,.3) 40%, rgba(20,15,10,.86) 100%);
+            radial-gradient(ellipse 60% 55% at 50% 48%, rgba(20,15,10,.7) 0%, rgba(20,15,10,.4) 55%, transparent 100%),
+            linear-gradient(180deg, rgba(20,15,10,.55) 0%, rgba(20,15,10,.15) 40%, rgba(20,15,10,.6) 100%),
+            radial-gradient(ellipse at center, transparent 55%, rgba(12,8,4,.5) 100%);
         }
-        .disc-hero-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 120px; background: linear-gradient(180deg, transparent, var(--paper)); }
-        .disc-hero-inner { position: relative; z-index: 2; max-width: 780px; margin: 0 auto; padding: 0 28px; text-align: center; }
-        .disc-hero-eyebrow { display: inline-flex; align-items: center; gap: 14px; font-size: 13px; letter-spacing: .06em; color: #e0cc98; margin: 0 0 22px; font-weight: 500; }
-        .disc-hero-rule { width: 36px; height: 1px; background: linear-gradient(90deg, transparent, #d9c48f); }
-        .disc-hero-rule:last-child { transform: scaleX(-1); }
-        .disc-hero-title { font-family: var(--serif); font-weight: 500; font-size: clamp(36px, 5.4vw, 62px); line-height: 1.08; margin: 0 0 22px; letter-spacing: -0.015em; text-wrap: balance; text-shadow: 0 2px 30px rgba(0,0,0,.35); }
-        .disc-hero-sub { font-size: 16.5px; line-height: 1.65; color: #ece3d0; max-width: 540px; margin: 0 auto 38px; }
+        .disc-hero-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 140px; z-index: 2; background: linear-gradient(180deg, transparent, var(--paper)); pointer-events: none; }
+        .disc-hero-inner { position: relative; z-index: 3; width: 100%; max-width: 860px; margin: 0 auto; padding: 0 28px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+
+        .disc-hero-eyebrow { display: inline-flex; align-items: center; gap: 9px; margin: 0 0 26px; padding: 8px 16px 8px 14px; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; font-weight: 500; color: #f1d9a3; background: rgba(255,255,255,.1); border: 1px solid rgba(240,217,163,.4); border-radius: 999px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        .disc-hero-eyebrow svg { color: #e0bb74; }
+
+        .disc-hero-title { font-family: var(--serif); font-weight: 500; font-size: clamp(40px, 6.4vw, 84px); line-height: 1.04; letter-spacing: -0.025em; color: #fff; margin: 0 0 26px; text-shadow: 0 4px 40px rgba(0,0,0,.45); }
+        .disc-line { display: block; overflow: hidden; padding: .06em .12em .16em; margin: -.06em -.12em -.16em; }
+        .disc-line > span { display: inline-block; }
+        .disc-title-accent { font-style: italic; font-weight: 400; background: linear-gradient(100deg, #f8e6b8 0%, #e0bb74 45%, #c9a35a 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; text-shadow: none; filter: drop-shadow(0 4px 24px rgba(0,0,0,.35)); padding-right: .08em; }
+
+        .disc-hero-sub { font-size: 17px; line-height: 1.75; color: #fbf1da; max-width: 580px; margin: 0 auto 38px; text-shadow: 0 1px 18px rgba(0,0,0,.55); }
+
         .disc-hero-search {
-          display: flex; align-items: center; gap: 10px; max-width: 580px; margin: 0 auto;
+          display: flex; align-items: center; gap: 10px; width: 100%; max-width: 600px; margin: 0 auto;
           background: rgba(251,248,241,.97); color: var(--ink); border-radius: 999px;
-          padding: 7px 7px 7px 22px; box-shadow: 0 24px 50px -10px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.4) inset;
+          padding: 7px 7px 7px 22px; box-shadow: 0 24px 50px -10px rgba(0,0,0,.5), 0 0 0 6px rgba(255,255,255,.12);
           transition: box-shadow .25s ease;
         }
-        .disc-hero-search:focus-within { box-shadow: 0 24px 50px -10px rgba(0,0,0,.45), 0 0 0 3px rgba(217,196,143,.7); }
+        .disc-hero-search:focus-within { box-shadow: 0 24px 50px -10px rgba(0,0,0,.5), 0 0 0 6px rgba(224,187,116,.5); }
         .disc-hero-search > svg { color: var(--brass-deep); flex-shrink: 0; }
         .disc-hero-search input { flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-family: var(--sans); font-size: 14.5px; color: var(--ink); padding: 11px 0; }
         .disc-hero-search input::placeholder { color: #8a7f6d; }
         .disc-hero-clear { border: none; background: var(--paper-2); color: var(--ink-soft); width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; }
-        .disc-hero-go { background: var(--ink); color: var(--paper); border: none; border-radius: 999px; padding: 12px 24px; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: background .2s, transform .15s; }
-        .disc-hero-go:hover { background: var(--brass-deep); }
+        .disc-hero-go { position: relative; overflow: hidden; color: #fff; background: linear-gradient(135deg, #b88a3e, #96702f 55%, #7a5a22); border: none; border-radius: 999px; padding: 12px 26px; font-size: 13.5px; font-weight: 500; cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,.28); transition: filter .2s, transform .15s; }
+        .disc-hero-go::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.4) 50%, transparent 70%); transform: translateX(-120%); animation: disc-sheen 3.8s ease-in-out infinite 1.8s; pointer-events: none; }
+        .disc-hero-go:hover { filter: brightness(1.1); }
         .disc-hero-go:active { transform: scale(.97); }
+        @keyframes disc-sheen { 0% { transform: translateX(-120%); } 40%, 100% { transform: translateX(120%); } }
+
+        .disc-hero-quick { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; margin-top: 26px; }
+        .disc-hero-quick span { font-size: 12.5px; color: #e9d9b4; margin-right: 4px; }
+        .disc-hero-quick button { padding: 8px 16px; font-size: 13px; color: #fff; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.35); border-radius: 999px; cursor: pointer; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: background .2s, color .2s, border-color .2s, transform .15s; }
+        .disc-hero-quick button:hover { background: #fff; border-color: #fff; color: var(--wine); transform: translateY(-2px); }
+
+        .disc-hero-scroll { position: absolute; left: 50%; bottom: 28px; z-index: 4; width: 40px; height: 40px; margin-left: -20px; border-radius: 50%; display: grid; place-items: center; color: #f1d9a3; border: 1px solid rgba(255,255,255,.3); background: rgba(255,255,255,.08); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); cursor: pointer; animation: disc-bob 2.2s ease-in-out infinite; transition: background .2s, color .2s; }
+        .disc-hero-scroll:hover { background: #fff; color: var(--wine); }
+        @keyframes disc-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
 
         .disc-shell { display: grid; grid-template-columns: 280px 1fr; gap: 40px; max-width: 1360px; margin: 0 auto; padding: 40px 28px 90px; align-items: start; }
 
         .disc-sidebar { position: sticky; top: 84px; max-height: calc(100vh - 104px); overflow-y: auto; background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 22px 22px 8px; box-shadow: var(--shadow-sm); scrollbar-width: none; -ms-overflow-style: none; }
-.disc-sidebar::-webkit-scrollbar { display: none; }
+        .disc-sidebar::-webkit-scrollbar { display: none; }
         .disc-drawer-scrim { position: fixed; inset: 0; background: rgba(20,15,10,.5); backdrop-filter: blur(2px); z-index: 40; }
         .disc-drawer { position: fixed; top: 0; left: 0; bottom: 0; width: 320px; background: var(--paper); z-index: 41; padding: 20px 22px 24px; overflow-y: auto; box-shadow: 20px 0 50px rgba(0,0,0,.25); }
         .disc-drawer-close { background: var(--paper-2); border: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 14px; cursor: pointer; color: var(--ink); }
@@ -752,8 +826,8 @@ export default function Discover() {
         .disc-card:hover .disc-card-media::after { opacity: 1; }
         .disc-card-tag { position: absolute; top: 12px; left: 12px; z-index: 1; background: rgba(251,248,241,.9); backdrop-filter: blur(8px); color: var(--ink); font-size: 11.5px; font-weight: 500; padding: 5px 11px; border-radius: 999px; max-width: calc(100% - 70px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .disc-card-peek { position: absolute; left: 50%; bottom: 14px; z-index: 1; display: inline-flex; align-items: center; gap: 6px; background: var(--paper); color: var(--ink); font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 999px; transform: translate(-50%, 10px); opacity: 0; transition: opacity .3s, transform .3s cubic-bezier(.16,1,.3,1); border: none; cursor: pointer; box-shadow: 0 6px 16px rgba(0,0,0,.25); }
-.disc-card-peek:hover { background: #fff; }
-.disc-card-peek:focus-visible { opacity: 1; transform: translate(-50%, 0); }
+        .disc-card-peek:hover { background: #fff; }
+        .disc-card-peek:focus-visible { opacity: 1; transform: translate(-50%, 0); }
         .disc-card:hover .disc-card-peek { opacity: 1; transform: translate(-50%, 0); }
         .disc-fav { position: absolute; top: 10px; right: 10px; z-index: 2; width: 36px; height: 36px; border-radius: 50%; background: rgba(251,248,241,.92); backdrop-filter: blur(8px); border: none; display: grid; place-items: center; color: var(--ink-soft); cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.15); transition: color .2s, transform .2s; }
         .disc-fav:hover { color: var(--wine); transform: scale(1.08); }
@@ -831,6 +905,7 @@ export default function Discover() {
           .disc-shell { grid-template-columns: 1fr; }
           .disc-sidebar { display: none; }
           .disc-filter-toggle { display: inline-flex; }
+          .disc-hero { padding: 104px 0 100px; }
         }
         @media (max-width: 900px) {
           .disc-modal { grid-template-columns: 1fr; grid-template-rows: 240px 1fr; height: min(92vh, 720px); }
@@ -845,11 +920,12 @@ export default function Discover() {
           .disc-card-peek { display: none; }
         }
         @media (max-width: 480px) {
-          .disc-hero { padding-top: 56px; }
           .disc-hero-inner { padding: 0 18px; }
+          .disc-hero-sub { font-size: 16px; }
           .disc-hero-search { flex-wrap: wrap; padding: 10px; border-radius: 24px; }
           .disc-hero-search input { width: 100%; order: 3; padding: 6px 4px 4px; }
           .disc-hero-go { margin-left: auto; }
+          .disc-hero-scroll { display: none; }
           .disc-shell { padding: 28px 16px 60px; gap: 24px; }
           .disc-toolbar { gap: 10px; }
           .disc-count { flex-basis: 100%; order: 3; font-size: 13px; }
