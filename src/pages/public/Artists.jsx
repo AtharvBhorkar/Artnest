@@ -1,33 +1,16 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import meetingVideo from "../../assets/meeting.mp4";
 
-// ================================================================
-// SETTINGS
-// Hero video: src/assets/meeting.mp4 (imported above), unchanged.
-//
-// Photos come from the Unsplash photo IDs in the RAW list below.
-// Hannah Berg and Sylvan Zhou use your own local images, which must be in:
-//   Artnest/public/artworks/marble.jpg, marble1.jpg, marble2.jpg
-//   Artnest/public/artworks/wood.jpg,   wood1.jpg,   wood2.jpg
-//
-// Any entry that starts with "/" is used as a local path from /public.
-// If an image fails to load, a coloured tile (initials / craft emoji)
-// is shown instead, so the page never breaks.
-//
-// Bios and quotes below are sample text. Replace with each artist's own words.
-// ================================================================
 
-// Routes
+
 const ARTIST_LOGIN_PATH = "/artist-login";
 const DISCOVER_PATH = "/discover";
 
-// Height of your fixed navbar in px
+
 const STICKY_TOP = 80;
 
-// Heading font
 const HEADING = "font-serif";
 
-// Artist shown in the spotlight section (use an id from the list below)
 const SPOTLIGHT_ID = "elora-vance";
 
 const slug = (s) =>
@@ -38,15 +21,13 @@ const slug = (s) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
-// A local path ("/artworks/x.jpg") or full URL stays as it is;
-// a bare Unsplash ID becomes an Unsplash URL
+
 const unsplash = (id, w) =>
   id.startsWith("/") || id.startsWith("http")
     ? id
     : `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&q=80&w=${w}`;
 
-// --- DATA -------------------------------------------------------
-// `portrait` = the artist's photo, `works` = their three artworks.
+
 const RAW = [
   {
     name: "Elora Vance",
@@ -99,7 +80,7 @@ const RAW = [
     bio: "Clara paints Mediterranean light in warm, glazed layers that take weeks to dry and a moment to fall in love with.",
     quote: "Light is the one subject I have never finished.",
     portrait: "1438761681033-6461ffad8d80",
-    // FIXED: the old first image ID (1579783902614...) no longer loads on Unsplash
+    
     works: [
       "1561214115-f2f134cc4912",
       "1578926375605-eaf7559b1458",
@@ -264,7 +245,7 @@ const SECTIONS = [
   },
 ];
 
-// "Inside the studio": how three of these crafts are actually made
+
 const STUDIO = [
   {
     title: "Clay and fire",
@@ -319,7 +300,7 @@ const ARTISTS = RAW.map((a) => {
 
 const TOTAL_WORKS = ARTISTS.reduce((n, a) => n + a.works.length, 0);
 
-// Background collage for the "Every artist is welcome" section (12 different artworks)
+
 const COLLAGE = [
   ...new Set(ARTISTS.flatMap((a) => a.works.map((w) => w.thumb))),
 ].slice(0, 12);
@@ -342,7 +323,7 @@ const WELCOME = [
   "Self-taught artists",
 ];
 
-// --- SMALL PIECES -----------------------------------------------
+
 
 const FALLBACK_ART_IMAGE = "https://images.unsplash.com/photo-1541961017774-22349e4a1262?auto=format&fit=crop&q=85&w=1200";
 
@@ -372,7 +353,7 @@ function Photo({ src, alt, fallback, className, textClass = "text-5xl" }) {
   );
 }
 
-// Round artist portrait
+
 function Avatar({ artist, className = "h-14 w-14", textClass = "text-base" }) {
   return (
     <Photo
@@ -466,7 +447,7 @@ function QuickView({ artist, position, total, onPrev, onNext, onClose }) {
   const [active, setActive] = useState(0);
   const work = artist.works[active];
 
-  // Lock page scroll and focus the close button when the dialog opens
+  
   useEffect(() => {
     document.body.style.overflow = "hidden";
     closeRef.current?.focus();
@@ -475,7 +456,7 @@ function QuickView({ artist, position, total, onPrev, onNext, onClose }) {
     };
   }, []);
 
-  // Keyboard: Esc closes, arrows move between artists
+  
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") onClose();
@@ -572,7 +553,7 @@ function QuickView({ artist, position, total, onPrev, onNext, onClose }) {
           </div>
         </div>
 
-        {/* Artworks created by this artist */}
+        
         <div className="border-t border-[#EBD9CF] px-6 py-5 sm:px-8">
           <h3 className={`${HEADING} text-xl text-[#1F1410]`}>
             Artworks by {artist.name}
@@ -632,7 +613,7 @@ function QuickView({ artist, position, total, onPrev, onNext, onClose }) {
   );
 }
 
-// Large feature on one artist, with their work and their own words
+
 function Spotlight({ artist, onOpen }) {
   return (
     <section
@@ -707,7 +688,7 @@ function Spotlight({ artist, onOpen }) {
   );
 }
 
-// How the work is made
+
 function Studio() {
   return (
     <section className="mb-16" aria-label="Inside the studio">
@@ -751,7 +732,7 @@ function Studio() {
   );
 }
 
-// --- PAGE -------------------------------------------------------
+
 
 export default function Artists() {
   const [query, setQuery] = useState("");
@@ -759,7 +740,7 @@ export default function Artists() {
   const [selectedId, setSelectedId] = useState(null);
   const [videoFailed, setVideoFailed] = useState(false);
 
-  // Artists are always listed A to Z
+  
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     return ARTISTS.filter((a) => {
@@ -784,7 +765,7 @@ export default function Artists() {
       ordered[(selectedIndex + dir + ordered.length) % ordered.length].id,
     );
 
-  // Spotlight can open an artist even if filters hide them, so reset first
+  
   const openFromSpotlight = (id) => {
     setQuery("");
     setCraft("All");
@@ -798,7 +779,7 @@ export default function Artists() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#FFFBF8] via-[#FBEFE9] to-[#F3DDD3] text-[#1F1410] antialiased">
-      {/* HERO with video background (shorter) */}
+      
       <section
         className="relative flex min-h-[78vh] items-center overflow-hidden bg-gradient-to-br from-[#3B1C12] to-[#170D09] bg-cover bg-center sm:min-h-[calc(92vh-80px)] lg:min-h-[calc(94vh-80px)]"
         style={{ backgroundImage: `url(https://images.unsplash.com/photo-1561214115-f2f134cc4912?auto=format&fit=crop&q=85&w=2000)` }}
@@ -850,7 +831,7 @@ export default function Artists() {
         </div>
       </section>
 
-      {/* SEARCH + FILTERS: one compact row (stacks on small screens) */}
+      
       <div
         className="sticky z-30 border-b border-[#EBD9CF] bg-[#FFFBF8]/95 backdrop-blur"
         style={{ top: STICKY_TOP }}
@@ -897,7 +878,7 @@ export default function Artists() {
       </div>
 
       <main className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-12">
-        {/* Spotlight only when not searching or filtering */}
+        
         {!isFiltering && spotlight && (
           <Spotlight artist={spotlight} onOpen={openFromSpotlight} />
         )}
@@ -938,7 +919,7 @@ export default function Artists() {
         ) : (
           groups.map((g) => (
             <section key={g.craft} className="mb-10">
-              {/* Slim banner image matching the section topic */}
+            
               <div className="relative mb-4 h-32 overflow-hidden rounded-2xl bg-[#2A1510] sm:h-36 lg:h-40">
                 <Photo
                   src={unsplash(g.image, 1400)}
@@ -975,10 +956,10 @@ export default function Artists() {
           ))
         )}
 
-        {/* How the work is made */}
+        
         {!isFiltering && <Studio />}
 
-        {/* WELCOME */}
+        
         <section className="relative overflow-hidden rounded-3xl bg-[#2A1510]">
           <div
             className="absolute inset-0 grid grid-cols-4 grid-rows-3 sm:grid-cols-6 sm:grid-rows-2"
