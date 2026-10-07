@@ -12,9 +12,7 @@ const hideBroken = (e) => {
 };
 
 const HERO_POSTER = IMG("photo-1536924940846-227afb31e2a5", 1600);
-
-
-const STORY_VIDEO = "/videos/printmaking.mp4";
+const STORY_VIDEO = "/videos/craft.mp4";
 const STORY_POSTER = IMG("photo-1460661419201-fd4cecdf8a8b", 1000);
 
 const MEDIUMS = [
@@ -66,12 +64,11 @@ const VALUES = [
   { icon: Globe2, title: "Made to travel", body: "Archival packaging and insured shipping mean every piece arrives exactly as the artist intended." },
 ];
 
-
 function StoryMedia() {
   const [failed, setFailed] = useState(false);
 
   return (
-    <div className="relative rounded-2xl overflow-hidden aspect-[4/5] bg-stone-300 shadow-md">
+    <div className="relative rounded-2xl overflow-hidden aspect-[4/5] bg-stone-300 shadow-xl ring-1 ring-black/5">
       {!failed ? (
         <video
           className="absolute inset-0 w-full h-full object-cover motion-reduce:hidden"
@@ -82,17 +79,18 @@ function StoryMedia() {
           loop
           playsInline
           preload="auto"
-          aria-label="An artist inking and pulling a print by hand"
+          aria-label="An artist at work in the studio"
           onError={() => setFailed(true)}
         />
       ) : null}
-      
+
       <img
         src={STORY_POSTER}
         alt="A hand-pulled print being lifted from the plate"
         onError={hideBroken}
         className={`absolute inset-0 w-full h-full object-cover athenura-drift ${failed ? "" : "hidden motion-reduce:block"}`}
       />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
     </div>
   );
 }
@@ -101,6 +99,8 @@ export default function About() {
   return (
     <div className="bg-[var(--color-canvas,#fcfbf9)] text-[var(--color-neutral,#1a1a1a)] font-['Plus_Jakarta_Sans',sans-serif]">
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
         @keyframes athenura-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
         .athenura-marquee { animation: athenura-marquee 40s linear infinite; }
         @keyframes athenura-drift {
@@ -108,12 +108,59 @@ export default function About() {
           to { transform: scale(1.12) translate(-2%, -2%); }
         }
         .athenura-drift { animation: athenura-drift 18s ease-in-out infinite alternate; }
+
+        .athenura-story-title {
+          font-family: 'Playfair Display', serif;
+          letter-spacing: -0.02em;
+        }
+        .athenura-story-title em {
+          font-style: italic;
+          background: linear-gradient(120deg, #b45309, #d97706 55%, #92400e);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+        }
+        .athenura-story-copy p {
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-size: 21px;
+          line-height: 1.7;
+          font-weight: 500;
+          color: #44403c;
+          letter-spacing: 0.005em;
+          text-wrap: pretty;
+          hyphens: auto;
+        }
+        .athenura-story-copy p.athenura-lead {
+          font-size: 25px;
+          line-height: 1.55;
+          color: #1c1917;
+        }
+        .athenura-story-copy p.athenura-lead::first-letter {
+          font-family: 'Playfair Display', serif;
+          float: left;
+          font-size: 4.4rem;
+          line-height: 0.82;
+          padding: 0.35rem 0.7rem 0 0;
+          color: #b45309;
+          font-weight: 500;
+        }
+        .athenura-story-copy p strong {
+          font-weight: 600;
+          color: #1c1917;
+        }
+        .athenura-story-copy p em {
+          font-style: italic;
+          color: #92400e;
+        }
+        @media (max-width: 640px) {
+          .athenura-story-copy p { font-size: 19px; }
+          .athenura-story-copy p.athenura-lead { font-size: 22px; }
+        }
         @media (prefers-reduced-motion: reduce) {
           .athenura-marquee { animation: none; }
           .athenura-drift { animation: none; }
         }
       `}</style>
-
 
       <section className="relative min-h-[560px] sm:min-h-[680px] flex items-center justify-center overflow-hidden bg-stone-900">
         <video
@@ -153,7 +200,6 @@ export default function About() {
         </div>
       </section>
 
-      
       <section className="overflow-hidden border-b border-[var(--color-outline,#e5e5e5)] bg-[var(--color-section,#f5f4f0)] py-4" aria-label="Art mediums on Athenura">
         <div className="athenura-marquee flex w-max gap-10 whitespace-nowrap font-['Playfair_Display',serif] italic text-[20px] text-stone-600">
           {[...MEDIUMS, ...MEDIUMS].map((m, i) => (
@@ -162,27 +208,30 @@ export default function About() {
         </div>
       </section>
 
-      
-      <section className="max-w-[1100px] mx-auto px-6 py-16 sm:py-24 grid grid-cols-1 md:grid-cols-2 gap-14 items-center">
+      <section className="max-w-[1100px] mx-auto px-6 py-16 sm:py-24 grid grid-cols-1 md:grid-cols-2 gap-14 md:gap-20 items-center">
         <StoryMedia />
 
-        <div className="space-y-4 text-[15px] leading-[1.75]">
-          <h2 className="font-['Playfair_Display',serif] text-[30px] sm:text-[38px] leading-tight mb-3">
-            Craft comes first
+        <div className="athenura-story-copy">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.28em] text-amber-700 !font-['Plus_Jakarta_Sans',sans-serif] !text-[12px] !leading-none">
+            Our story
+          </p>
+          <h2 className="athenura-story-title mt-4 mb-8 text-[38px] sm:text-[52px] leading-[1.05]">
+            Craft <em>comes first</em>
           </h2>
-          <p>
-            Athenura started with a frustration: gifted artists were spending more hours posting online than making art, and buyers had no reliable way to find original work from a real maker.
-          </p>
-          <p>
-            Every piece carries months of practice: sketches discarded, pigments remixed, plates re-inked, kilns fired twice. That effort deserves to be seen, so each listing tells you who made the piece, how, and why.
-          </p>
-          <p>
-            Today, painters, sculptors, ceramicists, printmakers and digital artists from around the world sell here, and every one of them is reviewed before their first piece goes live.
-          </p>
+          <div className="space-y-5">
+            <p className="athenura-lead">
+              Athenura started with a frustration: gifted artists were spending more hours posting online than making art, and buyers had no reliable way to find original work from a real maker.
+            </p>
+            <p>
+              Every piece carries months of practice: sketches discarded, pigments remixed, plates re-inked, kilns fired twice. That effort deserves to be seen, so each listing tells you who made the piece, how, and why.
+            </p>
+            <p>
+              Today, painters, sculptors, ceramicists, printmakers and digital artists from around the world sell here, and every one of them is reviewed before their first piece goes live.
+            </p>
+          </div>
         </div>
       </section>
 
-      
       <section className="border-y border-[var(--color-outline,#e5e5e5)] bg-[var(--color-section,#f5f4f0)]">
         <div className="max-w-[900px] mx-auto px-6 py-12 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
           {STATS.map((s) => (
@@ -194,7 +243,6 @@ export default function About() {
         </div>
       </section>
 
-      
       <section className="max-w-[1100px] mx-auto px-6 py-16 sm:py-24">
         <div className="max-w-[620px] mb-12">
           <h2 className="font-['Playfair_Display',serif] text-[30px] sm:text-[38px] leading-tight">
@@ -228,7 +276,6 @@ export default function About() {
         </div>
       </section>
 
-      
       <section className="bg-stone-900 text-white">
         <div className="max-w-[1100px] mx-auto px-6 py-16 sm:py-24">
           <h2 className="font-['Playfair_Display',serif] text-[30px] sm:text-[38px] leading-tight max-w-[560px]">
@@ -249,7 +296,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* ARTIST VOICE */}
       <section className="max-w-[820px] mx-auto px-6 py-16 sm:py-24 text-center">
         <Quote size={28} strokeWidth={1.5} className="mx-auto text-amber-700" />
         <blockquote className="mt-5 font-['Playfair_Display',serif] text-[24px] sm:text-[32px] leading-snug">
@@ -260,7 +306,6 @@ export default function About() {
         </p>
       </section>
 
-      {/* VALUES */}
       <section className="border-t border-[var(--color-outline,#e5e5e5)] bg-[var(--color-section,#f5f4f0)]">
         <div className="max-w-[1100px] mx-auto px-6 py-16 sm:py-20">
           <h2 className="font-['Playfair_Display',serif] text-[30px] sm:text-[38px] leading-tight">What we believe</h2>
@@ -283,7 +328,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="border-t border-[var(--color-outline,#e5e5e5)]">
         <div className="max-w-[640px] mx-auto px-6 py-16 sm:py-20 text-center">
           <h2 className="font-['Playfair_Display',serif] text-[28px] sm:text-[34px] leading-tight">
