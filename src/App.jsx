@@ -14,6 +14,7 @@ import ArtistDetails from "./pages/public/ArtistDetails";
 import CustomArt from "./pages/public/CustomArt";
 import About from "./pages/public/About";
 import Contact from "./pages/public/Contact";
+import Blog from "./pages/public/Blog";
 import Privacy from "./pages/public/Privacy";
 import Terms from "./pages/public/Terms";
 import NotFound from "./pages/public/NotFound";
@@ -80,6 +81,7 @@ export default function App() {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/blog" element={<Blog />} />
 
           <Route path="/dashboard" element={<BuyerDashboard />} />
           <Route path="/wishlist" element={<Wishlist />} />
