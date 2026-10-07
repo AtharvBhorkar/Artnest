@@ -19,6 +19,10 @@ import Privacy from "./pages/public/Privacy";
 import Terms from "./pages/public/Terms";
 import NotFound from "./pages/public/NotFound";
 import Feed from "./pages/public/Feed";
+import FAQ from "./pages/public/FAQ";
+import Gallery from "./pages/public/Gallery";
+import Packaging from "./pages/public/Packaging";
+import Accessibility from "./pages/public/Accessibility";
 
 // Auth pages
 import BuyerLogin from "./pages/auth/BuyerLogin";
@@ -82,6 +86,10 @@ export default function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/blog" element={<Blog />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/packaging" element={<Packaging />} />
+          <Route path="/accessibility" element={<Accessibility />} />
 
           <Route path="/dashboard" element={<BuyerDashboard />} />
           <Route path="/wishlist" element={<Wishlist />} />
@@ -131,7 +139,6 @@ export default function App() {
           <Route path="settings" element={<AdminSettings />} />
         </Route>
 
-        {/* short aliases */}
         <Route path="/adminLogin" element={<Navigate to="/admin/login" replace />} />
         <Route path="/artistLogin" element={<Navigate to="/artist/login" replace />} />
         <Route path="/artistReg" element={<Navigate to="/artist/register" replace />} />
