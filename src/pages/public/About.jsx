@@ -12,7 +12,6 @@ const hideBroken = (e) => {
   e.currentTarget.style.display = "none";
 };
 
-const HERO_POSTER = IMG("photo-1536924940846-227afb31e2a5", 1600);
 const STORY_POSTER = IMG("photo-1460661419201-fd4cecdf8a8b", 1000);
 
 const MEDIUMS = [
@@ -162,11 +161,10 @@ export default function About() {
         }
       `}</style>
 
-      <section className="relative min-h-[560px] sm:min-h-[680px] flex items-center justify-center overflow-hidden bg-stone-900">
+      <section className="relative min-h-[calc(100svh-80px)] flex items-center justify-center overflow-hidden bg-gradient-to-br from-stone-800 to-stone-950">
         <video
           className="absolute inset-0 w-full h-full object-cover"
           src={aboutVideo}
-          poster={HERO_POSTER}
           autoPlay
           muted
           loop
@@ -175,7 +173,7 @@ export default function About() {
         />
         <div className="absolute inset-0 bg-black/55" />
 
-        <div className="relative z-10 w-full max-w-[1100px] mx-auto px-6 py-20 sm:py-28 text-center text-white">
+        <div className="relative z-10 w-full max-w-[1100px] mx-auto px-6 py-14 sm:py-20 text-center text-white">
           <p className="text-[13px] text-amber-200 font-medium">About Athenura</p>
           <h1 className="mt-3 mx-auto max-w-[800px] font-['Playfair_Display',serif] text-[38px] sm:text-[68px] leading-[1.05] font-normal tracking-tight">
             Every artwork starts with someone who couldn't stop making it.

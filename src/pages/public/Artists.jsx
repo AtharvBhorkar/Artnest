@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import artistVideo from "../../assets/artist.mp4";
 
 const ARTIST_LOGIN_PATH = "/artist-login";
@@ -322,8 +323,13 @@ const WELCOME = [
 const FALLBACK_ART_IMAGE =
   "https://images.unsplash.com/photo-1541961017774-22349e4a1262?auto=format&fit=crop&q=85&w=1200";
 
-function Photo({ src, alt, fallback, className, textClass = "text-5xl" }) {
+function Photo({ src, alt, className }) {
   const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [src]);
+
   if (failed) {
     return (
       <div
@@ -352,13 +358,11 @@ function Photo({ src, alt, fallback, className, textClass = "text-5xl" }) {
   );
 }
 
-function Avatar({ artist, className = "h-14 w-14", textClass = "text-base" }) {
+function Avatar({ artist, className = "h-14 w-14" }) {
   return (
     <Photo
       src={artist.portrait}
       alt={`Portrait of ${artist.name}`}
-      fallback={artist.initials}
-      textClass={textClass}
       className={`${className} shrink-0 rounded-full object-cover shadow-sm ring-2 ring-white`}
     />
   );
@@ -399,7 +403,6 @@ function ArtistCard({ artist, onOpen }) {
         <Photo
           src={artist.image}
           alt={`Artwork by ${artist.name}`}
-          fallback={artist.emoji}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-medium text-[#5C453B] backdrop-blur">
@@ -409,7 +412,7 @@ function ArtistCard({ artist, onOpen }) {
 
       <div className="flex flex-1 flex-col gap-1 p-4">
         <div className="flex items-center gap-2.5">
-          <Avatar artist={artist} className="h-10 w-10" textClass="text-sm" />
+          <Avatar artist={artist} className="h-10 w-10" />
           <div className="min-w-0">
             <h3 className={`${HEADING} text-lg leading-snug text-[#1F1410]`}>
               {artist.name}
@@ -480,7 +483,6 @@ function QuickView({ artist, position, total, onPrev, onNext, onClose }) {
             key={work.image}
             src={work.image}
             alt={`Artwork ${active + 1} by ${artist.name}`}
-            fallback={artist.emoji}
             className="aspect-[4/3] w-full object-cover sm:aspect-auto sm:h-full sm:min-h-[440px]"
           />
 
@@ -490,7 +492,6 @@ function QuickView({ artist, position, total, onPrev, onNext, onClose }) {
                 <Avatar
                   artist={artist}
                   className="h-14 w-14"
-                  textClass="text-xl"
                 />
                 <div>
                   <p className="mb-1 text-xs font-semibold tracking-[0.14em] text-[#A9462A]">
@@ -539,12 +540,12 @@ function QuickView({ artist, position, total, onPrev, onNext, onClose }) {
             </div>
 
             <div className="mt-auto flex flex-wrap gap-2 pt-2">
-              <a
-                href={DISCOVER_PATH}
+              <Link
+                to={DISCOVER_PATH}
                 className={`rounded-lg px-5 py-2.5 text-sm ${primaryBtn}`}
               >
                 Browse artworks
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -573,8 +574,6 @@ function QuickView({ artist, position, total, onPrev, onNext, onClose }) {
                     <Photo
                       src={w.thumb}
                       alt={`Artwork ${i + 1} by ${artist.name}`}
-                      fallback={artist.emoji}
-                      textClass="text-3xl"
                       className="aspect-[16/10] w-full object-cover"
                     />
                   </div>
@@ -620,7 +619,6 @@ function Spotlight({ artist, onOpen }) {
             <Photo
               src={artist.works[1].image}
               alt={`Featured artwork by ${artist.name}`}
-              fallback={artist.emoji}
               className="aspect-[4/3] w-full object-cover"
             />
           </div>
@@ -629,8 +627,6 @@ function Spotlight({ artist, onOpen }) {
               <Photo
                 src={artist.works[0].thumb}
                 alt={`Artwork by ${artist.name}`}
-                fallback={artist.emoji}
-                textClass="text-3xl"
                 className="aspect-[4/3] w-full object-cover"
               />
             </div>
@@ -638,15 +634,12 @@ function Spotlight({ artist, onOpen }) {
               <Photo
                 src={artist.works[2].thumb}
                 alt={`Artwork by ${artist.name}`}
-                fallback={artist.emoji}
-                textClass="text-3xl"
                 className="aspect-[4/3] w-full object-cover"
               />
             </div>
             <Avatar
               artist={artist}
               className="mt-auto h-20 w-20 self-end"
-              textClass="text-2xl"
             />
           </div>
         </div>
@@ -704,7 +697,6 @@ function Studio() {
             <Photo
               src={unsplash(s.image, 900)}
               alt={s.title}
-              fallback="🎨"
               className="aspect-[16/9] w-full object-cover"
             />
             <div className="p-5 sm:p-6">
@@ -730,6 +722,15 @@ export default function Artists() {
   const [craft, setCraft] = useState("All");
   const [selectedId, setSelectedId] = useState(null);
   const [videoFailed, setVideoFailed] = useState(false);
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = true;
+    const p = v.play();
+    if (p && p.catch) p.catch(() => {});
+  }, [videoFailed]);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -740,20 +741,24 @@ export default function Artists() {
     }).sort((a, b) => a.name.localeCompare(b.name));
   }, [query, craft]);
 
-  const groups = SECTIONS.map((s) => ({
-    ...s,
-    items: results.filter((a) => a.craft === s.craft),
-  })).filter((g) => g.items.length);
-  const ordered = groups.flatMap((g) => g.items);
+  const { groups, ordered } = useMemo(() => {
+    const grouped = SECTIONS.map((sec) => ({
+      ...sec,
+      items: results.filter((a) => a.craft === sec.craft),
+    })).filter((g) => g.items.length);
+    return { groups: grouped, ordered: grouped.flatMap((g) => g.items) };
+  }, [results]);
   const isFiltering = query.trim() !== "" || craft !== "All";
   const spotlight = ARTISTS.find((a) => a.id === SPOTLIGHT_ID);
 
   const selectedIndex = ordered.findIndex((a) => a.id === selectedId);
   const selected = selectedIndex >= 0 ? ordered[selectedIndex] : null;
-  const step = (dir) => () =>
+  const step = (dir) => () => {
+    if (!ordered.length) return;
     setSelectedId(
       ordered[(selectedIndex + dir + ordered.length) % ordered.length].id,
     );
+  };
 
   const openFromSpotlight = (id) => {
     setQuery("");
@@ -768,14 +773,10 @@ export default function Artists() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#FFFBF8] via-[#FBEFE9] to-[#F3DDD3] text-[#1F1410] antialiased">
-      <section
-        className="relative flex min-h-[78vh] items-center overflow-hidden bg-gradient-to-br from-[#3B1C12] to-[#170D09] bg-cover bg-center sm:min-h-[calc(92vh-80px)] lg:min-h-[calc(94vh-80px)]"
-        style={{
-          backgroundImage: `url(https://images.unsplash.com/photo-1561214115-f2f134cc4912?auto=format&fit=crop&q=85&w=2000)`,
-        }}
-      >
+      <section className="relative flex min-h-[calc(100svh-80px)] items-center overflow-hidden bg-gradient-to-br from-[#3B1C12] to-[#170D09]">
         {!videoFailed && (
           <video
+            ref={videoRef}
             src={artistVideo}
             autoPlay
             loop
@@ -788,7 +789,7 @@ export default function Artists() {
         )}
         <div className="absolute inset-0 bg-gradient-to-r from-[#160B08]/75 via-[#1A0E0A]/45 to-[#1A0E0A]/30" />
 
-        <div className="relative mx-auto w-full max-w-5xl px-4 py-20 text-center sm:py-28 lg:py-32">
+        <div className="relative mx-auto w-full max-w-5xl px-4 py-12 text-center sm:py-16">
           <h1
             className={`${HEADING} text-5xl leading-[1.05] text-white sm:text-6xl lg:text-7xl`}
           >
@@ -911,7 +912,6 @@ export default function Artists() {
                 <Photo
                   src={unsplash(g.image, 1400)}
                   alt={`${g.eyebrow} at work`}
-                  fallback={CRAFT_EMOJI[g.craft]}
                   className="absolute inset-0 h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#1A0E0A]/85 via-[#1A0E0A]/50 to-transparent" />
@@ -926,12 +926,12 @@ export default function Artists() {
                       {g.title}
                     </h2>
                   </div>
-                  <a
-                    href={DISCOVER_PATH}
+                  <Link
+                    to={DISCOVER_PATH}
                     className="shrink-0 text-sm font-medium text-white underline underline-offset-4"
                   >
                     {g.link}
-                  </a>
+                  </Link>
                 </div>
               </div>
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -991,12 +991,12 @@ export default function Artists() {
             </ul>
 
             <div className="mt-6">
-              <a
-                href={ARTIST_LOGIN_PATH}
+              <Link
+                to={ARTIST_LOGIN_PATH}
                 className={`inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-semibold text-[#8F3A22] hover:bg-[#FBEFE9] ${ring}`}
               >
                 <Icon d={USER} /> Artist login
-              </a>
+              </Link>
               <p className="mt-3 text-sm text-[#E7D3C8]">
                 New to Athenura? You can create your account from the login
                 page.
