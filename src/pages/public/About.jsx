@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Sparkles, HandHeart, ShieldCheck, Globe2, Quote } from "lucide-react";
 
@@ -94,7 +94,42 @@ function StoryMedia() {
   );
 }
 
+function HeroVideo({ onRatio }) {
+  const ref = useRef(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    v.muted = true;
+    const p = v.play();
+    if (p && p.catch) p.catch(() => {});
+  }, []);
+
+  if (failed) return null;
+
+  return (
+    <video
+      ref={ref}
+      className="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
+      src={aboutVideo}
+      autoPlay
+      muted
+      loop
+      playsInline
+      preload="auto"
+      onLoadedMetadata={(e) => {
+        const { videoWidth: w, videoHeight: h } = e.currentTarget;
+        if (w && h) onRatio(Math.max(w / h, 1.2));
+      }}
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 export default function About() {
+  const [ratio, setRatio] = useState(16 / 9);
+
   return (
     <div className="bg-[var(--color-canvas,#fcfbf9)] text-[var(--color-neutral,#1a1a1a)] font-['Plus_Jakarta_Sans',sans-serif]">
       <style>{`
@@ -161,19 +196,12 @@ export default function About() {
         }
       `}</style>
 
-      <section className="relative min-h-[calc(100svh-80px)] flex items-center justify-center overflow-hidden bg-gradient-to-br from-stone-800 to-stone-950">
-        <video
-          className="absolute inset-0 w-full h-full object-cover"
-          src={aboutVideo}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-        />
+      <section className="relative grid overflow-hidden bg-gradient-to-br from-stone-800 to-stone-950">
+        <HeroVideo onRatio={setRatio} />
         <div className="absolute inset-0 bg-black/55" />
+        <div aria-hidden="true" className="col-start-1 row-start-1 w-full" style={{ aspectRatio: ratio }} />
 
-        <div className="relative z-10 w-full max-w-[1100px] mx-auto px-6 py-14 sm:py-20 text-center text-white">
+        <div className="relative z-10 col-start-1 row-start-1 self-center w-full max-w-[1100px] mx-auto px-6 py-14 sm:py-20 text-center text-white">
           <p className="text-[13px] text-amber-200 font-medium">About Athenura</p>
           <h1 className="mt-3 mx-auto max-w-[800px] font-['Playfair_Display',serif] text-[38px] sm:text-[68px] leading-[1.05] font-normal tracking-tight">
             Every artwork starts with someone who couldn't stop making it.
