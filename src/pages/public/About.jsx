@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Sparkles, HandHeart, ShieldCheck, Globe2, Quote } from "lucide-react";
 
-import aboutVideo from "../auth/about.mp4";
+import aboutVideo from "../../assets/about1.mp4";
+import storyVideo from "../../assets/artist.mp4";
 
 const IMG = (id, w = 900) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
@@ -12,7 +13,6 @@ const hideBroken = (e) => {
 };
 
 const HERO_POSTER = IMG("photo-1536924940846-227afb31e2a5", 1600);
-const STORY_VIDEO = "/videos/craft.mp4";
 const STORY_POSTER = IMG("photo-1460661419201-fd4cecdf8a8b", 1000);
 
 const MEDIUMS = [
@@ -72,7 +72,7 @@ function StoryMedia() {
       {!failed ? (
         <video
           className="absolute inset-0 w-full h-full object-cover motion-reduce:hidden"
-          src={STORY_VIDEO}
+          src={storyVideo}
           poster={STORY_POSTER}
           autoPlay
           muted

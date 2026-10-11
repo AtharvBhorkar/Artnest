@@ -1,11 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
-import meetingVideo from "../../assets/meeting.mp4";
-
-
+import artistVideo from "../../assets/artist.mp4";
 
 const ARTIST_LOGIN_PATH = "/artist-login";
 const DISCOVER_PATH = "/discover";
-
 
 const STICKY_TOP = 80;
 
@@ -21,12 +18,10 @@ const slug = (s) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
-
 const unsplash = (id, w) =>
   id.startsWith("/") || id.startsWith("http")
     ? id
     : `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&q=80&w=${w}`;
-
 
 const RAW = [
   {
@@ -69,7 +64,11 @@ const RAW = [
     bio: "Sylvan joins Japanese woodworking with cast bronze, making forms that fit together without a single screw.",
     quote: "Wood remembers how it grew. I only listen.",
     portrait: "1500648767791-00dcc994a43e",
-    works: ["1549490349-8643362247b5", "1513519245088-0e12902e5a38", "1582561424760-0321d75e81fa"],
+    works: [
+      "1549490349-8643362247b5",
+      "1513519245088-0e12902e5a38",
+      "1582561424760-0321d75e81fa",
+    ],
   },
   {
     name: "Clara Miró",
@@ -80,7 +79,6 @@ const RAW = [
     bio: "Clara paints Mediterranean light in warm, glazed layers that take weeks to dry and a moment to fall in love with.",
     quote: "Light is the one subject I have never finished.",
     portrait: "1438761681033-6461ffad8d80",
-    
     works: [
       "1561214115-f2f134cc4912",
       "1578926375605-eaf7559b1458",
@@ -245,7 +243,6 @@ const SECTIONS = [
   },
 ];
 
-
 const STUDIO = [
   {
     title: "Clay and fire",
@@ -300,7 +297,6 @@ const ARTISTS = RAW.map((a) => {
 
 const TOTAL_WORKS = ARTISTS.reduce((n, a) => n + a.works.length, 0);
 
-
 const COLLAGE = [
   ...new Set(ARTISTS.flatMap((a) => a.works.map((w) => w.thumb))),
 ].slice(0, 12);
@@ -323,15 +319,18 @@ const WELCOME = [
   "Self-taught artists",
 ];
 
-
-
-const FALLBACK_ART_IMAGE = "https://images.unsplash.com/photo-1541961017774-22349e4a1262?auto=format&fit=crop&q=85&w=1200";
+const FALLBACK_ART_IMAGE =
+  "https://images.unsplash.com/photo-1541961017774-22349e4a1262?auto=format&fit=crop&q=85&w=1200";
 
 function Photo({ src, alt, fallback, className, textClass = "text-5xl" }) {
   const [failed, setFailed] = useState(false);
   if (failed) {
     return (
-      <div className={`${className} relative overflow-hidden bg-[#F1E4DC]`} role="img" aria-label={alt}>
+      <div
+        className={`${className} relative overflow-hidden bg-[#F1E4DC]`}
+        role="img"
+        aria-label={alt}
+      >
         <img
           src={FALLBACK_ART_IMAGE}
           alt={alt}
@@ -352,7 +351,6 @@ function Photo({ src, alt, fallback, className, textClass = "text-5xl" }) {
     />
   );
 }
-
 
 function Avatar({ artist, className = "h-14 w-14", textClass = "text-base" }) {
   return (
@@ -447,7 +445,6 @@ function QuickView({ artist, position, total, onPrev, onNext, onClose }) {
   const [active, setActive] = useState(0);
   const work = artist.works[active];
 
-  
   useEffect(() => {
     document.body.style.overflow = "hidden";
     closeRef.current?.focus();
@@ -456,7 +453,6 @@ function QuickView({ artist, position, total, onPrev, onNext, onClose }) {
     };
   }, []);
 
-  
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") onClose();
@@ -553,7 +549,6 @@ function QuickView({ artist, position, total, onPrev, onNext, onClose }) {
           </div>
         </div>
 
-        
         <div className="border-t border-[#EBD9CF] px-6 py-5 sm:px-8">
           <h3 className={`${HEADING} text-xl text-[#1F1410]`}>
             Artworks by {artist.name}
@@ -612,7 +607,6 @@ function QuickView({ artist, position, total, onPrev, onNext, onClose }) {
     </div>
   );
 }
-
 
 function Spotlight({ artist, onOpen }) {
   return (
@@ -688,7 +682,6 @@ function Spotlight({ artist, onOpen }) {
   );
 }
 
-
 function Studio() {
   return (
     <section className="mb-16" aria-label="Inside the studio">
@@ -732,15 +725,12 @@ function Studio() {
   );
 }
 
-
-
 export default function Artists() {
   const [query, setQuery] = useState("");
   const [craft, setCraft] = useState("All");
   const [selectedId, setSelectedId] = useState(null);
   const [videoFailed, setVideoFailed] = useState(false);
 
-  
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     return ARTISTS.filter((a) => {
@@ -765,7 +755,6 @@ export default function Artists() {
       ordered[(selectedIndex + dir + ordered.length) % ordered.length].id,
     );
 
-  
   const openFromSpotlight = (id) => {
     setQuery("");
     setCraft("All");
@@ -779,14 +768,15 @@ export default function Artists() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#FFFBF8] via-[#FBEFE9] to-[#F3DDD3] text-[#1F1410] antialiased">
-      
       <section
         className="relative flex min-h-[78vh] items-center overflow-hidden bg-gradient-to-br from-[#3B1C12] to-[#170D09] bg-cover bg-center sm:min-h-[calc(92vh-80px)] lg:min-h-[calc(94vh-80px)]"
-        style={{ backgroundImage: `url(https://images.unsplash.com/photo-1561214115-f2f134cc4912?auto=format&fit=crop&q=85&w=2000)` }}
+        style={{
+          backgroundImage: `url(https://images.unsplash.com/photo-1561214115-f2f134cc4912?auto=format&fit=crop&q=85&w=2000)`,
+        }}
       >
         {!videoFailed && (
           <video
-            src={meetingVideo}
+            src={artistVideo}
             autoPlay
             loop
             muted
@@ -831,7 +821,6 @@ export default function Artists() {
         </div>
       </section>
 
-      
       <div
         className="sticky z-30 border-b border-[#EBD9CF] bg-[#FFFBF8]/95 backdrop-blur"
         style={{ top: STICKY_TOP }}
@@ -878,7 +867,6 @@ export default function Artists() {
       </div>
 
       <main className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-12">
-        
         {!isFiltering && spotlight && (
           <Spotlight artist={spotlight} onOpen={openFromSpotlight} />
         )}
@@ -919,7 +907,6 @@ export default function Artists() {
         ) : (
           groups.map((g) => (
             <section key={g.craft} className="mb-10">
-            
               <div className="relative mb-4 h-32 overflow-hidden rounded-2xl bg-[#2A1510] sm:h-36 lg:h-40">
                 <Photo
                   src={unsplash(g.image, 1400)}
@@ -956,10 +943,8 @@ export default function Artists() {
           ))
         )}
 
-        
         {!isFiltering && <Studio />}
 
-        
         <section className="relative overflow-hidden rounded-3xl bg-[#2A1510]">
           <div
             className="absolute inset-0 grid grid-cols-4 grid-rows-3 sm:grid-cols-6 sm:grid-rows-2"
