@@ -207,7 +207,9 @@ function Field({ id, label, error, tick, optional, ok, fx, n, children }) {
     <motion.div className={`ca-field ${error ? "has-error" : ""}`} animate={controls}>
       {label && (
         <label htmlFor={id} className="ca-label">
-          {label} {optional && <em>optional</em>}
+          <span className="ca-label-text">
+            {label} {optional && <em>optional</em>}
+          </span>
           <AnimatePresence initial={false}>
             {ok && (
               <motion.span className="ca-ok" initial={{ scale: 0, rotate: -90, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} exit={{ scale: 0, opacity: 0 }} transition={{ type: "spring", stiffness: 420, damping: 18 }}>
@@ -305,12 +307,12 @@ function Section({ i, flags, activeIdx, children }) {
             i + 1
           )}
         </span>
-        <div>
+        <div className="ca-stage-txt">
           <h3>{stage.title}</h3>
           <p>{stage.hint}</p>
         </div>
       </div>
-      {children}
+      <div className="ca-sec-body">{children}</div>
     </div>
   );
 }
@@ -348,44 +350,46 @@ function Canvas({ form, flags, activeIdx, allDone }) {
   return (
     <div className="ca-panel ca-canvas-panel">
       <h3>Your commission takes shape</h3>
-      <svg viewBox="0 0 240 320" role="img" aria-label="A canvas that fills in as you complete each stage of the form">
-        <defs>
-          <clipPath id="ca-clip"><rect x="28" y="28" width="184" height="224" rx="3" /></clipPath>
-        </defs>
-        <path d="M62 262 L42 314 M178 262 L198 314 M120 262 L120 304" stroke="#cdbb97" strokeWidth="3" strokeLinecap="round" fill="none" />
-        <motion.rect x="12" y="12" width="216" height="256" rx="12" fill="none" stroke={GOLD} strokeWidth="2" initial={false} animate={{ opacity: seal ? [0.2, 1, 0.55] : 0 }} transition={{ duration: 1.4, repeat: seal ? Infinity : 0, repeatType: "reverse" }} />
-        <rect x="20" y="20" width="200" height="240" rx="6" fill="#fffdf8" stroke="#cdbb97" strokeWidth="1.5" strokeDasharray="5 5" />
-        <motion.rect x="20" y="20" width="200" height="240" rx="6" fill="none" stroke="#6f5222" strokeWidth="3" initial={false} animate={{ pathLength: intro ? 1 : 0, opacity: intro ? 1 : 0 }} transition={{ duration: 0.9, ease: EASE }} />
+      <div className="ca-canvas-stage">
+        <svg viewBox="0 0 240 320" role="img" aria-label="A canvas that fills in as you complete each stage of the form">
+          <defs>
+            <clipPath id="ca-clip"><rect x="28" y="28" width="184" height="224" rx="3" /></clipPath>
+          </defs>
+          <path d="M62 262 L42 314 M178 262 L198 314 M120 262 L120 304" stroke="#cdbb97" strokeWidth="3" strokeLinecap="round" fill="none" />
+          <motion.rect x="12" y="12" width="216" height="256" rx="12" fill="none" stroke={GOLD} strokeWidth="2" initial={false} animate={{ opacity: seal ? [0.2, 1, 0.55] : 0 }} transition={{ duration: 1.4, repeat: seal ? Infinity : 0, repeatType: "reverse" }} />
+          <rect x="20" y="20" width="200" height="240" rx="6" fill="#fffdf8" stroke="#cdbb97" strokeWidth="1.5" strokeDasharray="5 5" />
+          <motion.rect x="20" y="20" width="200" height="240" rx="6" fill="none" stroke="#6f5222" strokeWidth="3" initial={false} animate={{ pathLength: intro ? 1 : 0, opacity: intro ? 1 : 0 }} transition={{ duration: 0.9, ease: EASE }} />
 
-        <g clipPath="url(#ca-clip)">
-          {BLOBS.map((b, i) => (
-            <motion.circle key={i} cx={b.cx} cy={b.cy} r={b.r} fill={b.c} style={{ mixBlendMode: "multiply" }} initial={false} animate={{ scale: i < washes ? 1 : 0, opacity: i < washes ? 0.32 : 0 }} transition={{ duration: 0.8, delay: i * 0.07, ease: EASE }} />
-          ))}
-          {medium && (
-            <g key={form.type} fill="none" stroke="#1c1712" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              {sketch.map((d, i) => (
-                <motion.path key={d} d={d} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.7, delay: i * 0.14, ease: EASE }} />
-              ))}
-            </g>
-          )}
-          {STROKES.map((s, i) => (
-            <motion.path key={s.d} d={s.d} fill="none" stroke={s.c} strokeWidth="9" strokeLinecap="round" initial={false} animate={{ pathLength: idea ? 1 : 0, opacity: idea ? 0.55 : 0 }} transition={{ duration: 0.8, delay: i * 0.18, ease: EASE }} />
-          ))}
-        </g>
+          <g clipPath="url(#ca-clip)">
+            {BLOBS.map((b, i) => (
+              <motion.circle key={i} cx={b.cx} cy={b.cy} r={b.r} fill={b.c} style={{ mixBlendMode: "multiply" }} initial={false} animate={{ scale: i < washes ? 1 : 0, opacity: i < washes ? 0.32 : 0 }} transition={{ duration: 0.8, delay: i * 0.07, ease: EASE }} />
+            ))}
+            {medium && (
+              <g key={form.type} fill="none" stroke="#1c1712" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                {sketch.map((d, i) => (
+                  <motion.path key={d} d={d} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.7, delay: i * 0.14, ease: EASE }} />
+                ))}
+              </g>
+            )}
+            {STROKES.map((s, i) => (
+              <motion.path key={s.d} d={s.d} fill="none" stroke={s.c} strokeWidth="9" strokeLinecap="round" initial={false} animate={{ pathLength: idea ? 1 : 0, opacity: idea ? 0.55 : 0 }} transition={{ duration: 0.8, delay: i * 0.18, ease: EASE }} />
+            ))}
+          </g>
 
-        <motion.path d="M150 236 q8 -18 14 -2 t14 -2 t14 -6" fill="none" stroke={WINE} strokeWidth="2" strokeLinecap="round" initial={false} animate={{ pathLength: seal ? 1 : 0, opacity: seal ? 1 : 0 }} transition={{ duration: 0.8, delay: 0.2 }} />
-        <motion.g initial={false} animate={{ scale: seal ? 1 : 0, opacity: seal ? 1 : 0 }} transition={{ type: "spring", stiffness: 260, damping: 14, delay: 0.5 }}>
-          <circle cx="48" cy="236" r="11" fill={WINE} />
-          <circle cx="48" cy="236" r="7" fill="none" stroke="#e9cf9a" strokeWidth="1" />
-        </motion.g>
+          <motion.path d="M150 236 q8 -18 14 -2 t14 -2 t14 -6" fill="none" stroke={WINE} strokeWidth="2" strokeLinecap="round" initial={false} animate={{ pathLength: seal ? 1 : 0, opacity: seal ? 1 : 0 }} transition={{ duration: 0.8, delay: 0.2 }} />
+          <motion.g initial={false} animate={{ scale: seal ? 1 : 0, opacity: seal ? 1 : 0 }} transition={{ type: "spring", stiffness: 260, damping: 14, delay: 0.5 }}>
+            <circle cx="48" cy="236" r="11" fill={WINE} />
+            <circle cx="48" cy="236" r="7" fill="none" stroke="#e9cf9a" strokeWidth="1" />
+          </motion.g>
 
-        <rect x="50" y="274" width="140" height="24" rx="4" fill="#f3ead6" stroke="#cdbb97" />
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.text key={plaque} x="120" y="286" textAnchor="middle" dominantBaseline="central" fontSize="11" fill="#4a423a" style={{ fontFamily: "var(--serif)" }} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.25 }}>
-            {plaque}
-          </motion.text>
-        </AnimatePresence>
-      </svg>
+          <rect x="50" y="274" width="140" height="24" rx="4" fill="#f3ead6" stroke="#cdbb97" />
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.text key={plaque} x="120" y="286" textAnchor="middle" dominantBaseline="central" fontSize="11" fill="#4a423a" style={{ fontFamily: "var(--serif)" }} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.25 }}>
+              {plaque}
+            </motion.text>
+          </AnimatePresence>
+        </svg>
+      </div>
       <p className="ca-canvas-cap">{allDone ? "All five stages complete" : `Stage ${activeIdx + 1} of ${STAGES.length} · ${STAGES[activeIdx].title}`}</p>
     </div>
   );
@@ -451,11 +455,13 @@ function SealSequence({ reduce }) {
         </motion.g>
       </svg>
 
-      {[["Folding your brief…", 0.2, 1.3], ["Pressing the wax seal…", 1.5, 1.1], ["On its way to the artists", 2.55, 0.85]].map(([t, delay, dur]) => (
-        <motion.p key={t} className="ca-seal-cap" initial={{ opacity: 0, y: 6 }} animate={{ opacity: [0, 1, 1, 0], y: [6, 0, 0, -6] }} transition={{ delay, duration: dur, times: [0, 0.2, 0.8, 1] }}>
-          {t}
-        </motion.p>
-      ))}
+      <div className="ca-seal-caps">
+        {[["Folding your brief…", 0.2, 1.3], ["Pressing the wax seal…", 1.5, 1.1], ["On its way to the artists", 2.55, 0.85]].map(([t, delay, dur]) => (
+          <motion.p key={t} className="ca-seal-cap" initial={{ opacity: 0, y: 6 }} animate={{ opacity: [0, 1, 1, 0], y: [6, 0, 0, -6] }} transition={{ delay, duration: dur, times: [0, 0.2, 0.8, 1] }}>
+            {t}
+          </motion.p>
+        ))}
+      </div>
     </motion.div>
   );
 }
@@ -502,6 +508,9 @@ function DoneView({ form, refId, onReset, reduce }) {
   ];
   return (
     <motion.div className="ca-done" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+      <motion.span className="ca-done-badge" initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 260, damping: 16 }}>
+        <Check size={20} strokeWidth={3} />
+      </motion.span>
       <h2>Request received</h2>
       <p>
         Thanks {first}! Your brief is with our artists. We will write to <strong>{form.email}</strong> as soon as an artist responds, usually with a quote and timeline.
@@ -557,6 +566,22 @@ function Reveal({ children, delay = 0, y = 40, className }) {
   );
 }
 
+function Head({ title, sub, shine }) {
+  return (
+    <Reveal>
+      <div className="ca-head">
+        <h2 className={`ca-h2 ${shine ? "ca-shine" : ""}`}>{title}</h2>
+        <span className="ca-orn" aria-hidden="true">
+          <i />
+          <Sparkles size={12} strokeWidth={1.8} />
+          <i />
+        </span>
+        {sub && <p className="ca-sub">{sub}</p>}
+      </div>
+    </Reveal>
+  );
+}
+
 export default function CustomArt() {
   const { user } = useAuth();
   const reduce = useReducedMotion();
@@ -599,6 +624,7 @@ export default function CustomArt() {
   const allDone = firstOpen === -1;
   const activeIdx = allDone ? STAGES.length - 1 : firstOpen;
   const done = REQUIRED.filter((k) => FILLED[k](form)).length;
+  const pct = Math.round((done / REQUIRED.length) * 100);
 
   const say = (text) => setToast((s) => ({ id: s.id + 1, text }));
   const fire = (key, text) => {
@@ -689,6 +715,8 @@ export default function CustomArt() {
     <div className="ca-app">
       <section className="ca-hero">
         <video ref={videoRef} className="ca-hero-video" src={heroVideo} autoPlay muted loop playsInline preload="auto" aria-hidden="true" />
+        <div className="ca-hero-glow" aria-hidden="true" />
+        <div className="ca-hero-grain" aria-hidden="true" />
         <div className="ca-hero-overlay" aria-hidden="true" />
 
         <div className="ca-wrap ca-hero-grid">
@@ -734,10 +762,7 @@ export default function CustomArt() {
 
       <section id="how-it-works" className="ca-section is-white">
         <div className="ca-wrap">
-          <Reveal>
-            <h2 className="ca-h2 ca-shine">How custom art works</h2>
-            <p className="ca-sub">Four simple steps from idea to artwork on your wall.</p>
-          </Reveal>
+          <Head title="How custom art works" sub="Four simple steps from idea to artwork on your wall." shine />
           <div className="ca-steps">
             {HOW_IT_WORKS.map(({ icon: Icon, title, text }, i) => (
               <Reveal key={title} delay={i * 0.12} className="ca-rv">
@@ -763,6 +788,7 @@ export default function CustomArt() {
       <section id="request" className="ca-section">
         <div className="ca-wrap ca-form-grid">
           <motion.div className="ca-card" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.6, ease: EASE }}>
+            <div className="ca-card-glow" aria-hidden="true" />
             <AnimatePresence mode="wait" initial={false}>
               {phase === "done" ? (
                 <DoneView key="done" form={form} refId={refId} onReset={reset} reduce={reduce} />
@@ -775,9 +801,22 @@ export default function CustomArt() {
                       <h2>Tell us about your artwork</h2>
                       <p>Five short stages. The more detail you share, the better the match.</p>
                     </div>
-                    <small className="ca-req-count" aria-label={`${done} of ${REQUIRED.length} required fields complete`}>
-                      {done} of {REQUIRED.length} required
-                    </small>
+                    <div className="ca-progress" aria-label={`${done} of ${REQUIRED.length} required fields complete`}>
+                      <svg viewBox="0 0 44 44" aria-hidden="true">
+                        <circle className="ca-progress-bg" cx="22" cy="22" r="18" />
+                        <motion.circle
+                          className="ca-progress-fg"
+                          cx="22" cy="22" r="18"
+                          initial={false}
+                          animate={{ pathLength: done / REQUIRED.length }}
+                          transition={{ duration: 0.6, ease: EASE }}
+                        />
+                      </svg>
+                      <span className="ca-progress-txt">
+                        <strong>{pct}%</strong>
+                        <small>{done}/{REQUIRED.length}</small>
+                      </span>
+                    </div>
                   </div>
 
                   <StageRail flags={flags} activeIdx={activeIdx} toast={toast} />
@@ -854,7 +893,7 @@ export default function CustomArt() {
                     </Field>
 
                     <div className="ca-field">
-                      <span className="ca-label">Reference images <em>optional, up to 4</em></span>
+                      <span className="ca-label"><span className="ca-label-text">Reference images <em>optional, up to 4</em></span></span>
                       <div className="ca-uploads">
                         <AnimatePresence mode="popLayout" initial={false}>
                           {files.map((f, i) => (
@@ -929,15 +968,15 @@ export default function CustomArt() {
 
       <section className="ca-section is-white">
         <div className="ca-wrap">
-          <Reveal>
-            <h2 className="ca-h2">Artists open to commissions</h2>
-            <p className="ca-sub">Pick a favourite and we will pre-fill your request.</p>
-          </Reveal>
+          <Head title="Artists open to commissions" sub="Pick a favourite and we will pre-fill your request." />
           <div className="ca-artists">
             {ARTISTS.map((a, i) => (
               <Reveal key={a.id} delay={(i % 3) * 0.12} className="ca-rv">
                 <article className="ca-artist">
-                  <div className="ca-artist-media"><img src={a.img} alt={`Sample ${a.specialty.toLowerCase()} artwork`} loading="lazy" /></div>
+                  <div className="ca-artist-media">
+                    <img src={a.img} alt={`Sample ${a.specialty.toLowerCase()} artwork`} loading="lazy" />
+                    <span className="ca-artist-tag">{a.specialty}</span>
+                  </div>
                   <div className="ca-artist-body">
                     <h3>{a.name}</h3>
                     <p>{a.city} · {a.specialty}</p>
@@ -955,9 +994,7 @@ export default function CustomArt() {
 
       <section className="ca-section">
         <div className="ca-wrap ca-narrow">
-          <Reveal>
-            <h2 className="ca-h2">Common questions</h2>
-          </Reveal>
+          <Head title="Common questions" />
           <Reveal delay={0.1}>
             <div className="ca-faq">
               {FAQS.map(([q, a], i) => {
@@ -965,7 +1002,10 @@ export default function CustomArt() {
                 return (
                   <div key={q} className={`ca-faq-item ${open ? "is-open" : ""}`}>
                     <button type="button" aria-expanded={open} onClick={() => setOpenFaq(open ? -1 : i)}>
-                      {q}
+                      <span className="ca-faq-q">
+                        <em>{String(i + 1).padStart(2, "0")}</em>
+                        {q}
+                      </span>
                       <ChevronDown size={18} />
                     </button>
                     <AnimatePresence initial={false}>
@@ -994,41 +1034,59 @@ export default function CustomArt() {
           --paper: #f6f1e6; --paper-2: #efe6d3; --card: #fbf8f1; --line: #e0d4bc;
           --brass: #96702f; --brass-deep: #6f5222; --wine: #5c2b30; --danger: #a63a2b; --ok: #4c6b3f;
           --serif: "Fraunces", "Iowan Old Style", Georgia, serif;
-          --sans: "Work Sans", "Inter", system-ui, sans-serif;
+          --sans: "Work Sans", "Inter", system-ui, -apple-system, sans-serif;
           --shadow-sm: 0 1px 2px rgba(60,40,10,.06), 0 2px 8px rgba(60,40,10,.05);
           --shadow-md: 0 2px 4px rgba(60,40,10,.06), 0 18px 40px -12px rgba(60,40,10,.22);
-          background: var(--paper); color: var(--ink-soft); font-family: var(--sans); min-height: 100vh;
+          --shadow-lg: 0 4px 8px rgba(60,40,10,.06), 0 30px 60px -20px rgba(60,40,10,.3);
+          --h: 46px;              
+          --pad: clamp(18px, 3.4vw, 36px);
+          --gutter: clamp(14px, 3vw, 28px);
+          --sec-y: clamp(56px, 8vw, 88px);
+
+          background: var(--paper); color: var(--ink-soft); font-family: var(--sans);
+          min-height: 100vh; overflow-x: clip;
+          -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
         }
         .ca-app * { box-sizing: border-box; }
         .ca-app button, .ca-app input, .ca-app select, .ca-app textarea { font-family: var(--sans); }
-        .ca-app :focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+        .ca-app :focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; border-radius: 6px; }
         .ca-sr { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
-        .ca-wrap { max-width: 1360px; margin: 0 auto; padding: 0 28px; }
-        .ca-narrow { max-width: 860px; }
+        .ca-wrap { width: 100%; max-width: 1360px; margin: 0 auto; padding-inline: var(--gutter); }
+        .ca-narrow { max-width: 880px; }
 
-        .ca-hero { position: relative; isolation: isolate; overflow: hidden; min-height: 100vh; min-height: 100svh; display: flex; align-items: center; justify-content: center; padding: 120px 0 110px; background: #2a1a10; }
+        .ca-hero { position: relative; isolation: isolate; overflow: hidden; min-height: 100vh; min-height: 100svh; display: flex; align-items: center; justify-content: center; padding: clamp(104px, 16vh, 140px) 0 clamp(96px, 14vh, 128px); background: #2a1a10; }
         .ca-hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; transform: scale(1.04); filter: saturate(1.05) contrast(1.03); }
-        .ca-hero-overlay { position: absolute; inset: 0; z-index: 1; background:
-          radial-gradient(ellipse 60% 55% at 50% 48%, rgba(30,17,10,.62) 0%, rgba(30,17,10,.36) 55%, transparent 100%),
-          linear-gradient(180deg, rgba(40,24,14,.5) 0%, rgba(40,24,14,.1) 38%, rgba(40,24,14,.4) 100%),
-          radial-gradient(ellipse at center, transparent 55%, rgba(20,10,5,.5) 100%); }
-        .ca-hero-grid { position: relative; z-index: 2; width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .ca-hero-glow { position: absolute; inset: -25%; z-index: 1; pointer-events: none; background:
+          radial-gradient(circle at 28% 32%, rgba(201,163,90,.24), transparent 46%),
+          radial-gradient(circle at 72% 66%, rgba(92,43,48,.3), transparent 50%);
+          animation: ca-drift 20s ease-in-out infinite alternate; }
+        @keyframes ca-drift { from { transform: translate3d(-2%, -1%, 0) scale(1.02); } to { transform: translate3d(2%, 2%, 0) scale(1.1); } }
+        .ca-hero-grain { position: absolute; inset: -60px; z-index: 1; pointer-events: none; opacity: .07; mix-blend-mode: overlay; background-repeat: repeat; background-size: 160px 160px;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+          animation: ca-grain 1.4s steps(3) infinite; }
+        @keyframes ca-grain { 0% { transform: translate(0,0); } 33% { transform: translate(-3%,2%); } 66% { transform: translate(2%,-3%); } 100% { transform: translate(0,0); } }
+        .ca-hero-overlay { position: absolute; inset: 0; z-index: 2; background:
+          radial-gradient(ellipse 62% 58% at 50% 48%, rgba(30,17,10,.62) 0%, rgba(30,17,10,.34) 55%, transparent 100%),
+          linear-gradient(180deg, rgba(40,24,14,.52) 0%, rgba(40,24,14,.08) 38%, rgba(40,24,14,.44) 100%),
+          radial-gradient(ellipse at center, transparent 52%, rgba(20,10,5,.55) 100%); }
+        .ca-hero-grid { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; text-align: center; }
 
-        .ca-eyebrow { display: inline-flex; align-items: center; gap: 9px; margin: 0 0 26px; padding: 8px 16px 8px 14px; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; font-weight: 500; color: #f1d9a3; background: rgba(255,255,255,.1); border: 1px solid rgba(240,217,163,.4); border-radius: 999px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        .ca-eyebrow { display: inline-flex; align-items: center; gap: 9px; margin: 0 0 clamp(18px, 3vw, 26px); padding: 8px 16px 8px 14px; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; font-weight: 500; color: #f1d9a3; background: rgba(255,255,255,.1); border: 1px solid rgba(240,217,163,.4); border-radius: 999px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
         .ca-eyebrow svg { color: #e0bb74; }
 
-        .ca-title { font-family: var(--serif); font-weight: 500; font-size: clamp(46px, 7.2vw, 104px); line-height: 1.02; letter-spacing: -0.025em; color: #fff; margin: 0 0 26px; text-shadow: 0 4px 40px rgba(0,0,0,.45); }
-        .ca-line { display: block; overflow: hidden; padding: .06em .12em .16em; margin: -.06em -.12em -.16em; }
+        .ca-title { font-family: var(--serif); font-weight: 500; font-size: clamp(38px, 8vw, 104px); line-height: 1.03; letter-spacing: -0.025em; color: #fff; margin: 0 0 clamp(18px, 3vw, 26px); text-shadow: 0 4px 40px rgba(0,0,0,.45); text-wrap: balance; }
+        .ca-line { display: block; overflow: hidden; padding: .06em .12em .18em; margin: -.06em -.12em -.18em; }
         .ca-line > span { display: inline-block; }
         .ca-title-accent { font-style: italic; font-weight: 400; background: linear-gradient(100deg, #f8e6b8 0%, #e0bb74 45%, #c9a35a 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; text-shadow: none; filter: drop-shadow(0 4px 24px rgba(0,0,0,.35)); padding-right: .08em; }
 
-        .ca-lead { font-size: 17.5px; line-height: 1.75; max-width: 600px; margin: 0 auto; color: #fbf1da; text-shadow: 0 1px 18px rgba(0,0,0,.55); }
-        .ca-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 34px; }
+        .ca-lead { font-size: clamp(15.5px, 1.4vw, 17.5px); line-height: 1.75; max-width: 620px; margin: 0 auto; color: #fbf1da; text-shadow: 0 1px 18px rgba(0,0,0,.55); text-wrap: pretty; }
+        .ca-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: clamp(24px, 4vw, 34px); width: 100%; max-width: 480px; }
+        .ca-actions .ca-btn { flex: 1 1 180px; }
 
-        .ca-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; background: var(--ink); color: var(--paper); border: 1px solid var(--ink); padding: 12px 22px; border-radius: 999px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; transition: background .2s, border-color .2s, transform .15s, box-shadow .2s, color .2s; box-shadow: 0 4px 12px -4px rgba(28,23,18,.5); }
+        .ca-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; background: var(--ink); color: var(--paper); border: 1px solid var(--ink); padding: 12px 22px; border-radius: 999px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; transition: background .2s, border-color .2s, transform .15s, box-shadow .2s, color .2s; box-shadow: 0 4px 12px -4px rgba(28,23,18,.5); white-space: nowrap; }
         .ca-btn:hover:not(:disabled) { background: var(--wine); border-color: var(--wine); box-shadow: 0 8px 18px -6px rgba(92,43,48,.6); }
         .ca-btn:active:not(:disabled) { transform: scale(.97); }
-        .ca-btn svg { transition: transform .2s; }
+        .ca-btn svg { transition: transform .2s; flex-shrink: 0; }
         .ca-btn:hover:not(:disabled) svg { transform: translate(2px, -2px); }
         .ca-btn.is-ghost { background: transparent; color: var(--ink); border-color: var(--line); box-shadow: none; }
         .ca-btn.is-ghost:hover:not(:disabled) { background: var(--paper-2); border-color: var(--brass); color: var(--ink); box-shadow: none; }
@@ -1047,134 +1105,150 @@ export default function CustomArt() {
         .ca-hero .ca-btn.is-ghost { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.55); color: #fff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: none; }
         .ca-hero .ca-btn.is-ghost:hover:not(:disabled) { background: #fff; border-color: #fff; color: var(--wine); }
 
-        .ca-trust { display: inline-flex; flex-wrap: wrap; justify-content: center; margin-top: 44px; padding: 6px; font-size: 13px; border-radius: 999px; background: rgba(20,12,6,.38); border: 1px solid rgba(255,255,255,.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .ca-trust { display: inline-flex; flex-wrap: wrap; justify-content: center; margin-top: clamp(28px, 5vw, 44px); padding: 6px; font-size: 13px; border-radius: 999px; background: rgba(20,12,6,.38); border: 1px solid rgba(255,255,255,.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
         .ca-trust span { display: inline-flex; align-items: center; gap: 8px; padding: 9px 20px; color: #f6ead0; }
         .ca-trust span + span { border-left: 1px solid rgba(255,255,255,.16); }
-        .ca-trust svg { color: #e0bb74; }
+        .ca-trust svg { color: #e0bb74; flex-shrink: 0; }
 
-        .ca-scroll { position: absolute; left: 50%; bottom: 28px; z-index: 3; width: 40px; height: 40px; margin-left: -20px; border-radius: 50%; display: grid; place-items: center; color: #f1d9a3; border: 1px solid rgba(255,255,255,.3); background: rgba(255,255,255,.08); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); animation: ca-bob 2.2s ease-in-out infinite; transition: background .2s, color .2s; }
+        .ca-scroll { position: absolute; left: 50%; bottom: 26px; z-index: 4; width: 40px; height: 40px; margin-left: -20px; border-radius: 50%; display: grid; place-items: center; color: #f1d9a3; border: 1px solid rgba(255,255,255,.3); background: rgba(255,255,255,.08); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); animation: ca-bob 2.2s ease-in-out infinite; transition: background .2s, color .2s; }
         .ca-scroll:hover { background: #fff; color: var(--wine); }
         @keyframes ca-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
 
-        .ca-section { padding: 80px 0; scroll-margin-top: 70px; }
-        .ca-section.is-white { background: var(--card); border-block: 1px solid var(--line); }
-        .ca-h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(28px, 4vw, 40px); color: var(--ink); text-align: center; margin: 0; letter-spacing: -0.01em; }
-        .ca-shine {
-          background: linear-gradient(110deg, var(--brass-deep) 0%, var(--brass-deep) 42%, #e0bb74 50%, var(--brass-deep) 58%, var(--brass-deep) 100%);
-          background-size: 250% 100%;
-          -webkit-background-clip: text; background-clip: text;
-          -webkit-text-fill-color: transparent; color: transparent;
-          animation: ca-shine 4s ease-in-out infinite;
-        }
+        .ca-section { padding: var(--sec-y) 0; scroll-margin-top: 70px; }
+        .ca-section.is-white { background: var(--card); border-block: 1px solid var(--line); background-image: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(201,163,90,.07), transparent 70%); }
+
+        .ca-head { text-align: center; display: flex; flex-direction: column; align-items: center; }
+        .ca-h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(26px, 4.4vw, 40px); color: var(--ink); margin: 0; letter-spacing: -0.01em; line-height: 1.16; text-wrap: balance; }
+        .ca-shine { background: linear-gradient(110deg, var(--brass-deep) 0%, var(--brass-deep) 42%, #e0bb74 50%, var(--brass-deep) 58%, var(--brass-deep) 100%); background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; animation: ca-shine 4s ease-in-out infinite; }
         @keyframes ca-shine { 0% { background-position: 100% 0; } 60%, 100% { background-position: 0% 0; } }
-        .ca-sub { text-align: center; font-size: 15.5px; max-width: 520px; margin: 10px auto 0; }
+        .ca-orn { display: inline-flex; align-items: center; gap: 10px; margin: 16px 0 0; color: var(--brass); }
+        .ca-orn i { display: block; width: clamp(30px, 6vw, 52px); height: 1px; background: linear-gradient(90deg, transparent, var(--brass)); }
+        .ca-orn i:last-child { background: linear-gradient(270deg, transparent, var(--brass)); }
+        .ca-sub { text-align: center; font-size: clamp(14px, 1.3vw, 15.5px); max-width: 540px; margin: 12px auto 0; line-height: 1.65; }
 
         .ca-rv { height: 100%; }
         .ca-rv > .ca-step, .ca-rv > .ca-artist { height: 100%; }
-        .ca-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px 44px; margin-top: 44px; }
+
+        .ca-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px 44px; margin-top: clamp(30px, 5vw, 48px); }
         .ca-step-arrow { position: absolute; top: 47px; right: -44px; width: 44px; height: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
         .ca-step-arrow::before { content: ""; position: absolute; left: 0; right: 0; top: 0; border-top: 1.5px dashed #cdbb97; }
         .ca-step-chip { position: relative; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--card); border: 1px solid var(--line); color: var(--brass-deep); box-shadow: var(--shadow-sm); transition: background .25s, color .25s, border-color .25s, transform .3s cubic-bezier(.16,1,.3,1); }
         .ca-step:hover .ca-step-chip { background: var(--brass-deep); border-color: var(--brass-deep); color: #fff; transform: translateX(3px); }
-        .ca-step { position: relative; background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-sm); transition: transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s, border-color .25s; }
+        .ca-step { position: relative; background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: clamp(20px, 2.4vw, 24px); box-shadow: var(--shadow-sm); transition: transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s, border-color .25s; display: flex; flex-direction: column; }
         .ca-step:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); border-color: #cdbb97; }
         .ca-step-top { display: flex; align-items: center; justify-content: space-between; }
-        .ca-step-icon { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: var(--paper-2); color: var(--brass-deep); border: 1px solid var(--line); }
-        .ca-step-num { font-family: var(--serif); font-size: 30px; color: #d6c8a8; }
+        .ca-step-icon { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: var(--paper-2); color: var(--brass-deep); border: 1px solid var(--line); flex-shrink: 0; }
+        .ca-step-num { font-family: var(--serif); font-size: 30px; color: #d6c8a8; line-height: 1; }
         .ca-step h3 { font-family: var(--serif); font-weight: 500; font-size: 20px; color: var(--ink); margin: 18px 0 6px; }
-        .ca-step p { font-size: 14px; line-height: 1.65; margin: 0; }
+        .ca-step p { font-size: 14px; line-height: 1.65; margin: 0; text-wrap: pretty; }
 
-        .ca-form-grid { display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
-        .ca-card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 36px; box-shadow: var(--shadow-sm); overflow: hidden; }
-        .ca-form { display: flex; flex-direction: column; gap: 26px; }
-        .ca-form-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
-        .ca-form-head h2, .ca-done h2 { font-family: var(--serif); font-weight: 500; font-size: 29px; color: var(--ink); margin: 0; }
-        .ca-form-head p { margin: 4px 0 0; font-size: 14px; }
-        .ca-req-count { font-size: 12px; color: var(--muted); padding-top: 8px; }
+        .ca-form-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 340px); gap: clamp(20px, 3vw, 32px); align-items: start; }
+        .ca-card { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: var(--pad); box-shadow: var(--shadow-sm); }
+        .ca-card-glow { position: absolute; inset: -1px; border-radius: 23px; padding: 1px; pointer-events: none; opacity: 0; transition: opacity .5s;
+          background: linear-gradient(135deg, rgba(201,163,90,.55), transparent 45%, transparent 60%, rgba(92,43,48,.4));
+          -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+        .ca-card:focus-within .ca-card-glow { opacity: 1; }
+        .ca-form { display: flex; flex-direction: column; gap: clamp(20px, 2.6vw, 26px); }
+        .ca-form-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; flex-wrap: wrap; }
+        .ca-form-head h2, .ca-done h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(23px, 3.2vw, 29px); color: var(--ink); margin: 0; line-height: 1.2; }
+        .ca-form-head p { margin: 6px 0 0; font-size: 14px; line-height: 1.55; max-width: 46ch; }
 
-        .ca-rail-wrap { margin-top: -6px; }
+        .ca-progress { position: relative; width: 56px; height: 56px; flex-shrink: 0; display: grid; place-items: center; }
+        .ca-progress svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+        .ca-progress circle { fill: none; stroke-width: 3.2; stroke-linecap: round; }
+        .ca-progress-bg { stroke: var(--line); }
+        .ca-progress-fg { stroke: var(--brass-deep); }
+        .ca-progress-txt { display: flex; flex-direction: column; align-items: center; line-height: 1; }
+        .ca-progress-txt strong { font-size: 12.5px; color: var(--ink); font-weight: 600; }
+        .ca-progress-txt small { font-size: 9.5px; color: var(--muted); margin-top: 2px; letter-spacing: .04em; }
+
+        .ca-rail-wrap { margin-top: 2px; }
         .ca-rail { position: relative; display: flex; list-style: none; margin: 0; padding: 0; }
         .ca-rail-line { position: absolute; top: 17px; left: 10%; right: 10%; height: 2px; background: var(--line); border-radius: 2px; overflow: hidden; }
-        .ca-rail-line span { display: block; height: 100%; background: linear-gradient(90deg, var(--brass), var(--brass-deep)); }
-        .ca-node { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 7px; }
-        .ca-node em { font-style: normal; font-size: 11.5px; color: var(--muted); font-weight: 500; transition: color .2s; }
+        .ca-rail-line span { display: block; height: 100%; background: linear-gradient(90deg, var(--brass), var(--brass-deep)); box-shadow: 0 0 10px rgba(150,112,47,.6); }
+        .ca-node { position: relative; z-index: 1; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .ca-node em { font-style: normal; font-size: 11.5px; color: var(--muted); font-weight: 500; transition: color .2s; white-space: nowrap; }
         .ca-node-dot { position: relative; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--card); border: 1.5px solid var(--line); color: var(--muted); transition: background .3s, border-color .3s, color .3s, box-shadow .3s; }
         .ca-node-ring { position: absolute; inset: -1px; border-radius: 50%; border: 2px solid var(--brass); pointer-events: none; }
-        .ca-node.is-active .ca-node-dot { border-color: var(--brass); color: var(--brass-deep); box-shadow: 0 0 0 4px rgba(150,112,47,.15); animation: ca-node 2s ease-in-out infinite; }
+        .ca-node.is-active .ca-node-dot { border-color: var(--brass); color: var(--brass-deep); animation: ca-node 2s ease-in-out infinite; }
         .ca-node.is-active em { color: var(--brass-deep); }
         .ca-node.is-done .ca-node-dot { background: var(--ink); border-color: var(--ink); color: var(--paper); }
         .ca-node.is-done em { color: var(--ink); }
         @keyframes ca-node { 0%, 100% { box-shadow: 0 0 0 3px rgba(150,112,47,.12); } 50% { box-shadow: 0 0 0 7px rgba(150,112,47,.2); } }
         .ca-toast { margin-top: 14px; min-height: 30px; display: flex; justify-content: center; }
-        .ca-toast span { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 500; color: var(--brass-deep); background: var(--paper-2); border: 1px solid var(--line); padding: 6px 14px; border-radius: 999px; }
-        .ca-toast svg { color: var(--brass); }
+        .ca-toast span { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 500; color: var(--brass-deep); background: var(--paper-2); border: 1px solid var(--line); padding: 6px 14px; border-radius: 999px; text-align: center; }
+        .ca-toast svg { color: var(--brass); flex-shrink: 0; }
 
         .ca-sec { display: flex; flex-direction: column; gap: 18px; transition: opacity .45s; }
         .ca-sec + .ca-sec { border-top: 1px dashed var(--line); padding-top: 24px; }
-        .ca-sec.is-later { opacity: .58; }
+        .ca-sec.is-later { opacity: .6; }
         .ca-sec.is-later:hover, .ca-sec:focus-within { opacity: 1; }
-        .ca-stage { display: flex; align-items: center; gap: 12px; }
-        .ca-stage h3 { font-family: var(--serif); font-weight: 500; font-size: 18px; color: var(--ink); margin: 0; }
-        .ca-stage p { margin: 1px 0 0; font-size: 12.5px; color: var(--muted); }
-        .ca-stage-n { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center; font-size: 12.5px; font-weight: 600; background: var(--paper-2); border: 1px solid var(--line); color: var(--brass-deep); transition: background .3s, color .3s, border-color .3s; }
+        .ca-stage { display: flex; align-items: flex-start; gap: 12px; }
+        .ca-stage-txt { min-width: 0; }
+        .ca-stage h3 { font-family: var(--serif); font-weight: 500; font-size: 18px; color: var(--ink); margin: 0; line-height: 1.3; }
+        .ca-stage p { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+        .ca-stage-n { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center; font-size: 12.5px; font-weight: 600; background: var(--paper-2); border: 1px solid var(--line); color: var(--brass-deep); transition: background .3s, color .3s, border-color .3s; margin-top: 1px; }
         .ca-sec.is-active .ca-stage-n { background: var(--brass-deep); border-color: var(--brass-deep); color: #fff; }
         .ca-sec.is-done .ca-stage-n { background: var(--ok); border-color: var(--ok); color: #fff; }
+        .ca-sec-body { display: flex; flex-direction: column; gap: 18px; }
 
         .ca-row { display: grid; gap: 18px; }
-        .ca-row.two { grid-template-columns: 1fr 1fr; }
+        .ca-row.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .ca-field { display: flex; flex-direction: column; min-width: 0; }
         .ca-ctl { position: relative; display: flex; flex-direction: column; }
-        .ca-label { display: flex; align-items: center; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); margin-bottom: 7px; transition: color .2s; }
-        .ca-label em { font-style: normal; font-weight: 400; color: var(--muted); margin-left: 4px; }
-        .ca-ok { display: inline-grid; place-items: center; width: 15px; height: 15px; border-radius: 50%; background: var(--ok); color: #fff; margin-left: 8px; }
+        .ca-label { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); margin-bottom: 7px; transition: color .2s; }
+        .ca-label-text { display: inline-flex; align-items: baseline; gap: 4px; }
+        .ca-label em { font-style: normal; font-weight: 400; color: var(--muted); }
+        .ca-ok { display: inline-grid; place-items: center; width: 15px; height: 15px; border-radius: 50%; background: var(--ok); color: #fff; flex-shrink: 0; }
         .ca-field:focus-within > .ca-label { color: var(--brass-deep); }
-        .ca-input { width: 100%; height: 46px; border-radius: 12px; border: 1px solid var(--line); background: #fff; padding: 0 14px; font-size: 14.5px; color: var(--ink); outline: none; transition: border-color .2s, box-shadow .25s, background .2s; }
+        .ca-input { width: 100%; height: var(--h); border-radius: 12px; border: 1px solid var(--line); background: #fff; padding: 0 14px; font-size: 14.5px; color: var(--ink); outline: none; transition: border-color .2s, box-shadow .25s, background .2s; }
         .ca-input::placeholder { color: #a99d86; }
         .ca-input:hover { border-color: #cdbb97; }
         .ca-input:focus { border-color: var(--brass); box-shadow: 0 0 0 4px rgba(150,112,47,.14); }
         .ca-field.has-error .ca-input, .ca-field.has-error .ca-chips { border-color: var(--danger); }
         .ca-field.has-error .ca-input:focus { box-shadow: 0 0 0 4px rgba(166,58,43,.14); }
-        .ca-textarea { height: auto; padding: 13px 14px; line-height: 1.6; resize: vertical; min-height: 130px; }
-        .ca-textarea.is-short { min-height: 72px; }
+        .ca-textarea { height: auto; padding: 13px 14px; line-height: 1.6; resize: vertical; min-height: 132px; }
+        .ca-textarea.is-short { min-height: 74px; }
         .ca-error { font-size: 12.5px; color: var(--danger); overflow: hidden; padding-top: 6px; }
         .ca-count { align-self: flex-end; display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); margin-top: 6px; transition: color .2s; }
         .ca-count.is-ok { color: var(--ok); }
         .ca-select { position: relative; }
-        .ca-select select { appearance: none; padding-right: 38px; cursor: pointer; }
+        .ca-select select { appearance: none; -webkit-appearance: none; padding-right: 38px; cursor: pointer; }
         .ca-select svg { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
 
-        .ca-fx { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+        .ca-fx { position: absolute; inset: 0; pointer-events: none; z-index: 3; overflow: visible; }
         .ca-fx-ink { position: absolute; left: 10px; bottom: -7px; width: calc(100% - 20px); height: 12px; overflow: visible; }
-        .ca-fx-plane { position: absolute; top: 23px; margin-top: -9px; color: var(--brass-deep); }
-        .ca-fx-ring { position: absolute; right: 16px; top: 23px; margin-top: -5px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--brass); }
+        .ca-fx-plane { position: absolute; top: 50%; margin-top: -9px; color: var(--brass-deep); }
+        .ca-fx-ring { position: absolute; right: 16px; top: 50%; margin-top: -5px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--brass); }
         .ca-fx-ring.is-wine { right: auto; left: 50%; top: 50%; margin: -5px 0 0 -5px; border-color: var(--wine); }
-        .ca-fx-spot { position: absolute; left: -8px; right: -8px; top: -8px; height: 62px; border-radius: 18px; background: radial-gradient(circle, rgba(224,187,116,.6), transparent 68%); }
+        .ca-fx-spot { position: absolute; inset: -8px; border-radius: 18px; background: radial-gradient(circle, rgba(224,187,116,.6), transparent 68%); }
         .ca-fx-corner { position: absolute; width: 14px; height: 14px; border: 0 solid var(--brass); }
         .ca-fx-corner.is-tl { top: -5px; left: -5px; border-top-width: 2.5px; border-left-width: 2.5px; }
         .ca-fx-corner.is-tr { top: -5px; right: -5px; border-top-width: 2.5px; border-right-width: 2.5px; }
-        .ca-fx-corner.is-bl { top: 37px; left: -5px; border-bottom-width: 2.5px; border-left-width: 2.5px; }
-        .ca-fx-corner.is-br { top: 37px; right: -5px; border-bottom-width: 2.5px; border-right-width: 2.5px; }
-        .ca-fx-dot { position: absolute; right: 42px; top: 23px; margin-top: -6px; width: 12px; height: 12px; border-radius: 50%; }
+        .ca-fx-corner.is-bl { bottom: -5px; left: -5px; border-bottom-width: 2.5px; border-left-width: 2.5px; }
+        .ca-fx-corner.is-br { bottom: -5px; right: -5px; border-bottom-width: 2.5px; border-right-width: 2.5px; }
+        .ca-fx-dot { position: absolute; right: 42px; top: calc(var(--h) / 2 - 6px); width: 12px; height: 12px; border-radius: 50%; }
         .ca-fx-coin { position: absolute; left: 50%; top: 2px; font-family: var(--serif); font-size: 21px; font-weight: 600; color: var(--brass); }
-        .ca-fx-ticks { position: absolute; left: 12px; right: 12px; top: 48px; height: 8px; display: flex; justify-content: space-between; align-items: flex-end; }
-        .ca-fx-tick { width: 3px; height: 8px; border-radius: 2px; background: var(--brass); }
-        .ca-fx-stroke { position: absolute; left: 0; right: 0; bottom: 30px; height: 8px; border-radius: 99px; background: linear-gradient(90deg, transparent, #e0bb74 12%, var(--brass) 60%, var(--wine)); }
+        .ca-fx-ticks { position: absolute; left: 14px; right: 14px; top: calc(var(--h) - 9px); height: 7px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .ca-fx-tick { width: 3px; height: 7px; border-radius: 2px; background: var(--brass); }
+        .ca-fx-stroke { position: absolute; left: 10px; right: 10px; bottom: 34px; height: 8px; border-radius: 99px; background: linear-gradient(90deg, transparent, #e0bb74 12%, var(--brass) 60%, var(--wine)); }
         .ca-fx-marker { position: absolute; left: 12px; top: 12px; height: 22px; width: 62%; border-radius: 3px; background: rgba(224,187,116,.55); mix-blend-mode: multiply; }
         .ca-fx-spark { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px; border-radius: 50%; }
         .ca-fx-wax { position: absolute; inset: -2px; border-radius: 50%; background: var(--wine); }
 
         .ca-chips { display: flex; flex-wrap: wrap; gap: 8px; outline: none; border-radius: 12px; }
-        .ca-chip { position: relative; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: #fff; padding: 9px 16px; border-radius: 999px; font-size: 13px; cursor: pointer; color: var(--ink-soft); transition: background .2s, color .2s, border-color .2s, box-shadow .2s; }
-        .ca-chip:hover { border-color: var(--brass); color: var(--ink); }
-        .ca-chip.is-active { background: var(--ink); color: var(--paper); border-color: var(--ink); box-shadow: 0 6px 14px -6px rgba(28,23,18,.55); }
+        .ca-chip { position: relative; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: #fff; padding: 9px 16px; border-radius: 999px; font-size: 13px; cursor: pointer; color: var(--ink-soft); transition: background .2s, color .2s, border-color .2s, box-shadow .2s, transform .2s; }
+        .ca-chip:hover { border-color: var(--brass); color: var(--ink); transform: translateY(-1px); }
+        .ca-chip.is-active { background: linear-gradient(135deg, #2a231c, var(--ink) 60%); color: var(--paper); border-color: var(--ink); box-shadow: 0 6px 16px -6px rgba(28,23,18,.6); }
+        .ca-chip.is-active:hover { color: var(--paper); }
 
         .ca-uploads { display: flex; flex-wrap: wrap; gap: 12px; }
-        .ca-thumb { position: relative; width: 84px; height: 84px; border-radius: 6px; overflow: hidden; border: 4px solid #fff; outline: 1px solid var(--line); box-shadow: var(--shadow-md); }
+        .ca-thumb { position: relative; width: clamp(72px, 18vw, 84px); aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 4px solid #fff; outline: 1px solid var(--line); box-shadow: var(--shadow-md); }
         .ca-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .ca-flash { position: absolute; inset: 0; background: #fff; pointer-events: none; }
         .ca-thumb button { position: absolute; top: 3px; right: 3px; width: 22px; height: 22px; border-radius: 50%; border: none; background: rgba(28,23,18,.7); color: #fff; display: grid; place-items: center; cursor: pointer; transition: background .15s; }
         .ca-thumb button:hover { background: var(--wine); }
-        .ca-drop { width: 84px; height: 84px; border-radius: 14px; border: 1.5px dashed #cdbb97; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; font-size: 11px; color: var(--muted); cursor: pointer; text-align: center; transition: border-color .2s, color .2s, background .2s, transform .2s; }
+        .ca-drop { width: clamp(72px, 18vw, 84px); aspect-ratio: 1; border-radius: 14px; border: 1.5px dashed #cdbb97; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; font-size: 11px; color: var(--muted); cursor: pointer; text-align: center; transition: border-color .2s, color .2s, background .2s, transform .2s; }
         .ca-drop:hover, .ca-drop:focus-within { border-color: var(--brass); color: var(--brass-deep); background: var(--paper-2); }
         .ca-drop.is-drag { border-color: var(--brass-deep); background: var(--paper-2); color: var(--brass-deep); transform: scale(1.05); }
 
@@ -1189,32 +1263,34 @@ export default function CustomArt() {
         .ca-field.has-error .ca-checkbox { border-color: var(--danger); }
         .ca-fine { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.6; }
 
-        .ca-seal { position: relative; min-height: 480px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .ca-seal { position: relative; min-height: clamp(340px, 58vh, 480px); display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 60px; }
         .ca-seal-svg { width: min(100%, 400px); height: auto; overflow: visible; }
-        .ca-seal-cap { position: absolute; left: 0; right: 0; bottom: 30px; margin: 0; text-align: center; font-family: var(--serif); font-size: 19px; color: var(--ink); }
+        .ca-seal-caps { position: absolute; left: 0; right: 0; bottom: 22px; height: 28px; display: grid; place-items: center; }
+        .ca-seal-cap { position: absolute; margin: 0; text-align: center; font-family: var(--serif); font-size: clamp(16px, 3vw, 19px); color: var(--ink); white-space: nowrap; }
         .ca-seal-cap.is-static { position: static; margin-top: 12px; font-size: 16px; }
 
-        .ca-done { text-align: center; padding: 8px 0 4px; }
-        .ca-done p { max-width: 440px; margin: 10px auto 0; font-size: 14.5px; line-height: 1.65; }
-        .ca-done strong { color: var(--ink); }
-        .ca-ticket { position: relative; max-width: 380px; margin: 26px auto 0; text-align: left; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 18px 22px 22px; box-shadow: var(--shadow-md); }
-        .ca-ticket-top { display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+        .ca-done { text-align: center; padding: 4px 0; }
+        .ca-done-badge { display: inline-grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--ok); color: #fff; margin-bottom: 16px; box-shadow: 0 10px 24px -10px rgba(76,107,63,.8); }
+        .ca-done p { max-width: 460px; margin: 10px auto 0; font-size: 14.5px; line-height: 1.65; text-wrap: pretty; }
+        .ca-done strong { color: var(--ink); word-break: break-word; }
+        .ca-ticket { position: relative; width: 100%; max-width: 390px; margin: 26px auto 0; text-align: left; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 18px 22px 22px; box-shadow: var(--shadow-md); }
+        .ca-ticket-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
         .ca-pill { display: inline-flex; align-items: center; gap: 6px; background: #F6E7D0; color: #8A5A22; letter-spacing: 0; text-transform: none; font-size: 12px; padding: 3px 10px; border-radius: 999px; }
         .ca-pill i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: ca-blink 1.4s ease-in-out infinite; }
         @keyframes ca-blink { 50% { opacity: .25; } }
-        .ca-flap { display: flex; justify-content: center; gap: 5px; margin: 14px 0 0; perspective: 400px; }
-        .ca-flap span { display: grid; place-items: center; width: 34px; height: 46px; border-radius: 6px; background: linear-gradient(#2a231c 49.5%, #14100c 50%); color: #f3e8cf; font-family: var(--serif); font-size: 26px; font-weight: 600; }
-        .ca-flap span.is-dash { width: 16px; background: none; color: var(--muted); }
+        .ca-flap { display: flex; justify-content: center; gap: clamp(3px, 1vw, 5px); margin: 16px 0 0; perspective: 400px; }
+        .ca-flap span { display: grid; place-items: center; width: clamp(26px, 8vw, 34px); height: clamp(36px, 11vw, 46px); border-radius: 6px; background: linear-gradient(#2a231c 49.5%, #14100c 50%); color: #f3e8cf; font-family: var(--serif); font-size: clamp(19px, 6vw, 26px); font-weight: 600; }
+        .ca-flap span.is-dash { width: clamp(10px, 3vw, 16px); background: none; color: var(--muted); }
         .ca-ticket-div { position: relative; height: 0; border-top: 1.5px dashed #cdbb97; margin: 18px -22px; }
         .ca-ticket-div::before, .ca-ticket-div::after { content: ""; position: absolute; top: -10px; width: 18px; height: 18px; border-radius: 50%; background: var(--card); border: 1px solid var(--line); }
         .ca-ticket-div::before { left: -10px; }
         .ca-ticket-div::after { right: -10px; }
-        .ca-ticket dl { margin: 0; display: grid; gap: 8px; }
+        .ca-ticket dl { margin: 0; display: grid; gap: 9px; }
         .ca-ticket dl div { display: flex; justify-content: space-between; gap: 16px; font-size: 13px; }
-        .ca-ticket dt { color: var(--muted); }
-        .ca-ticket dd { margin: 0; color: var(--ink); font-weight: 500; text-align: right; }
-        .ca-stamp { position: absolute; right: 16px; bottom: 54px; border: 2.5px solid var(--ok); color: var(--ok); padding: 3px 12px; border-radius: 6px; font-size: 13px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; background: rgba(251,248,241,.6); }
-        .ca-track { list-style: none; margin: 28px auto 0; padding: 0; max-width: 380px; text-align: left; display: flex; flex-direction: column; gap: 14px; }
+        .ca-ticket dt { color: var(--muted); flex-shrink: 0; }
+        .ca-ticket dd { margin: 0; color: var(--ink); font-weight: 500; text-align: right; min-width: 0; overflow-wrap: anywhere; }
+        .ca-stamp { position: absolute; right: 14px; bottom: 52px; border: 2.5px solid var(--ok); color: var(--ok); padding: 3px 12px; border-radius: 6px; font-size: 13px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; background: rgba(251,248,241,.7); }
+        .ca-track { list-style: none; margin: 28px auto 0; padding: 0; max-width: 390px; text-align: left; display: flex; flex-direction: column; gap: 14px; }
         .ca-track li { display: flex; gap: 12px; align-items: flex-start; }
         .ca-track-dot { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center; border: 1.5px solid var(--line); background: #fff; color: #fff; margin-top: 1px; }
         .ca-track li.is-done .ca-track-dot { background: var(--ok); border-color: var(--ok); }
@@ -1223,9 +1299,11 @@ export default function CustomArt() {
         .ca-track small { display: block; font-size: 12.5px; color: var(--muted); margin-top: 1px; }
         .ca-track li.is-next strong { color: var(--muted); font-weight: 500; }
         .ca-done-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 28px; }
+        .ca-done-actions .ca-btn { flex: 0 1 auto; }
 
         .ca-aside { position: sticky; top: 90px; display: flex; flex-direction: column; gap: 16px; }
-        .ca-panel { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-sm); }
+        .ca-panel { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: clamp(18px, 2.2vw, 24px); box-shadow: var(--shadow-sm); transition: box-shadow .3s, border-color .3s; }
+        .ca-panel:hover { box-shadow: var(--shadow-md); border-color: #d6c8a8; }
         .ca-panel h3 { font-family: var(--serif); font-weight: 500; font-size: 20px; color: var(--ink); margin: 0 0 16px; }
         .ca-panel ol { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 16px; font-size: 14px; line-height: 1.55; }
         .ca-panel li { display: flex; gap: 12px; }
@@ -1234,66 +1312,98 @@ export default function CustomArt() {
         .ca-panel.is-tint svg { color: var(--brass-deep); }
         .ca-panel.is-tint strong { display: block; margin-top: 8px; color: var(--ink); font-size: 14.5px; }
         .ca-panel.is-tint p { margin: 4px 0 0; font-size: 13px; line-height: 1.6; }
+
         .ca-canvas-panel { padding: 18px 18px 16px; text-align: center; }
-        .ca-canvas-panel h3 { margin-bottom: 6px; font-size: 18px; }
+        .ca-canvas-panel h3 { margin-bottom: 8px; font-size: 18px; }
+        .ca-canvas-stage { display: grid; place-items: center; }
         .ca-canvas-panel svg { width: 100%; max-height: 300px; display: block; }
         .ca-canvas-cap { margin: 4px 0 0; font-size: 12.5px; color: var(--brass-deep); font-weight: 500; }
 
-        .ca-artists { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin: 44px auto 0; max-width: 1020px; }
-        .ca-artist { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-sm); transition: transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s, border-color .25s; }
+        .ca-artists { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: clamp(16px, 2.4vw, 22px); margin: clamp(30px, 5vw, 48px) auto 0; max-width: 1040px; }
+        .ca-artist { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-sm); transition: transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s, border-color .25s; display: flex; flex-direction: column; }
         .ca-artist:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); border-color: #cdbb97; }
-        .ca-artist-media { height: 210px; overflow: hidden; }
+        .ca-artist-media { position: relative; height: clamp(180px, 26vw, 210px); overflow: hidden; }
+        .ca-artist-media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(28,23,18,.55)); opacity: .75; transition: opacity .35s; }
+        .ca-artist:hover .ca-artist-media::after { opacity: .95; }
         .ca-artist-media img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .7s cubic-bezier(.16,1,.3,1); }
-        .ca-artist:hover img { transform: scale(1.06); }
-        .ca-artist-body { padding: 18px 20px 20px; }
+        .ca-artist:hover .ca-artist-media img { transform: scale(1.06); }
+        .ca-artist-tag { position: absolute; left: 12px; bottom: 12px; z-index: 1; font-size: 11px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: #f6ead0; background: rgba(28,23,18,.5); border: 1px solid rgba(255,255,255,.22); border-radius: 999px; padding: 4px 10px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+        .ca-artist-body { padding: 18px 20px 20px; display: flex; flex-direction: column; flex: 1; }
         .ca-artist-body h3 { font-family: var(--serif); font-weight: 500; font-size: 19px; color: var(--ink); margin: 0; }
         .ca-artist-body p { font-size: 12.5px; margin: 3px 0 0; }
         .ca-artist-body > span { display: block; margin-top: 10px; font-size: 13px; font-weight: 500; color: var(--brass-deep); }
+        .ca-artist-body .ca-btn { margin-top: auto; }
 
-        .ca-faq { margin-top: 36px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-sm); }
+        .ca-faq { margin-top: clamp(28px, 4vw, 40px); background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-sm); }
         .ca-faq-item + .ca-faq-item { border-top: 1px solid var(--line); }
-        .ca-faq-item button { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 24px; background: none; border: none; text-align: left; font-size: 15.5px; font-weight: 500; color: var(--ink); cursor: pointer; transition: background .2s, color .2s; }
+        .ca-faq-item button { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: clamp(16px, 2.4vw, 20px) clamp(18px, 2.6vw, 24px); background: none; border: none; text-align: left; font-size: clamp(14.5px, 1.5vw, 15.5px); font-weight: 500; color: var(--ink); cursor: pointer; transition: background .2s, color .2s; }
         .ca-faq-item button:hover { background: var(--paper); }
+        .ca-faq-q { display: inline-flex; align-items: baseline; gap: 12px; min-width: 0; }
+        .ca-faq-q em { font-style: normal; font-family: var(--serif); font-size: 12.5px; color: var(--brass); flex-shrink: 0; }
         .ca-faq-item button svg { color: var(--brass); flex-shrink: 0; transition: transform .3s cubic-bezier(.16,1,.3,1); }
         .ca-faq-item.is-open button { color: var(--brass-deep); }
         .ca-faq-item.is-open button svg { transform: rotate(180deg); }
-        .ca-faq-item p { margin: 0; padding: 0 24px 22px; font-size: 14.5px; line-height: 1.7; max-width: 70ch; }
+        .ca-faq-item p { margin: 0; padding: 0 clamp(18px, 2.6vw, 24px) 22px; font-size: 14.5px; line-height: 1.7; max-width: 72ch; }
         .ca-faq-foot { text-align: center; margin: 22px 0 0; font-size: 14px; }
         .ca-faq-foot a { color: var(--brass-deep); text-decoration: underline; text-underline-offset: 2px; }
 
-        @media (max-width: 1100px) {
-          .ca-steps { grid-template-columns: repeat(2, 1fr); }
+        @media (max-width: 1180px) {
+          .ca-form-grid { grid-template-columns: minmax(0, 1fr) minmax(260px, 300px); }
+        }
+        @media (max-width: 1024px) {
+          .ca-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
           .ca-rv:nth-child(even) .ca-step-arrow { display: none; }
         }
         @media (max-width: 980px) {
-          .ca-hero { padding: 104px 0 96px; }
-          .ca-form-grid { grid-template-columns: 1fr; }
-          .ca-aside { position: static; }
-          .ca-canvas-panel { display: none; }
+          .ca-form-grid { grid-template-columns: minmax(0, 1fr); }
+          .ca-aside { position: static; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+          .ca-canvas-panel { grid-column: 1 / -1; }
+          .ca-canvas-panel svg { max-height: 340px; }
         }
-        @media (max-width: 640px) {
-          .ca-steps { gap: 44px; }
-          .ca-rv:nth-child(even) .ca-step-arrow { display: flex; }
-          .ca-step-arrow { top: auto; bottom: -44px; right: auto; left: 50%; width: 0; height: 44px; flex-direction: column; }
-          .ca-step-arrow::before { left: 0; right: auto; top: 0; bottom: 0; border-top: none; border-left: 1.5px dashed #cdbb97; }
-          .ca-step-chip svg { transform: rotate(90deg); }
-          .ca-step:hover .ca-step-chip { transform: translateY(3px); }
-          .ca-wrap { padding: 0 18px; }
-          .ca-section { padding: 56px 0; }
-          .ca-card { padding: 22px 18px; border-radius: 18px; }
-          .ca-row.two, .ca-steps, .ca-artists { grid-template-columns: 1fr; }
-          .ca-btn.is-lg { width: 100%; }
-          .ca-node em { display: none; }
-          .ca-node.is-active em { display: block; position: absolute; top: 40px; white-space: nowrap; }
-          .ca-rail { margin-bottom: 18px; }
-          .ca-stamp { bottom: 48px; }
-          .ca-lead { font-size: 16px; }
-          .ca-trust { flex-direction: column; border-radius: 22px; padding: 4px 6px; }
-          .ca-trust span { padding: 10px 14px; }
+        @media (max-width: 720px) {
+          .ca-title { letter-spacing: -0.02em; }
+          .ca-actions { max-width: 100%; }
+          .ca-trust { flex-direction: column; border-radius: 22px; padding: 4px 6px; width: 100%; max-width: 340px; }
+          .ca-trust span { padding: 10px 14px; justify-content: center; }
           .ca-trust span + span { border-left: none; border-top: 1px solid rgba(255,255,255,.14); }
           .ca-scroll { display: none; }
+          .ca-progress { width: 48px; height: 48px; }
+          .ca-progress-txt strong { font-size: 11.5px; }
+          .ca-progress-txt small { font-size: 9px; }
         }
-        @media (prefers-reduced-motion: reduce) { .ca-app * { transition: none !important; animation: none !important; } }
+        @media (max-width: 640px) {
+          .ca-steps { grid-template-columns: minmax(0, 1fr); gap: 44px; }
+          .ca-rv:nth-child(even) .ca-step-arrow { display: flex; }
+          .ca-step-arrow { top: auto; bottom: -44px; right: auto; left: 50%; width: 0; height: 44px; flex-direction: column; margin-left: -14px; }
+          .ca-step-arrow::before { left: 50%; right: auto; top: 0; bottom: 0; border-top: none; border-left: 1.5px dashed #cdbb97; }
+          .ca-step-chip svg { transform: rotate(90deg); }
+          .ca-step:hover .ca-step-chip { transform: translateY(3px); }
+          .ca-rv:last-child .ca-step-arrow { display: none; }
+
+          .ca-row.two { grid-template-columns: minmax(0, 1fr); }
+          .ca-aside { grid-template-columns: minmax(0, 1fr); }
+          .ca-canvas-panel { display: none; }
+          .ca-btn.is-lg { width: 100%; align-self: stretch; }
+          .ca-done-actions .ca-btn { flex: 1 1 100%; }
+          .ca-node em { display: none; }
+          .ca-node.is-active em { display: block; position: absolute; top: 42px; white-space: nowrap; }
+          .ca-rail { margin-bottom: 20px; }
+          .ca-stamp { bottom: 46px; font-size: 11px; padding: 2px 9px; letter-spacing: .15em; }
+          .ca-ticket { padding: 16px 16px 20px; }
+          .ca-ticket-div { margin: 16px -16px; }
+          .ca-faq-q em { display: none; }
+        }
+        @media (max-width: 400px) {
+          .ca-eyebrow { font-size: 10.5px; letter-spacing: .14em; padding: 7px 12px; }
+          .ca-chip { padding: 8px 12px; font-size: 12.5px; }
+          .ca-stage p { display: none; }
+          .ca-rail-line { top: 15px; }
+          .ca-node-dot { width: 32px; height: 32px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .ca-app * { transition: none !important; animation: none !important; }
+          .ca-hero-glow, .ca-hero-grain { display: none; }
+        }
       `}</style>
     </div>
   );

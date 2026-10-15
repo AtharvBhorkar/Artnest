@@ -21,16 +21,12 @@ const COLUMNS = [
     links: [
       { label: "About Athenura", href: "/about" },
       { label: "Our Mission", href: "/about" },
-      { label: "Artists Network", href: "/artists" },
-      { label: "Careers", href: "/careers" },
       { label: "Contact", href: "/contact" },
     ],
   },
   {
     heading: "Support",
     links: [
-      { label: "Help Center", href: "/help" },
-      { label: "Shipping & Returns", href: "/shipping" },
       { label: "Safe Packaging & Care", href: "/packaging" },
       { label: "FAQs", href: "/faq" },
     ],
@@ -40,7 +36,6 @@ const COLUMNS = [
 const LEGAL = [
   { label: "Terms", href: "/terms" },
   { label: "Privacy", href: "/privacy" },
-  { label: "Refund Policy", href: "/refund-policy" },
   { label: "Accessibility", href: "/accessibility" },
 ];
 
