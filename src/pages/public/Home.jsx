@@ -613,7 +613,7 @@ function ArtworkCard({
         relative
         cursor-pointer
         overflow-hidden
-        rounded-[12px]
+        rounded-[20px]
         bg-white
         shadow-[0_6px_18px_rgba(80,50,30,0.06)]
         transition-shadow
@@ -766,7 +766,7 @@ function ArtistCard({ artist, onSelect, index }) {
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.55, delay: index * 0.07, ease: [0.22, 1, 0.36, 1] }}
       whileHover={{ y: -6 }}
-      className="group flex h-full flex-col rounded-[10px] border border-[#ead8ca] bg-[radial-gradient(circle_at_8%_50%,rgba(255,232,214,0.4)_0%,transparent_40%),radial-gradient(circle_at_92%_50%,rgba(255,232,214,0.4)_0%,transparent_40%),linear-gradient(90deg,#fffaf5_0%,#ffffff_20%,#ffffff_80%,#fffaf5_100%)] p-5 transition-shadow duration-300 hover:shadow-[0_14px_30px_rgba(80,50,30,0.13)] sm:p-6"
+      className="group flex h-full flex-col rounded-[20px] border border-[#ead8ca] shadow-[0_10px_15px_rgba(80,50,30,0.1)] bg-[radial-gradient(circle_at_8%_50%,rgba(255,232,214,0.4)_0%,transparent_40%),radial-gradient(circle_at_92%_50%,rgba(255,232,214,0.4)_0%,transparent_40%),linear-gradient(90deg,#fffaf5_0%,#ffffff_20%,#ffffff_80%,#fffaf5_100%)] p-5 transition-shadow duration-300 hover:shadow-[0_14px_30px_rgba(80,50,30,0.13)] sm:p-6"
     >
       <div className="flex items-center gap-4">
         <img
@@ -824,7 +824,7 @@ function CuratedArtworkCard({ work, index, onSelect, onAddToWishlist, isWishlist
         delay: index * 0.05,
         ease: [0.22, 1, 0.36, 1],
       }}
-      className="group relative h-full cursor-pointer overflow-hidden rounded-[12px] bg-[#eaded5]"
+      className="group relative h-full cursor-pointer overflow-hidden rounded-[20px] bg-[#eaded5]"
     >
       {/* Artwork */}
       <img
@@ -918,7 +918,7 @@ function ArtworkDetailModal({
           w-full
           max-w-[900px]
           overflow-hidden
-          rounded-[16px]
+          rounded-[20px]
           border
           border-[#ead8ca]
           bg-white

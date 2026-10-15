@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Check, Eye, MessageSquare, Printer, X } from "lucide-react";
 import { Badge, PAGE, inr } from "./shared";
@@ -25,10 +26,40 @@ const readStages = () => {
     return {};
   }
 };
+
 const BTN = {
-  primary: "bg-[#9F5639] text-white hover:bg-[#8A4A30]",
-  ghost: "border border-[#E8E1DB] bg-white text-[#362F26] hover:bg-[#F9F8F6]",
-  danger: "border border-[#F0CFC8] bg-white text-[#9B3B2E] hover:bg-[#F6DFDA]",
+  primary: `
+    border border-[#9F5639]
+    bg-[#9F5639] text-white
+    shadow-[0_5px_12px_rgba(159,86,57,0.12)]
+    transition-all duration-200 ease-out
+    hover:-translate-y-0.5
+    hover:bg-[#8A4A30]
+    hover:border-[#8A4A30]
+    hover:shadow-[0_9px_20px_rgba(159,86,57,0.20)]
+    active:translate-y-0
+    active:scale-[0.96]
+  `,
+  ghost: `
+    border border-[#E8E1DB]
+    bg-white text-[#362F26]
+    transition-all duration-200 ease-out
+    hover:-translate-y-0.5
+    hover:bg-[#F9F8F6]
+    hover:border-[#D9C5B8]
+    active:translate-y-0
+    active:scale-[0.96]
+  `,
+  danger: `
+    border border-[#F0CFC8]
+    bg-white text-[#9B3B2E]
+    transition-all duration-200 ease-out
+    hover:-translate-y-0.5
+    hover:bg-[#F6DFDA]
+    hover:border-[#E5B8AF]
+    active:translate-y-0
+    active:scale-[0.96]
+  `,
 };
 
 const ALL_ACTIONS = [
@@ -92,204 +123,597 @@ export default function Orders() {
   };
 
   return (
-    <div className={PAGE}>
-      <div className="flex flex-wrap gap-2">
-        {TABS.map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => setTab(t)}
-            className={`rounded-full border px-4 py-2 text-[13.5px] transition-colors ${
-              tab === t
-                ? "border-[#9F5639] bg-[#9F5639] text-white"
-                : "border-[#E8E1DB] bg-white text-[#362F26] hover:bg-[#F9F8F6]"
-            }`}
+    <div
+      className="
+    min-h-screen
+    bg-[linear-gradient(180deg,#ffffff_0%,#f7ece6_50%,#ffffff_100%)]
+  "
+    >
+      <div className={PAGE}>
+        <div className="flex flex-wrap gap-2">
+          {TABS.map((t, index) => (
+  <motion.button
+    key={t}
+    type="button"
+    onClick={() => setTab(t)}
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{
+      duration: 0.4,
+      delay: index * 0.06,
+      ease: [0.22, 1, 0.36, 1],
+    }}
+    whileHover={{
+      y: -2,
+      scale: 1.03,
+      transition: {
+        duration: 0.18,
+        ease: "easeOut",
+      },
+    }}
+    whileTap={{
+      scale: 0.95,
+      y: 0,
+      transition: {
+        duration: 0.1,
+      },
+    }}
+    className={`
+      group inline-flex cursor-pointer items-center
+      rounded-full border px-4 py-2
+      text-[13.5px] font-medium
+      transition-all duration-200 ease-out
+
+      ${
+        tab === t
+          ? `
+            border-[#9F5639]
+            bg-[#9F5639]
+            text-white
+            shadow-[0_5px_14px_rgba(159,86,57,0.16)]
+          `
+          : `
+            border-[#E4DAD2]
+            bg-white
+            text-[#4A3A31]
+            shadow-[0_2px_7px_rgba(65,43,31,0.04)]
+            hover:border-[#D6B8A8]
+            hover:bg-[#FFF9F5]
+            hover:text-[#9F5639]
+            hover:shadow-[0_8px_18px_rgba(159,86,57,0.10)]
+          `
+      }
+    `}
+  >
+    <span>{t}</span>
+
+    <span
+      className={`
+        ml-2 min-w-[20px] text-center text-[11.5px] font-semibold
+        ${
+          tab === t
+            ? "text-white/80"
+            : "text-[#8C7465] transition-colors duration-200 group-hover:text-[#9F5639]"
+        }
+      `}
+    >
+      {count(t)}
+    </span>
+  </motion.button>
+))}
+        </div>
+
+        {/* =========================================================
+    DESKTOP TABLE
+========================================================= */}
+
+<motion.div
+  initial={{ opacity: 0, y: 22 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{
+    duration: 0.6,
+    ease: [0.22, 1, 0.36, 1],
+    delay: 0.18,
+  }}
+  className="
+    hidden
+    overflow-hidden
+    rounded-[20px]
+    border border-[#E7DDD6]
+    bg-[linear-gradient(145deg,#ffffff_0%,#fffdfb_100%)]
+    shadow-[0_5px_16px_rgba(65,43,31,0.045)]
+    lg:block
+  "
+>
+  <table className="w-full table-fixed border-collapse text-left">
+    <colgroup>
+      <col className="w-[130px]" />
+      <col className="w-[200px]" />
+      <col />
+      <col className="w-[120px]" />
+      <col className="w-[130px]" />
+      <col className="w-[130px]" />
+      <col className="w-[140px]" />
+    </colgroup>
+
+    <thead>
+      <tr
+        className="
+          border-b border-[#E7DDD6]
+          bg-[linear-gradient(180deg,#FCF8F4_0%,#F8F1EB_100%)]
+          text-[12px] uppercase tracking-[0.08em]
+          text-[#5F4A3E]
+        "
+      >
+        {["Order", "Buyer", "Artwork", "Amount", "Date", "Status", "Action"].map(
+          (h) => (
+            <th
+              key={h}
+              className={`px-6 py-4 font-semibold ${
+                h === "Action" ? "text-right" : ""
+              }`}
+            >
+              {h}
+            </th>
+          )
+        )}
+      </tr>
+    </thead>
+
+    <tbody>
+      {shown.map((o, index) => (
+        <motion.tr
+          key={o.id}
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.45,
+            delay: 0.28 + index * 0.07,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+          className="
+            h-[72px]
+            border-b border-[#EAE1DB]
+            bg-white
+            transition-colors duration-200 ease-out
+            last:border-b-0
+            hover:bg-[#FFFCFA]
+          "
+        >
+          {/* ORDER ID */}
+          <td
+            className="
+              px-6
+              text-[13px]
+              font-semibold
+              tracking-[0.03em]
+              text-[#715344]
+            "
           >
-            {t}
-            <span className={`ml-2 text-[12px] ${tab === t ? "text-white/80" : "text-[#A28F7D]"}`}>{count(t)}</span>
-          </button>
-        ))}
-      </div>
+            {o.id}
+          </td>
 
-      <div className="overflow-x-auto rounded-2xl border border-[#E8E1DB] bg-white">
-        <table className="w-full min-w-[880px] table-fixed border-collapse text-left">
-          <colgroup>
-            <col className="w-[130px]" />
-            <col className="w-[200px]" />
-            <col />
-            <col className="w-[120px]" />
-            <col className="w-[130px]" />
-            <col className="w-[130px]" />
-            <col className="w-[140px]" />
-          </colgroup>
-          <thead>
-            <tr className="border-b border-[#E8E1DB] bg-[#FBF9F6] text-[11px] uppercase tracking-[0.08em] text-[#A28F7D]">
-              {["Order", "Buyer", "Artwork", "Amount", "Date", "Status", "Action"].map((h) => (
-                <th key={h} className={`px-6 py-4 font-medium ${h === "Action" ? "text-right" : ""}`}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {shown.map((o) => (
-              <tr key={o.id} className="h-[72px] border-b border-[#E8E1DB] transition-colors last:border-b-0 hover:bg-[#FBF9F6]">
-                <td className="px-6 text-[13.5px] font-medium text-[#A28F7D]">{o.id}</td>
-                <td className="px-6">
-                  <div className="flex items-center gap-3">
-                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#F3ECE5] text-[11px] font-semibold text-[#8A5A22]">
-                      {o.buyer.split(" ").map((w) => w[0]).join("").slice(0, 2)}
-                    </span>
-                    <span className="truncate text-[14px] text-[#362F26]">{o.buyer}</span>
-                  </div>
-                </td>
-                <td className="truncate px-6 text-[14px] text-[#362F26]">{o.item}</td>
-                <td className="px-6 text-[14px] font-medium tabular-nums text-[#362F26]">{inr(o.amount)}</td>
-                <td className="whitespace-nowrap px-6 text-[13.5px] text-[#A28F7D]">{o.date}</td>
-                <td className="px-6">
-                  <Badge status={o.status} />
-                  {o.byBuyer && <span className="mt-1 block text-[11px] text-[#4C6B3F]">Buyer confirmed</span>}
-                </td>
-                <td className="px-6">
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={() => setViewId(o.id)}
-                      className="inline-flex h-9 items-center gap-2 rounded-full border border-[#E8E1DB] bg-white px-4 text-[13px] text-[#362F26] transition-colors hover:bg-[#F9F8F6]"
-                    >
-                      <Eye size={16} className="text-[#A28F7D]" /> View
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {!shown.length && (
-              <tr>
-                <td colSpan={7} className="px-6 py-10 text-center text-[14px] text-[#A28F7D]">No orders here.</td>
-              </tr>
+          {/* BUYER */}
+          <td className="px-6">
+            <div className="flex items-center gap-3">
+              <span
+                className="
+                  grid h-9 w-9 shrink-0 place-items-center
+                  rounded-full
+                  border border-[#E6D4C8]
+                  bg-[linear-gradient(135deg,#F7EADF_0%,#EBD4C5_100%)]
+                  text-[11px] font-semibold
+                  text-[#3E3028]
+                  shadow-[0_3px_8px_rgba(65,43,31,0.08)]
+                "
+              >
+                {o.buyer
+                  .split(" ")
+                  .map((w) => w[0])
+                  .join("")
+                  .slice(0, 2)}
+              </span>
+
+              <span
+                className="
+                  truncate
+                  text-[14.5px]
+                  font-semibold
+                  tracking-[-0.01em]
+                  text-[#3E3028]
+                "
+              >
+                {o.buyer}
+              </span>
+            </div>
+          </td>
+
+          {/* ARTWORK */}
+          <td
+            className="
+              truncate px-6
+              text-[14.5px]
+              font-medium
+              tracking-[-0.01em]
+              text-[#44342B]
+            "
+          >
+            {o.item}
+          </td>
+
+          {/* AMOUNT */}
+          <td
+            className="
+              px-6
+              text-[14px]
+              font-semibold
+              tabular-nums
+              text-[#362F26]
+            "
+          >
+            {inr(o.amount)}
+          </td>
+
+          {/* DATE */}
+          <td
+            className="
+              whitespace-nowrap
+              px-6
+              text-[13.5px]
+              text-[#806D60]
+            "
+          >
+            {o.date}
+          </td>
+
+          {/* STATUS */}
+          <td className="px-6">
+            <Badge status={o.status} />
+
+            {o.byBuyer && (
+              <span className="mt-1 block text-[11px] text-[#4C6B3F]">
+                Buyer confirmed
+              </span>
             )}
-          </tbody>
-        </table>
+          </td>
+
+          {/* ACTION */}
+          <td className="px-6">
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setViewId(o.id)}
+                className="
+                  group
+                  inline-flex h-9 cursor-pointer
+                  items-center gap-2
+                  rounded-full
+                  border border-[#E5DCD5]
+                  bg-white px-4
+                  text-[13px] font-medium
+                  text-[#362F26]
+                  shadow-[0_2px_7px_rgba(65,43,31,0.04)]
+                  transition-all duration-200 ease-out
+                  hover:-translate-y-0.5
+                  hover:border-[#D5B4A3]
+                  hover:bg-[#F9EFE9]
+                  hover:text-[#9F5639]
+                  hover:shadow-[0_7px_16px_rgba(159,86,57,0.12)]
+                  active:translate-y-0
+                  active:scale-[0.96]
+                "
+              >
+                <Eye
+                  size={16}
+                  className="
+                    text-[#A28F7D]
+                    transition-colors duration-200
+                    group-hover:text-[#9F5639]
+                  "
+                />
+                View
+              </button>
+            </div>
+          </td>
+        </motion.tr>
+      ))}
+
+      {!shown.length && (
+        <tr>
+          <td
+            colSpan={7}
+            className="
+              px-6 py-10
+              text-center
+              text-[14px]
+              text-[#A28F7D]
+            "
+          >
+            No orders here.
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</motion.div>
+
+
+{/* =========================================================
+    MOBILE ORDER CARDS
+========================================================= */}
+
+<motion.div
+  initial={{ opacity: 0, y: 22 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{
+    duration: 0.6,
+    delay: 0.18,
+    ease: [0.22, 1, 0.36, 1],
+  }}
+  className="space-y-4 lg:hidden"
+>
+  {shown.map((o, index) => (
+    <motion.article
+      key={o.id}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: 0.45,
+        delay: 0.28 + index * 0.07,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      className="
+        overflow-hidden
+        rounded-[20px]
+        border border-[#E7DDD6]
+        bg-[linear-gradient(145deg,#ffffff_0%,#fffdfb_100%)]
+        p-4
+        shadow-[0_5px_16px_rgba(65,43,31,0.045)]
+        transition-all duration-200 ease-out
+        hover:-translate-y-1
+        hover:shadow-[0_10px_24px_rgba(65,43,31,0.08)]
+      "
+    >
+      {/* TOP */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <span
+            className="
+              grid h-10 w-10 shrink-0 place-items-center
+              rounded-full
+              border border-[#E6D4C8]
+              bg-[linear-gradient(135deg,#F7EADF_0%,#EBD4C5_100%)]
+              text-[11px] font-semibold
+              text-[#3E3028]
+            "
+          >
+            {o.buyer
+              .split(" ")
+              .map((w) => w[0])
+              .join("")
+              .slice(0, 2)}
+          </span>
+
+          <div className="min-w-0">
+            <p className="truncate text-[14.5px] font-semibold text-[#3E3028]">
+              {o.buyer}
+            </p>
+
+            <p className="mt-0.5 truncate text-[12px] text-[#806D60]">
+              {o.id}
+            </p>
+          </div>
+        </div>
+
+        <Badge status={o.status} />
       </div>
 
-            {current && (() => {
-        const d = DETAILS[current.id] || {
-          phone: current.phone || FALLBACK.phone,
-          payment: current.payment || FALLBACK.payment,
-          address: current.address || FALLBACK.address,
-        };
-        const step = STEP_INDEX[current.status] ?? 0;
-        const cancelled = current.status === "Cancelled";
+      {/* ARTWORK */}
+      <div className="mt-4 rounded-xl bg-[#FBF7F3] p-3">
+        <p className="text-[11px] uppercase tracking-[0.08em] text-[#A28F7D]">
+          Artwork
+        </p>
 
-        return (
-          <div className="fixed inset-0 z-50 grid place-items-center p-4">
-            <div className="absolute inset-0 bg-black/40" onClick={() => setViewId(null)} />
-            <div className="relative flex max-h-[90vh] w-full max-w-[520px] flex-col rounded-2xl bg-white shadow-xl">
-              <div className="flex items-center justify-between border-b border-[#E8E1DB] px-6 py-4">
-                <div className="flex items-center gap-3">
-                  <h3 className="text-[18px] text-[#362F26]">{current.id}</h3>
-                  <Badge status={current.status} />
-                </div>
-                <button type="button" onClick={() => setViewId(null)} aria-label="Close">
-                  <X size={18} />
-                </button>
-              </div>
+        <p className="mt-1 text-[14px] font-medium text-[#44342B]">
+          {o.item}
+        </p>
+      </div>
 
-              <div className="space-y-6 overflow-y-auto p-6">
-                {cancelled ? (
-                  <div className="rounded-xl bg-[#F6DFDA] px-4 py-3 text-[13.5px] text-[#9B3B2E]">
-                    This order was cancelled. You can reopen it to move it back to Processing.
+      {/* DETAILS */}
+      <div className="mt-4 grid grid-cols-2 gap-4">
+        <div>
+          <p className="text-[11px] text-[#A28F7D]">
+            Amount
+          </p>
+
+          <p className="mt-0.5 text-[14px] font-semibold text-[#362F26]">
+            {inr(o.amount)}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-[11px] text-[#A28F7D]">
+            Order date
+          </p>
+
+          <p className="mt-0.5 text-[13px] text-[#806D60]">
+            {o.date}
+          </p>
+        </div>
+      </div>
+
+      {/* ACTION */}
+      <div className="mt-4 border-t border-[#EAE1DB] pt-4">
+        <button
+          type="button"
+          onClick={() => setViewId(o.id)}
+          className="
+            group
+            flex h-10 w-full cursor-pointer
+            items-center justify-center gap-2
+            rounded-full
+            border border-[#E5DCD5]
+            bg-white
+            text-[13px] font-medium text-[#362F26]
+            transition-all duration-200 ease-out
+            hover:-translate-y-0.5
+            hover:border-[#D5B4A3]
+            hover:bg-[#F9EFE9]
+            hover:text-[#9F5639]
+            hover:shadow-[0_7px_16px_rgba(159,86,57,0.10)]
+            active:scale-[0.97]
+          "
+        >
+          <Eye
+            size={16}
+            className="
+              text-[#A28F7D]
+              transition-colors duration-200
+              group-hover:text-[#9F5639]
+            "
+          />
+          View order
+        </button>
+      </div>
+    </motion.article>
+  ))}
+
+  {!shown.length && (
+    <div
+      className="
+        rounded-[20px]
+        border border-[#E7DDD6]
+        bg-white
+        px-6 py-10
+        text-center
+        text-[14px]
+        text-[#A28F7D]
+      "
+    >
+      No orders here.
+    </div>
+  )}
+</motion.div>
+
+        {current && (() => {
+          const d = DETAILS[current.id] || {
+            phone: current.phone || FALLBACK.phone,
+            payment: current.payment || FALLBACK.payment,
+            address: current.address || FALLBACK.address,
+          };
+          const step = STEP_INDEX[current.status] ?? 0;
+          const cancelled = current.status === "Cancelled";
+
+          return (
+            <div className="fixed inset-0 z-50 grid place-items-center p-4">
+              <div className="absolute inset-0 bg-black/40" onClick={() => setViewId(null)} />
+              <div className="relative flex max-h-[90vh] w-full max-w-[520px] flex-col rounded-2xl bg-white shadow-xl">
+                <div className="flex items-center justify-between border-b border-[#E8E1DB] px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-[18px] text-[#362F26]">{current.id}</h3>
+                    <Badge status={current.status} />
                   </div>
-                ) : (
-                  <div className="flex items-start">
-                    {STEPS.map((s, i) => (
-                      <div key={s} className="flex flex-1 flex-col items-center">
-                        <div className="flex w-full items-center">
-                          <div className={`h-0.5 flex-1 ${i === 0 ? "bg-transparent" : i <= step ? "bg-[#9F5639]" : "bg-[#E8E1DB]"}`} />
-                          <div
-                            className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 ${
-                              i <= step ? "border-[#9F5639] bg-[#9F5639] text-white" : "border-[#E8E1DB] bg-white text-transparent"
-                            }`}
-                          >
-                            <Check size={14} />
-                          </div>
-                          <div className={`h-0.5 flex-1 ${i === STEPS.length - 1 ? "bg-transparent" : i < step ? "bg-[#9F5639]" : "bg-[#E8E1DB]"}`} />
-                        </div>
-                        <span className={`mt-2 text-[12px] ${i <= step ? "text-[#362F26]" : "text-[#A28F7D]"}`}>{s}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <dl className="grid grid-cols-2 gap-x-6 gap-y-4 text-[14px]">
-                  {[
-                    ["Buyer", current.buyer],
-                    ["Phone", d.phone],
-                    ["Artwork", current.item],
-                    ["Amount", inr(current.amount)],
-                    ["Order date", current.date],
-                    ["Payment", d.payment],
-                  ].map(([k, v]) => (
-                    <div key={k}>
-                      <dt className="text-[12px] text-[#A28F7D]">{k}</dt>
-                      <dd className="mt-0.5 text-[#362F26]">{v}</dd>
-                    </div>
-                  ))}
-                </dl>
-
-                <div className="rounded-xl bg-[#F9F8F6] p-4">
-                  <p className="text-[12px] text-[#A28F7D]">Shipping address</p>
-                  <p className="mt-1 text-[14px] leading-relaxed text-[#362F26]">{d.address}</p>
-                </div>
-
-                <div>
-                  <p className="mb-3 text-[12px] uppercase tracking-[0.08em] text-[#A28F7D]">Update status</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {ALL_ACTIONS.map(([label, next, tone]) => {
-                      const allowed = ACTIONS[current.status].some(([, n]) => n === next);
-                      return (
-                        <button
-                          key={label}
-                          type="button"
-                          disabled={!allowed}
-                          onClick={() => change(current, next)}
-                          className={`inline-flex h-10 items-center justify-center rounded-full px-4 text-[13.5px] transition-colors ${
-                            allowed
-                              ? BTN[tone]
-                              : "cursor-not-allowed border border-[#E8E1DB] bg-white text-[#A28F7D] opacity-50"
-                          }`}
-                        >
-                          {label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {current.status === "Packed" && (
-                    <p className="mt-2 text-[12.5px] text-[#4C6B3F]">Order packed. Buyer ko update mil gaya.</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#E8E1DB] px-6 py-4">
-                <div className="flex gap-2">
-                  <Link
-                    to="/artist/messages"
-                    className="inline-flex h-9 items-center gap-2 rounded-full border border-[#E8E1DB] px-4 text-[13px] text-[#362F26] hover:bg-[#F9F8F6]"
-                  >
-                    <MessageSquare size={15} /> Message buyer
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => window.print()}
-                    className="inline-flex h-9 items-center gap-2 rounded-full border border-[#E8E1DB] px-4 text-[13px] text-[#362F26] hover:bg-[#F9F8F6]"
-                  >
-                    <Printer size={15} /> Invoice
+                  <button type="button" onClick={() => setViewId(null)} aria-label="Close">
+                    <X size={18} />
                   </button>
                 </div>
 
+                <div className="space-y-6 overflow-y-auto p-6">
+                  {cancelled ? (
+                    <div className="rounded-xl bg-[#F6DFDA] px-4 py-3 text-[13.5px] text-[#9B3B2E]">
+                      This order was cancelled. You can reopen it to move it back to Processing.
+                    </div>
+                  ) : (
+                    <div className="flex items-start">
+                      {STEPS.map((s, i) => (
+                        <div key={s} className="flex flex-1 flex-col items-center">
+                          <div className="flex w-full items-center">
+                            <div className={`h-0.5 flex-1 ${i === 0 ? "bg-transparent" : i <= step ? "bg-[#9F5639]" : "bg-[#E8E1DB]"}`} />
+                            <div
+                              className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 ${i <= step ? "border-[#9F5639] bg-[#9F5639] text-white" : "border-[#E8E1DB] bg-white text-transparent"
+                                }`}
+                            >
+                              <Check size={14} />
+                            </div>
+                            <div className={`h-0.5 flex-1 ${i === STEPS.length - 1 ? "bg-transparent" : i < step ? "bg-[#9F5639]" : "bg-[#E8E1DB]"}`} />
+                          </div>
+                          <span className={`mt-2 text-[12px] ${i <= step ? "text-[#362F26]" : "text-[#A28F7D]"}`}>{s}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <dl className="grid grid-cols-2 gap-x-6 gap-y-4 text-[14px]">
+                    {[
+                      ["Buyer", current.buyer],
+                      ["Phone", d.phone],
+                      ["Artwork", current.item],
+                      ["Amount", inr(current.amount)],
+                      ["Order date", current.date],
+                      ["Payment", d.payment],
+                    ].map(([k, v]) => (
+                      <div key={k}>
+                        <dt className="text-[12px] text-[#A28F7D]">{k}</dt>
+                        <dd className="mt-0.5 text-[#362F26]">{v}</dd>
+                      </div>
+                    ))}
+                  </dl>
+
+                  <div className="rounded-xl bg-[#F9F8F6] p-4">
+                    <p className="text-[12px] text-[#A28F7D]">Shipping address</p>
+                    <p className="mt-1 text-[14px] leading-relaxed text-[#362F26]">{d.address}</p>
+                  </div>
+
+                  <div>
+                    <p className="mb-3 text-[12px] uppercase tracking-[0.08em] text-[#A28F7D]">Update status</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {ALL_ACTIONS.map(([label, next, tone]) => {
+                        const allowed = ACTIONS[current.status].some(([, n]) => n === next);
+                        return (
+                          <button
+                            key={label}
+                            type="button"
+                            disabled={!allowed}
+                            onClick={() => change(current, next)}
+                            className={`inline-flex h-10 items-center justify-center rounded-full px-4 text-[13.5px] transition-colors ${allowed
+                                ? BTN[tone]
+                                : "cursor-not-allowed border border-[#E8E1DB] bg-white text-[#A28F7D] opacity-50"
+                              }`}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {current.status === "Packed" && (
+                      <p className="mt-2 text-[12.5px] text-[#4C6B3F]">Order packed. Buyer ko update mil gaya.</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#E8E1DB] px-6 py-4">
+                  <div className="flex gap-2">
+                    <Link
+                      to="/artist/messages"
+                      className="inline-flex h-9 items-center gap-2 rounded-full border border-[#E8E1DB] px-4 text-[13px] text-[#362F26] hover:bg-[#F9F8F6]"
+                    >
+                      <MessageSquare size={15} /> Message buyer
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => window.print()}
+                      className="inline-flex h-9 items-center gap-2 rounded-full border border-[#E8E1DB] px-4 text-[13px] text-[#362F26] hover:bg-[#F9F8F6]"
+                    >
+                      <Printer size={15} /> Invoice
+                    </button>
+                  </div>
+
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })()}
+          );
+        })()}
+      </div>
     </div>
   );
 }
