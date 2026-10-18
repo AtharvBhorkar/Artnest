@@ -59,14 +59,11 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import AdminArtists from "./pages/admin/Artists";
 import AdminArtworks from "./pages/admin/Artworks";
 import AdminSculptures from "./pages/admin/Sculptures";
-import AdminCollections from "./pages/admin/Collections";
 import AdminCustomArtRequests from "./pages/admin/CustomArtRequests";
 import Users from "./pages/admin/Users";
 import AdminOrders from "./pages/admin/Orders";
 import AdminPayments from "./pages/admin/Payments";
 import AdminReviews from "./pages/admin/Reviews";
-import AdminMessages from "./pages/admin/Messages";
-import AdminReports from "./pages/admin/Reports";
 import AdminSettings from "./pages/admin/Settings";
 
 export default function App() {
@@ -128,14 +125,11 @@ export default function App() {
           <Route path="artists" element={<AdminArtists />} />
           <Route path="artworks" element={<AdminArtworks />} />
           <Route path="sculptures" element={<AdminSculptures />} />
-          <Route path="collections" element={<AdminCollections />} />
           <Route path="custom-requests" element={<AdminCustomArtRequests />} />
           <Route path="users" element={<Users />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="payments" element={<AdminPayments />} />
           <Route path="reviews" element={<AdminReviews />} />
-          <Route path="messages" element={<AdminMessages />} />
-          <Route path="reports" element={<AdminReports />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>
 

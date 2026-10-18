@@ -18,15 +18,6 @@ const CUSTOM_REQUESTS = [
   { id: "CR-496", customer: "Divya Menon", type: "Pet Portrait", artist: "Devika Rao", budget: 15000, deadline: "22 Sep 2026", requested: "08 Sep 2026", status: "Rejected" },
 ];
 
-const ARTIST_NAMES = [
-  "Aarav Mehta",
-  "Riya Sharma",
-  "Kabir Verma",
-  "Ananya Kapoor",
-  "Meera Iyer",
-  "Devika Rao",
-];
-
 const STATUSES = ["All statuses", "New", "Reviewing", "Accepted", "In Progress", "Completed", "Rejected"];
 
 function StatusBadge({ status }) {
@@ -58,16 +49,6 @@ export default function CustomArtRequests() {
       return r.customer.toLowerCase().includes(q) || r.id.toLowerCase().includes(q);
     });
   }, [requests, search, status]);
-
-  function assign(id, artist) {
-    setRequests((prev) =>
-      prev.map((r) =>
-        r.id === id
-          ? { ...r, artist, status: r.status === "New" ? "Reviewing" : r.status }
-          : r
-      )
-    );
-  }
 
   return (
     <div className="p-6 max-w-[1400px] mx-auto space-y-6 font-['Plus_Jakarta_Sans']">
@@ -116,19 +97,8 @@ export default function CustomArtRequests() {
                 <td className="px-6 py-5 text-[14px] text-[#A28F7D]">{r.id}</td>
                 <td className="px-6 py-5 text-[14px] text-[#362F26]">{r.customer}</td>
                 <td className="px-6 py-5 text-[14px] text-[#362F26]">{r.type}</td>
-                <td className="px-6 py-5">
-                  <div className="relative inline-block">
-                    <select
-                      value={r.artist}
-                      onChange={(e) => assign(r.id, e.target.value)}
-                      className="appearance-none h-10 pl-4 pr-9 rounded-full border border-[#E8E1DB] bg-white text-[14px] text-[#362F26] focus:outline-none focus:border-[#9F5639] cursor-pointer"
-                    >
-                      {ARTIST_NAMES.map((a) => (
-                        <option key={a} value={a}>{a}</option>
-                      ))}
-                    </select>
-                    <ChevronDown size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A28F7D] pointer-events-none" />
-                  </div>
+                <td className="px-6 py-5 text-[14px] text-[#362F26]">
+                  {r.artist}
                 </td>
                 <td className="px-6 py-5 text-[14px] font-medium text-[#362F26]">{formatINR(r.budget)}</td>
                 <td className="px-6 py-5 text-[14px] text-[#A28F7D] whitespace-nowrap">{r.deadline}</td>
