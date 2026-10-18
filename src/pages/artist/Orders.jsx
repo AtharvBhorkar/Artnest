@@ -10,14 +10,23 @@ const INITIAL = [
   { id: "ORD-10242", buyer: "Vikram Nair", item: "City in Ochre", amount: 21800, date: "17 Sep 2026", status: "Delivered" },
   { id: "ORD-10241", buyer: "Ishaan Joshi", item: "Still Water Study", amount: 15600, date: "16 Sep 2026", status: "Cancelled" },
 ];
-const TABS = ["All", "New", "Confirmed", "Packed"];
+
+// Added New, Confirmed, Packed, Shipped, Delivered tabs
+const TABS = ["All", "New", "Confirmed", "Packed", "Shipped", "Delivered"];
+
 const ACTIONS = {
   New: [["Order confirmed", "Confirmed", "primary"]],
   Confirmed: [["Packed", "Packed", "primary"]],
-  Packed: [],
+  Packed: [["Shipped", "Shipped", "primary"]],
+  Shipped: [["Delivered", "Delivered", "primary"]],
+  Delivered: [],
+  Cancelled: [],
 };
+
 const STAGE_KEY = "artnest_order_stage";
-const STATUS_OF = ["New", "Confirmed", "Packed"];
+// Added Shipped and Delivered to the status array
+const STATUS_OF = ["New", "Confirmed", "Packed", "Shipped", "Delivered"];
+
 const readStages = () => {
   try {
     return JSON.parse(localStorage.getItem(STAGE_KEY)) || {};
@@ -25,6 +34,7 @@ const readStages = () => {
     return {};
   }
 };
+
 const BTN = {
   primary: "bg-[#9F5639] text-white hover:bg-[#8A4A30]",
   ghost: "border border-[#E8E1DB] bg-white text-[#362F26] hover:bg-[#F9F8F6]",
@@ -34,6 +44,8 @@ const BTN = {
 const ALL_ACTIONS = [
   ["Order confirmed", "Confirmed", "primary"],
   ["Packed", "Packed", "primary"],
+  ["Shipped", "Shipped", "primary"],
+  ["Delivered", "Delivered", "primary"],
 ];
 
 const DETAILS = {
@@ -43,9 +55,20 @@ const DETAILS = {
   "ORD-10242": { phone: "+91 98450 22334", payment: "UPI", address: "21 Anna Salai, Chennai, Tamil Nadu 600002" },
   "ORD-10241": { phone: "+91 99300 55667", payment: "UPI", address: "5 Park Street, Kolkata, West Bengal 700016" },
 };
+
 const FALLBACK = { phone: "—", payment: "—", address: "Address not provided" };
-const STEPS = ["Placed", "Confirmed", "Packed"];
-const STEP_INDEX = { Confirmed: 1, Packed: 2 };
+
+// Added Shipped and Delivered steps
+const STEPS = ["Placed", "Confirmed", "Packed", "Shipped", "Delivered"];
+
+// Added indexes for the new steps
+const STEP_INDEX = { 
+  New: 0,
+  Confirmed: 1, 
+  Packed: 2, 
+  Shipped: 3, 
+  Delivered: 4 
+};
 
 export default function Orders() {
   const [orders, setOrders] = useState(() => {
@@ -68,14 +91,20 @@ export default function Orders() {
         }));
     } catch {
     }
-    return [...placed, ...INITIAL].map((o) => ({ ...o, status: STATUS_OF[stages[o.id] ?? 0] }));
+    return [...placed, ...INITIAL].map((o) => {
+      // Fallback to 'New' if stage isn't found, otherwise use saved stage
+      return { ...o, status: STATUS_OF[stages[o.id] ?? 0] };
+    });
   });
+
   const [tab, setTab] = useState("All");
   const [viewId, setViewId] = useState(null);
   const current = orders.find((o) => o.id === viewId);
 
   const shown = orders.filter((o) => tab === "All" || o.status === tab);
+  
   const count = (t) => (t === "All" ? orders.length : orders.filter((o) => o.status === t).length);
+
   const advance = (id, status) => {
     setOrders((os) => os.map((o) => (o.id === id ? { ...o, status } : o)));
     try {
@@ -170,12 +199,14 @@ export default function Orders() {
         </table>
       </div>
 
-            {current && (() => {
+      {current && (() => {
         const d = DETAILS[current.id] || {
           phone: current.phone || FALLBACK.phone,
           payment: current.payment || FALLBACK.payment,
           address: current.address || FALLBACK.address,
         };
+        
+        // Ensure step maps correctly for new statuses
         const step = STEP_INDEX[current.status] ?? 0;
         const cancelled = current.status === "Cancelled";
 
@@ -213,7 +244,7 @@ export default function Orders() {
                           </div>
                           <div className={`h-0.5 flex-1 ${i === STEPS.length - 1 ? "bg-transparent" : i < step ? "bg-[#9F5639]" : "bg-[#E8E1DB]"}`} />
                         </div>
-                        <span className={`mt-2 text-[12px] ${i <= step ? "text-[#362F26]" : "text-[#A28F7D]"}`}>{s}</span>
+                        <span className={`mt-2 text-[12px] text-center ${i <= step ? "text-[#362F26]" : "text-[#A28F7D]"}`}>{s}</span>
                       </div>
                     ))}
                   </div>
@@ -244,7 +275,8 @@ export default function Orders() {
                   <p className="mb-3 text-[12px] uppercase tracking-[0.08em] text-[#A28F7D]">Update status</p>
                   <div className="grid grid-cols-2 gap-2">
                     {ALL_ACTIONS.map(([label, next, tone]) => {
-                      const allowed = ACTIONS[current.status].some(([, n]) => n === next);
+                      // Check if this action is the immediate next step
+                      const allowed = ACTIONS[current.status]?.some(([, n]) => n === next);
                       return (
                         <button
                           key={label}
@@ -263,7 +295,13 @@ export default function Orders() {
                     })}
                   </div>
                   {current.status === "Packed" && (
-                    <p className="mt-2 text-[12.5px] text-[#4C6B3F]">Order packed. Buyer ko update mil gaya.</p>
+                    <p className="mt-2 text-[12.5px] text-[#4C6B3F]">Order packed. Ready to be shipped.</p>
+                  )}
+                  {current.status === "Shipped" && (
+                    <p className="mt-2 text-[12.5px] text-[#4C6B3F]">Order shipped. Awaiting delivery.</p>
+                  )}
+                  {current.status === "Delivered" && (
+                    <p className="mt-2 text-[12.5px] text-[#4C6B3F]">Order delivered successfully.</p>
                   )}
                 </div>
               </div>
@@ -284,7 +322,6 @@ export default function Orders() {
                     <Printer size={15} /> Invoice
                   </button>
                 </div>
-
               </div>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, Plus, Pencil, Trash2, ChevronDown, Tag } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, ChevronDown, Tag, Image as ImageIcon } from "lucide-react";
 import { ARTWORKS, Badge, PAGE, inr, inputCls, btnPrimary, btnGhost } from "./shared";
 import { CATEGORY_LABELS } from "../../data/artworks";
 
@@ -24,6 +24,21 @@ const readOffers = () => {
   }
 };
 
+// 👇 LIVE IMAGES MAP (Mapped by ID)
+const LIVE_IMAGES = {
+  "art-1": "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=600&q=80",
+  "art-2": "https://images.unsplash.com/photo-1541961017774-22349e4a1262?auto=format&fit=crop&w=600&q=80",
+  "art-3": "https://images.unsplash.com/photo-1547891654-e66ed7ebb968?auto=format&fit=crop&w=600&q=80",
+  "art-4": "https://images.unsplash.com/photo-1549490349-8643362247b5?auto=format&fit=crop&w=600&q=80",
+  "art-5": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=600&q=80",
+  "art-6": "https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=600&q=80",
+  "art-7": "https://images.unsplash.com/photo-1561839561-b13bcfe95249?auto=format&fit=crop&w=600&q=80",
+  "art-8": "https://images.unsplash.com/photo-1580136579312-94651dfd596d?auto=format&fit=crop&w=600&q=80",
+};
+
+// Fallback image in case ID doesn't match
+const FALLBACK_IMG = "https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=600&q=80";
+
 function OfferModal({ art, existing, onClose, onSave, onRemove }) {
   const original = Number(art.value ?? art.price);
   const [offerPrice, setOfferPrice] = useState(existing?.value ?? "");
@@ -44,7 +59,7 @@ function OfferModal({ art, existing, onClose, onSave, onRemove }) {
       category: art.category,
       medium: art.medium,
       dims: art.dims,
-      img: art.img,
+      img: art.img || LIVE_IMAGES[art.id] || FALLBACK_IMG,
       tag: art.tag,
       value: Number(offerPrice),
       originalValue: original,
@@ -96,12 +111,43 @@ function OfferModal({ art, existing, onClose, onSave, onRemove }) {
   );
 }
 
+// New Component to handle image loading & error fallback gracefully
+function ArtworkImage({ src, alt }) {
+  const [error, setError] = useState(false);
+  
+  if (error || !src) {
+    return (
+      <div className="flex aspect-[4/3] w-full items-center justify-center bg-[#F9F8F6]">
+        <ImageIcon size={32} className="text-[#D5D9D2]" />
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      onError={() => setError(true)}
+      className="aspect-[4/3] w-full object-cover"
+    />
+  );
+}
+
 export default function MyArtworks() {
   const [items, setItems] = useState(() => {
-  const stored = readStored();
-  const converted = new Set(stored.map((a) => a.demoId));
-  return [...stored, ...ARTWORKS.filter((a) => !converted.has(a.id))];
-});
+    const stored = readStored();
+    const converted = new Set(stored.map((a) => a.demoId));
+    // Merge stored items with mock ARTWORKS and inject images
+    const combined = [...stored, ...ARTWORKS.filter((a) => !converted.has(a.id))];
+    
+    return combined.map(item => ({
+      ...item,
+      // Attach image if not already present
+      img: item.img || LIVE_IMAGES[item.id] || FALLBACK_IMG
+    }));
+  });
+
   const [q, setQ] = useState("");
   const [status, setStatus] = useState(STATUSES[0]);
   const [offerFor, setOfferFor] = useState(null);
@@ -183,12 +229,14 @@ export default function MyArtworks() {
 
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {shown.map((a) => (
-          <div key={a.id} className="overflow-hidden rounded-2xl border border-[#E8E1DB] bg-white">
-            {a.img ? (
-              <img src={a.img} alt={a.title} className="aspect-[4/3] w-full object-cover" />
-            ) : (
-              <div className="aspect-[4/3] bg-gradient-to-br from-[#e6d6c2] to-[#c9a888]" />
-            )}
+          <div key={a.id} className="overflow-hidden rounded-2xl border border-[#E8E1DB] bg-white group">
+            {/* Live Image Implementation */}
+            <div className="relative overflow-hidden">
+               <ArtworkImage src={a.img} alt={a.title} />
+               {/* Hover effect for image */}
+               <div className="absolute inset-0 bg-black/10 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none" />
+            </div>
+
             <div className="p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>

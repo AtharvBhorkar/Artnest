@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Search, ChevronDown, Plus, Eye, Pencil, ShieldCheck, Ban, CircleCheck, X } from "lucide-react";
+import { Search, ChevronDown, Eye, Pencil, ShieldCheck, Ban, X } from "lucide-react";
 
 const inr = (n) => "₹" + Number(n).toLocaleString("en-IN");
 
@@ -48,7 +48,7 @@ function ArtistModal({ mode, artist, onClose, onSave }) {
     artist || { name: "", specialty: "", location: "" }
   );
   const readOnly = mode === "view";
-  const title = mode === "add" ? "Add artist" : mode === "edit" ? "Edit artist" : "Artist details";
+  const title = mode === "edit" ? "Edit artist" : "Artist details";
   const valid = form.name.trim() && form.specialty.trim() && form.location.trim();
 
   const field = (label, key) => (
@@ -135,14 +135,7 @@ export default function Artists() {
   const toggleBlock = (a) => patch(a.id, { status: a.status === "Suspended" ? "Active" : "Suspended" });
 
   const save = (form) => {
-    if (modal.mode === "add") {
-      setArtists((as) => [
-        ...as,
-        { ...form, id: "A-" + (100 + as.length + 1), artworks: 0, sales: 0, rating: 0, verified: false, status: "Under review" },
-      ]);
-    } else {
-      patch(modal.artist.id, { name: form.name, specialty: form.specialty, location: form.location });
-    }
+    patch(modal.artist.id, { name: form.name, specialty: form.specialty, location: form.location });
     setModal(null);
   };
 
@@ -164,20 +157,16 @@ export default function Artists() {
         <Select value={specialty} onChange={setSpecialty} options={specialties} />
         <Select value={verif} onChange={setVerif} options={["All artists", "Verified", "Unverified"]} />
         <Select value={sort} onChange={setSort} options={Object.keys(SORTS)} />
-        <button
-          type="button"
-          onClick={() => setModal({ mode: "add" })}
-          className="flex h-11 items-center gap-2 rounded-full bg-[#9F5639] px-5 text-[14px] text-white transition-colors hover:bg-[#8A4A30]"
-        >
-          <Plus size={16} /> Add artist
-        </button>
+        
+        {/* Add artist button removed from here */}
+        
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-[#E8E1DB] bg-white">
         <table className="w-full min-w-[1000px] border-collapse text-left">
           <thead>
             <tr className="border-b border-[#E8E1DB] text-[11px] uppercase tracking-[0.08em] text-[#A28F7D]">
-              {["Artist", "Location", "Artworks", "Sales", "Rating", "Verification", "Status", "Actions"].map((h) => (
+              {["Artist", "Location", "Artworks", "Sales", "Rating", "Status", "Actions"].map((h) => (
                 <th key={h} className="px-6 py-4 font-medium">{h}</th>
               ))}
             </tr>
@@ -193,15 +182,6 @@ export default function Artists() {
                 <td className="px-6 py-4 text-[14px] text-[#362F26]">{a.artworks}</td>
                 <td className="px-6 py-4 text-[14px] text-[#362F26]">{inr(a.sales)}</td>
                 <td className="px-6 py-4 text-[14px] text-[#362F26]">{a.rating ? a.rating.toFixed(1) : "—"}</td>
-                <td className="px-6 py-4">
-                  {a.verified ? (
-                    <span className="flex items-center gap-1.5 text-[13px] text-[#362F26]">
-                      <CircleCheck size={16} className="text-[#4C6B3F]" /> Verified
-                    </span>
-                  ) : (
-                    <span className="text-[13px] text-[#A28F7D]">Unverified</span>
-                  )}
-                </td>
                 <td className="px-6 py-4">
                   <span className={`whitespace-nowrap rounded-full px-3 py-1 text-[12px] font-medium ${TONE[a.status]}`}>
                     {a.status}
@@ -238,7 +218,7 @@ export default function Artists() {
             ))}
             {!shown.length && (
               <tr>
-                <td colSpan={8} className="px-6 py-10 text-center text-[14px] text-[#A28F7D]">
+                <td colSpan={7} className="px-6 py-10 text-center text-[14px] text-[#A28F7D]">
                   No artists match these filters.
                 </td>
               </tr>

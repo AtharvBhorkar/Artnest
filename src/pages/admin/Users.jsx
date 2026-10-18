@@ -1,5 +1,7 @@
-import React, { useMemo, useState } from "react";
-import { Search, Eye, Pencil, Ban, CheckCircle2 } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  Search, Eye, Pencil, Ban, CheckCircle2, X, AlertCircle
+} from "lucide-react";
 
 export function formatINR(amount) {
   return new Intl.NumberFormat("en-IN", {
@@ -16,6 +18,9 @@ const USERS = [
   { id: "USR-4", name: "Vikram Nair", email: "vikram.nair@example.com", orders: 1, wishlist: 3, spend: 21800, joined: "Jun 2025", status: "Active" },
   { id: "USR-5", name: "Ishaan Joshi", email: "ishaan.joshi@example.com", orders: 2, wishlist: 1, spend: 15600, joined: "Jul 2025", status: "Blocked" },
 ];
+
+const inputCls =
+  "w-full h-10 px-3.5 rounded-xl border border-[#E8E1DB] bg-white text-[14px] text-[#362F26] placeholder:text-[#A28F7D] focus:outline-none focus:border-[#9F5639] transition-colors";
 
 function getInitials(name) {
   return name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
@@ -34,9 +39,172 @@ function StatusBadge({ status }) {
   );
 }
 
+function Field({ label, children }) {
+  return (
+    <label className="block">
+      <span className="block text-[12.5px] font-medium text-[#736153] mb-1.5">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function Detail({ label, value }) {
+  return (
+    <div>
+      <p className="text-[11.5px] uppercase tracking-wide text-[#A28F7D]">{label}</p>
+      <div className="mt-1 text-[14px] text-[#362F26] font-medium">{value}</div>
+    </div>
+  );
+}
+
+function Modal({ open, onClose, title, children, footer }) {
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-[#362F26]/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-white rounded-2xl border border-[#E8E1DB] shadow-xl">
+        <div className="sticky top-0 z-10 bg-white flex items-center justify-between px-6 py-4 border-b border-[#E8E1DB]">
+          <h2 className="text-[16px] font-semibold text-[#362F26]">{title}</h2>
+          <button onClick={onClose} className="text-[#A28F7D] hover:text-[#362F26] transition-colors" aria-label="Close">
+            <X size={18} />
+          </button>
+        </div>
+        <div className="px-6 py-5">{children}</div>
+        {footer && (
+          <div className="sticky bottom-0 bg-white px-6 py-4 border-t border-[#E8E1DB] flex justify-end gap-3">
+            {footer}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EditForm({ open, initial, onClose, onSave }) {
+  const [form, setForm] = useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!open) return;
+    setError("");
+    setForm(
+      initial
+        ? {
+            name: initial.name,
+            email: initial.email,
+            status: initial.status,
+          }
+        : null
+    );
+  }, [open, initial]);
+
+  if (!open || !form) return null;
+
+  function set(field, value) {
+    setForm((f) => ({ ...f, [field]: value }));
+  }
+
+  function submit(e) {
+    e.preventDefault();
+    if (!form.name.trim()) return setError("Name is required.");
+    if (!form.email.trim() || !form.email.includes("@")) return setError("Enter a valid email address.");
+
+    setError("");
+    onSave({
+      name: form.name.trim(),
+      email: form.email.trim(),
+      status: form.status,
+    });
+  }
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="Edit user"
+      footer={
+        <>
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-10 px-5 rounded-full border border-[#E8E1DB] text-[14px] text-[#362F26] hover:bg-[#F7F3EE] transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="user-form"
+            className="h-10 px-5 rounded-full bg-[#9F5639] text-white text-[14px] font-medium hover:bg-[#8A4930] transition-colors"
+          >
+            Save changes
+          </button>
+        </>
+      }
+    >
+      <form id="user-form" onSubmit={submit} className="space-y-4">
+        {error && (
+          <div className="flex items-start gap-2 rounded-xl bg-[#F6DFDA] text-[#9B3B2E] px-3 py-2.5 text-[13px]">
+            <AlertCircle size={16} className="mt-0.5 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <Field label="Name">
+          <input
+            type="text"
+            value={form.name}
+            onChange={(e) => set("name", e.target.value)}
+            className={inputCls}
+          />
+        </Field>
+
+        <Field label="Email">
+          <input
+            type="email"
+            value={form.email}
+            onChange={(e) => set("email", e.target.value)}
+            className={inputCls}
+          />
+        </Field>
+
+        <Field label="Status">
+          <select
+            value={form.status}
+            onChange={(e) => set("status", e.target.value)}
+            className="appearance-none w-full h-10 px-3.5 rounded-xl border border-[#E8E1DB] bg-white text-[14px] text-[#362F26] focus:outline-none focus:border-[#9F5639] cursor-pointer"
+          >
+            <option value="Active">Active</option>
+            <option value="Blocked">Blocked</option>
+          </select>
+        </Field>
+      </form>
+    </Modal>
+  );
+}
+
 export default function Users() {
   const [users, setUsers] = useState(USERS);
   const [search, setSearch] = useState("");
+  const [modal, setModal] = useState(null); // { mode: "view" | "edit", id }
+  const [toast, setToast] = useState(null);
+
+  const activeUser = modal?.id ? users.find((u) => u.id === modal.id) : null;
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 2600);
+    return () => clearTimeout(t);
+  }, [toast]);
 
   const filtered = useMemo(
     () =>
@@ -50,10 +218,23 @@ export default function Users() {
 
   function toggleBlock(id) {
     setUsers((prev) =>
-      prev.map((u) =>
-        u.id === id ? { ...u, status: u.status === "Blocked" ? "Active" : "Blocked" } : u
-      )
+      prev.map((u) => {
+        if (u.id === id) {
+          const nextStatus = u.status === "Blocked" ? "Active" : "Blocked";
+          setToast({ msg: `User marked as ${nextStatus}.` });
+          return { ...u, status: nextStatus };
+        }
+        return u;
+      })
     );
+  }
+
+  function handleSave(data) {
+    if (modal?.mode === "edit" && modal.id) {
+      setUsers((prev) => prev.map((u) => (u.id === modal.id ? { ...u, ...data } : u)));
+      setToast({ msg: "User details updated." });
+    }
+    setModal(null);
   }
 
   return (
@@ -103,10 +284,18 @@ export default function Users() {
                 <td className="px-6 py-4"><StatusBadge status={u.status} /></td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-4">
-                    <button title="View" className="text-[#A28F7D] hover:text-[#362F26] transition-colors">
+                    <button
+                      title="View"
+                      onClick={() => setModal({ mode: "view", id: u.id })}
+                      className="text-[#A28F7D] hover:text-[#362F26] transition-colors"
+                    >
                       <Eye size={18} />
                     </button>
-                    <button title="Edit" className="text-[#A28F7D] hover:text-[#362F26] transition-colors">
+                    <button
+                      title="Edit"
+                      onClick={() => setModal({ mode: "edit", id: u.id })}
+                      className="text-[#A28F7D] hover:text-[#362F26] transition-colors"
+                    >
                       <Pencil size={18} />
                     </button>
                     <button
@@ -134,6 +323,68 @@ export default function Users() {
           </tbody>
         </table>
       </div>
+
+      {/* View Modal */}
+      <Modal
+        open={modal?.mode === "view"}
+        onClose={() => setModal(null)}
+        title="User details"
+        footer={
+          <>
+            <button
+              onClick={() => setModal(null)}
+              className="h-10 px-5 rounded-full border border-[#E8E1DB] text-[14px] text-[#362F26] hover:bg-[#F7F3EE] transition-colors"
+            >
+              Close
+            </button>
+            <button
+              onClick={() => setModal({ mode: "edit", id: modal.id })}
+              className="inline-flex items-center gap-2 h-10 px-5 rounded-full bg-[#9F5639] text-white text-[14px] font-medium hover:bg-[#8A4930] transition-colors"
+            >
+              <Pencil size={15} /> Edit
+            </button>
+          </>
+        }
+      >
+        {activeUser && (
+          <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#d6c4ae] to-[#b99a78] flex items-center justify-center text-white text-[18px] font-semibold shrink-0">
+                {getInitials(activeUser.name)}
+              </div>
+              <div>
+                <h3 className="text-[18px] font-semibold text-[#362F26]">{activeUser.name}</h3>
+                <p className="text-[13.5px] text-[#A28F7D] mt-0.5">{activeUser.email}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Detail label="User ID" value={activeUser.id} />
+              <Detail label="Status" value={<StatusBadge status={activeUser.status} />} />
+              <Detail label="Orders" value={activeUser.orders} />
+              <Detail label="Wishlist" value={activeUser.wishlist} />
+              <Detail label="Total Spend" value={formatINR(activeUser.spend)} />
+              <Detail label="Joined" value={activeUser.joined} />
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Edit Modal */}
+      <EditForm
+        open={modal?.mode === "edit"}
+        initial={activeUser}
+        onClose={() => setModal(null)}
+        onSave={handleSave}
+      />
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-[60] flex items-center gap-2.5 rounded-xl bg-[#362F26] text-white px-4 py-3 text-[13.5px] shadow-lg">
+          <CheckCircle2 size={16} className="text-[#B9D3A6]" />
+          {toast.msg}
+        </div>
+      )}
     </div>
   );
 }

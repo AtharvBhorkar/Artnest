@@ -79,7 +79,6 @@ function Toggle({ label, hint, checked, onChange }) {
 export default function Settings() {
   const [general, setGeneral] = useState({
     websiteName: "ArtNest",
-    logoUrl: "/assets/artnest-logo.svg",
     contactEmail: "hello@artnest.com",
     phone: "+91 98765 43210",
     address: "14, MG Road, Bengaluru, Karnataka",
@@ -88,7 +87,6 @@ export default function Settings() {
   const [admin, setAdmin] = useState({
     name: "Amara Deshmukh",
     email: "amara@artnest.com",
-    imageUrl: "/assets/admin-avatar.jpg",
     password: "••••••••",
   });
 
@@ -120,11 +118,6 @@ export default function Settings() {
             label="Website name"
             value={general.websiteName}
             onChange={(e) => setGeneral({ ...general, websiteName: e.target.value })}
-          />
-          <Field
-            label="Website logo URL"
-            value={general.logoUrl}
-            onChange={(e) => setGeneral({ ...general, logoUrl: e.target.value })}
           />
           <Field
             label="Contact email"
@@ -162,15 +155,11 @@ export default function Settings() {
             icon={<Mail size={18} />}
           />
           <Field
-            label="Profile image URL"
-            value={admin.imageUrl}
-            onChange={(e) => setAdmin({ ...admin, imageUrl: e.target.value })}
-          />
-          <Field
             label="New password"
             type="password"
             value={admin.password}
             onChange={(e) => setAdmin({ ...admin, password: e.target.value })}
+            className="md:col-span-2"
           />
         </div>
       </Card>

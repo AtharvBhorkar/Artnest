@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Navigate, NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard, Users, Image, Gem, LayoutGrid, ShoppingBag, Palette,
-  CreditCard, UserCog, Star, MessageSquare, TrendingUp, Settings, User,
+  LayoutDashboard, Users, Image, Gem, ShoppingBag, Palette,
+  CreditCard, UserCog, Star, Settings,
   Menu, Sparkles, LogOut,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -13,7 +13,6 @@ const NAV = [
     ["Artists", "/admin/artists", Users],
     ["Artworks", "/admin/artworks", Image],
     ["Sculptures", "/admin/sculptures", Gem],
-    ["Collections", "/admin/collections", LayoutGrid],
   ]],
   ["Sales", [
     ["Orders", "/admin/orders", ShoppingBag],
@@ -23,9 +22,7 @@ const NAV = [
   ["Community", [
     ["Users", "/admin/users", UserCog],
     ["Reviews", "/admin/reviews", Star],
-    ["Messages", "/admin/messages", MessageSquare, 2],
   ]],
-  ["Insights", [["Reports", "/admin/reports", TrendingUp]]],
   ["Account", [
     ["Settings", "/admin/settings", Settings],
   ]],
