@@ -12,12 +12,6 @@ const GoogleIcon = () => (
   </svg>
 );
 
-const AppleIcon = () => (
-  <svg width="16" height="18" viewBox="0 0 384 512" fill="currentColor">
-    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141 4 184.8 4 273.5c0 26.2 4.8 53.3 14.4 81.2 12.8 37.3 59 128.8 107.2 127.3 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-84.1 102.6-121.5-65.2-30.7-61.7-90-61.7-91.8zM256.1 88.3c26.9-32 24.5-61.2 23.7-71.7-23.8 1.4-51.4 16.4-67.2 34.9-17.5 19.8-27.8 44.3-25.6 71.9 25.9 2 49.5-11.4 69.1-35.1z"/>
-  </svg>
-);
-
 const Field = ({ label, hint, ...props }) => (
   <div className="flex-1">
     <div className="flex items-baseline justify-between mb-1">
@@ -69,12 +63,9 @@ export default function BuyerSignup() {
             Discover and collect original art, handcrafted sculptures, and bespoke works from independent artists worldwide.
           </motion.p>
 
-          <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-4">
-            <button className="flex items-center justify-center gap-2 rounded-lg border border-stone-200 py-2 text-[12px] font-medium text-stone-700 transition hover:bg-stone-50 hover:border-stone-300 active:scale-[0.98]">
+          <motion.div variants={item} className="mb-4">
+            <button className="w-full flex items-center justify-center gap-2 rounded-lg border border-stone-200 py-2 text-[12px] font-medium text-stone-700 transition hover:bg-stone-50 hover:border-stone-300 active:scale-[0.98]">
               <GoogleIcon /> Continue with Google
-            </button>
-            <button className="flex items-center justify-center gap-2 rounded-lg border border-stone-200 py-2 text-[12px] font-medium text-stone-700 transition hover:bg-stone-50 hover:border-stone-300 active:scale-[0.98]">
-              <AppleIcon /> Continue with Apple
             </button>
           </motion.div>
 
