@@ -65,15 +65,27 @@ const VALUES = [
 
 function StoryMedia() {
   const [failed, setFailed] = useState(false);
+  const vidRef = useRef(null);
+
+  const playVid = () => {
+    const p = vidRef.current?.play();
+    if (p && p.catch) p.catch(() => {});
+  };
+  const pauseVid = () => vidRef.current?.pause();
 
   return (
-    <div className="relative rounded-2xl overflow-hidden aspect-[4/5] bg-stone-300 shadow-xl ring-1 ring-black/5">
+    <div
+      className="relative rounded-2xl overflow-hidden aspect-[4/5] bg-stone-300 shadow-xl ring-1 ring-black/5"
+      onMouseEnter={playVid}
+      onMouseLeave={pauseVid}
+      onTouchStart={playVid}
+      onTouchEnd={pauseVid}
+    >
       {!failed ? (
         <video
           className="absolute inset-0 w-full h-full object-cover motion-reduce:hidden"
+          ref={vidRef}
           src={storyVideo}
-          poster={STORY_POSTER}
-          autoPlay
           muted
           loop
           playsInline
@@ -94,7 +106,7 @@ function StoryMedia() {
   );
 }
 
-function HeroVideo({ onRatio }) {
+function HeroVideo() {
   const ref = useRef(null);
   const [failed, setFailed] = useState(false);
 
@@ -118,24 +130,23 @@ function HeroVideo({ onRatio }) {
       loop
       playsInline
       preload="auto"
-      onLoadedMetadata={(e) => {
-        const { videoWidth: w, videoHeight: h } = e.currentTarget;
-        if (w && h) onRatio(Math.max(w / h, 1.2));
-      }}
       onError={() => setFailed(true)}
     />
   );
 }
 
 export default function About() {
-  const [ratio, setRatio] = useState(16 / 9);
-
   return (
     <div className="bg-[var(--color-canvas,#fcfbf9)] text-[var(--color-neutral,#1a1a1a)] font-['Plus_Jakarta_Sans',sans-serif]">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Work+Sans:wght@400;500;600&display=swap');
 
         @keyframes athenura-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        .athenura-hero-glow { position: absolute; inset: -25%; pointer-events: none; background: radial-gradient(circle at 28% 32%, rgba(201,163,90,.24), transparent 46%), radial-gradient(circle at 72% 66%, rgba(92,43,48,.3), transparent 50%); animation: athenura-glow 20s ease-in-out infinite alternate; }
+        @keyframes athenura-glow { from { transform: translate3d(-2%,-1%,0) scale(1.02); } to { transform: translate3d(2%,2%,0) scale(1.1); } }
+        .athenura-hero-overlay { position: absolute; inset: 0; background: radial-gradient(ellipse 62% 58% at 50% 48%, rgba(30,17,10,.62) 0%, rgba(30,17,10,.34) 55%, transparent 100%), linear-gradient(180deg, rgba(40,24,14,.52) 0%, rgba(40,24,14,.08) 38%, rgba(40,24,14,.44) 100%), radial-gradient(ellipse at center, transparent 52%, rgba(20,10,5,.55) 100%); }
+        .athenura-hero-accent { font-style: italic; font-weight: 400; background: linear-gradient(100deg, #f8e6b8 0%, #e0bb74 45%, #c9a35a 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; padding-right: .08em; }
+        @media (prefers-reduced-motion: reduce) { .athenura-hero-glow { animation: none; } }
         .athenura-marquee { animation: athenura-marquee 40s linear infinite; }
         @keyframes athenura-drift {
           from { transform: scale(1) translate(0, 0); }
@@ -196,29 +207,32 @@ export default function About() {
         }
       `}</style>
 
-      <section className="relative grid overflow-hidden bg-gradient-to-br from-stone-800 to-stone-950">
-        <HeroVideo onRatio={setRatio} />
-        <div className="absolute inset-0 bg-black/55" />
-        <div aria-hidden="true" className="col-start-1 row-start-1 w-full" style={{ aspectRatio: ratio }} />
+      <section className="relative flex items-center overflow-hidden bg-[#2a1a10] min-h-[100svh] font-['Work_Sans',sans-serif]">
+        <HeroVideo />
+        <div className="athenura-hero-glow" aria-hidden="true" />
+        <div className="athenura-hero-overlay" aria-hidden="true" />
 
-        <div className="relative z-10 col-start-1 row-start-1 self-center w-full max-w-[1100px] mx-auto px-6 py-14 sm:py-20 text-center text-white">
-          <p className="text-[13px] text-amber-200 font-medium">About Athenura</p>
-          <h1 className="mt-3 mx-auto max-w-[800px] font-['Playfair_Display',serif] text-[38px] sm:text-[68px] leading-[1.05] font-normal tracking-tight">
-            Every artwork starts with someone who couldn't stop making it.
+        <div className="relative z-10 w-full max-w-[1100px] mx-auto px-6 pt-[clamp(104px,16vh,140px)] pb-[clamp(96px,14vh,128px)] text-center text-white">
+          <p className="inline-flex items-center gap-2 rounded-full border border-[#f0d9a3]/40 bg-white/10 px-4 py-2 text-[12px] font-medium uppercase tracking-[0.2em] text-[#f1d9a3] backdrop-blur-md">
+            <Sparkles size={13} className="text-[#e0bb74]" /> About Athenura
+          </p>
+          <h1 className="mt-3 mx-auto max-w-[800px] font-['Fraunces',serif] text-[34px] sm:text-[48px] lg:text-[60px] leading-[1.08] font-medium tracking-tight [text-shadow:0_4px_40px_rgba(0,0,0,.45)]">
+            Every artwork starts with someone who{" "}
+            <em className="athenura-hero-accent">couldn't stop making it.</em>
           </h1>
-          <p className="mt-5 mx-auto max-w-[580px] text-[15px] sm:text-[17px] leading-relaxed text-stone-200 font-light">
+          <p className="mt-5 mx-auto max-w-[580px] text-[15px] sm:text-[17px] leading-relaxed text-[#fbf1da] [text-shadow:0_1px_18px_rgba(0,0,0,.55)]">
             Athenura is a gallery built for independent painters, sculptors and makers, and for collectors who want to know the hands behind the work.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
               to="/discover"
-              className="h-11 px-8 rounded-full bg-white text-stone-900 text-[13.5px] font-semibold hover:bg-stone-100 transition-colors inline-flex items-center justify-center shadow-lg active:scale-95"
+              className="h-12 px-8 rounded-full text-white text-[14px] font-medium bg-gradient-to-br from-[#b88a3e] via-[#96702f] to-[#7a5a22] border border-white/20 shadow-[0_12px_30px_-8px_rgba(150,112,47,.85),inset_0_1px_0_rgba(255,255,255,.28)] hover:-translate-y-0.5 hover:from-[#c9984a] hover:via-[#a67b36] hover:to-[#86632a] transition-all inline-flex items-center justify-center active:scale-95"
             >
               Explore the gallery
             </Link>
             <Link
               to="/artists"
-              className="h-11 px-8 rounded-full border border-white/40 text-white text-[13.5px] font-medium hover:bg-white/10 transition-colors inline-flex items-center justify-center active:scale-95"
+              className="h-12 px-8 rounded-full border border-white/55 bg-white/10 text-white text-[14px] font-medium backdrop-blur-md hover:bg-white hover:text-[#5c2b30] transition-colors inline-flex items-center justify-center active:scale-95"
             >
               Meet the artists
             </Link>
@@ -258,12 +272,12 @@ export default function About() {
         </div>
       </section>
 
-      <section className="border-y border-[var(--color-outline,#e5e5e5)] bg-[var(--color-section,#f5f4f0)]">
+      <section className="border-y border-[#e0d4bc] bg-[#efe6d3] bg-[radial-gradient(ellipse_70%_100%_at_50%_0%,rgba(201,163,90,.22),transparent_70%)]">
         <div className="max-w-[900px] mx-auto px-6 py-12 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
           {STATS.map((s) => (
             <div key={s.label}>
-              <p className="font-['Playfair_Display',serif] text-[30px] sm:text-[36px] font-medium">{s.value}</p>
-              <p className="mt-1 text-[12.5px] text-[var(--color-secondary,#666666)]">{s.label}</p>
+              <p className="font-['Playfair_Display',serif] text-[30px] sm:text-[36px] font-medium text-[#6f5222]">{s.value}</p>
+              <p className="mt-1 text-[12.5px] text-[#8c7f68]">{s.label}</p>
             </div>
           ))}
         </div>
@@ -302,7 +316,7 @@ export default function About() {
         </div>
       </section>
 
-      <section className="bg-stone-900 text-white">
+      <section className="bg-[#2a1a10] bg-[radial-gradient(circle_at_20%_20%,rgba(201,163,90,.2),transparent_45%),radial-gradient(circle_at_85%_80%,rgba(92,43,48,.4),transparent_50%)] text-white">
         <div className="max-w-[1100px] mx-auto px-6 py-16 sm:py-24">
           <h2 className="font-['Playfair_Display',serif] text-[30px] sm:text-[38px] leading-tight max-w-[560px]">
             How an artist joins Athenura
@@ -313,7 +327,7 @@ export default function About() {
           <ol className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-8">
             {JOURNEY.map((j, i) => (
               <li key={j.step} className="border-t border-white/20 pt-5">
-                <span className="font-['Playfair_Display',serif] text-[34px] text-amber-200">{i + 1}</span>
+                <span className="font-['Playfair_Display',serif] text-[34px] text-[#e0bb74]">{i + 1}</span>
                 <h3 className="mt-2 text-[16px] font-semibold">{j.step}</h3>
                 <p className="mt-2 text-[13.5px] leading-relaxed text-stone-300">{j.body}</p>
               </li>
@@ -354,7 +368,7 @@ export default function About() {
         </div>
       </section>
 
-      <section className="border-t border-[var(--color-outline,#e5e5e5)]">
+      <section className="border-t border-[#e0d4bc] bg-[#f6f1e6] bg-[radial-gradient(ellipse_60%_80%_at_50%_100%,rgba(201,163,90,.25),transparent_70%)]">
         <div className="max-w-[640px] mx-auto px-6 py-16 sm:py-20 text-center">
           <h2 className="font-['Playfair_Display',serif] text-[28px] sm:text-[34px] leading-tight">
             Find the piece that stays with you
@@ -365,13 +379,13 @@ export default function About() {
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
               to="/discover"
-              className="h-11 px-8 rounded-full bg-[var(--color-primary,#111111)] text-white text-[13.5px] font-medium hover:opacity-90 transition-opacity inline-flex items-center justify-center shadow-sm active:scale-95"
+              className="h-11 px-8 rounded-full bg-[#2a1a10] text-white text-[13.5px] font-medium hover:bg-[#5c2b30] transition-colors inline-flex items-center justify-center shadow-sm active:scale-95"
             >
               Discover artworks
             </Link>
             <Link
               to="/artists"
-              className="h-11 px-8 rounded-full border border-[var(--color-outline,#d4d4d4)] text-[13.5px] font-medium hover:bg-stone-100 transition-colors inline-flex items-center justify-center active:scale-95"
+              className="h-11 px-8 rounded-full border border-[#cdbb97] text-[#1c1712] text-[13.5px] font-medium hover:bg-[#efe6d3] transition-colors inline-flex items-center justify-center active:scale-95"
             >
               See all artists
             </Link>

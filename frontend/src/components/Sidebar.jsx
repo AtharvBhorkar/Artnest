@@ -70,6 +70,7 @@ export default function Sidebar() {
         <button
           type="button"
           onClick={() => {
+            if (!window.confirm("Are you sure you want to sign out?")) return;
             logout();
             navigate("/artist/login");
           }}

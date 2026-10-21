@@ -101,6 +101,7 @@ export default function AdminLayout() {
   if (!user || user.role !== "admin") return <Navigate to="/admin/login" replace />;
 
   const signOut = () => {
+    if (!window.confirm("Are you sure you want to sign out?")) return;
     logout();
     navigate("/admin/login");
   };
