@@ -248,7 +248,7 @@ export default function About() {
         </div>
       </section>
 
-      <section className="max-w-[1100px] mx-auto px-6 py-16 sm:py-24 grid grid-cols-1 md:grid-cols-2 gap-14 md:gap-20 items-center">
+      <section id="mission" className="scroll-mt-20 max-w-[1100px] mx-auto px-6 py-16 sm:py-24 grid grid-cols-1 md:grid-cols-2 gap-14 md:gap-20 items-center">
         <StoryMedia />
 
         <div className="athenura-story-copy">
