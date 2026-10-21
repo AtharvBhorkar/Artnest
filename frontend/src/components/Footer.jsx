@@ -19,7 +19,7 @@ const COLUMNS = [
   {
     heading: "Company",
     links: [
-      { label: "About Athenura", href: "/about" },
+      { label: "About Artnest", href: "/about" },
       { label: "Our Mission", href: "/about#mission" },
       { label: "Contact", href: "/contact" },
     ],

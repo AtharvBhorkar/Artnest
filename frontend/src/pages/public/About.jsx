@@ -59,7 +59,7 @@ const JOURNEY = [
 const VALUES = [
   { icon: HandHeart, title: "Fair to artists", body: "Artists set their own prices and keep the majority of every sale. No race to the bottom, no anonymous bulk listings." },
   { icon: ShieldCheck, title: "Verified, every time", body: "Every artist is reviewed before they can list, and every original piece ships with a signed certificate of authenticity." },
-  { icon: Sparkles, title: "Curated, not crowded", body: "Our team hand-reviews new listings, so browsing Athenura feels like a gallery, not an endless feed." },
+  { icon: Sparkles, title: "Curated, not crowded", body: "Our team hand-reviews new listings, so browsing Artnest feels like a gallery, not an endless feed." },
   { icon: Globe2, title: "Made to travel", body: "Archival packaging and insured shipping mean every piece arrives exactly as the artist intended." },
 ];
 
@@ -99,7 +99,7 @@ function StoryMedia() {
         src={STORY_POSTER}
         alt="A hand-pulled print being lifted from the plate"
         onError={hideBroken}
-        className={`absolute inset-0 w-full h-full object-cover athenura-drift ${failed ? "" : "hidden motion-reduce:block"}`}
+        className={`absolute inset-0 w-full h-full object-cover artnest-drift ${failed ? "" : "hidden motion-reduce:block"}`}
       />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
     </div>
@@ -141,31 +141,31 @@ export default function About() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Work+Sans:wght@400;500;600&display=swap');
 
-        @keyframes athenura-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-        .athenura-hero-glow { position: absolute; inset: -25%; pointer-events: none; background: radial-gradient(circle at 28% 32%, rgba(201,163,90,.24), transparent 46%), radial-gradient(circle at 72% 66%, rgba(92,43,48,.3), transparent 50%); animation: athenura-glow 20s ease-in-out infinite alternate; }
-        @keyframes athenura-glow { from { transform: translate3d(-2%,-1%,0) scale(1.02); } to { transform: translate3d(2%,2%,0) scale(1.1); } }
-        .athenura-hero-overlay { position: absolute; inset: 0; background: radial-gradient(ellipse 62% 58% at 50% 48%, rgba(30,17,10,.62) 0%, rgba(30,17,10,.34) 55%, transparent 100%), linear-gradient(180deg, rgba(40,24,14,.52) 0%, rgba(40,24,14,.08) 38%, rgba(40,24,14,.44) 100%), radial-gradient(ellipse at center, transparent 52%, rgba(20,10,5,.55) 100%); }
-        .athenura-hero-accent { font-style: italic; font-weight: 400; background: linear-gradient(100deg, #f8e6b8 0%, #e0bb74 45%, #c9a35a 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; padding-right: .08em; }
-        @media (prefers-reduced-motion: reduce) { .athenura-hero-glow { animation: none; } }
-        .athenura-marquee { animation: athenura-marquee 40s linear infinite; }
-        @keyframes athenura-drift {
+        @keyframes artnest-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        .artnest-hero-glow { position: absolute; inset: -25%; pointer-events: none; background: radial-gradient(circle at 28% 32%, rgba(201,163,90,.24), transparent 46%), radial-gradient(circle at 72% 66%, rgba(92,43,48,.3), transparent 50%); animation: artnest-glow 20s ease-in-out infinite alternate; }
+        @keyframes artnest-glow { from { transform: translate3d(-2%,-1%,0) scale(1.02); } to { transform: translate3d(2%,2%,0) scale(1.1); } }
+        .artnest-hero-overlay { position: absolute; inset: 0; background: radial-gradient(ellipse 62% 58% at 50% 48%, rgba(30,17,10,.62) 0%, rgba(30,17,10,.34) 55%, transparent 100%), linear-gradient(180deg, rgba(40,24,14,.52) 0%, rgba(40,24,14,.08) 38%, rgba(40,24,14,.44) 100%), radial-gradient(ellipse at center, transparent 52%, rgba(20,10,5,.55) 100%); }
+        .artnest-hero-accent { font-style: italic; font-weight: 400; background: linear-gradient(100deg, #f8e6b8 0%, #e0bb74 45%, #c9a35a 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; padding-right: .08em; }
+        @media (prefers-reduced-motion: reduce) { .artnest-hero-glow { animation: none; } }
+        .artnest-marquee { animation: artnest-marquee 40s linear infinite; }
+        @keyframes artnest-drift {
           from { transform: scale(1) translate(0, 0); }
           to { transform: scale(1.12) translate(-2%, -2%); }
         }
-        .athenura-drift { animation: athenura-drift 18s ease-in-out infinite alternate; }
+        .artnest-drift { animation: artnest-drift 18s ease-in-out infinite alternate; }
 
-        .athenura-story-title {
+        .artnest-story-title {
           font-family: 'Playfair Display', serif;
           letter-spacing: -0.02em;
         }
-        .athenura-story-title em {
+        .artnest-story-title em {
           font-style: italic;
           background: linear-gradient(120deg, #b45309, #d97706 55%, #92400e);
           -webkit-background-clip: text;
           background-clip: text;
           color: transparent;
         }
-        .athenura-story-copy p {
+        .artnest-story-copy p {
           font-family: 'Cormorant Garamond', Georgia, serif;
           font-size: 21px;
           line-height: 1.7;
@@ -175,12 +175,12 @@ export default function About() {
           text-wrap: pretty;
           hyphens: auto;
         }
-        .athenura-story-copy p.athenura-lead {
+        .artnest-story-copy p.artnest-lead {
           font-size: 25px;
           line-height: 1.55;
           color: #1c1917;
         }
-        .athenura-story-copy p.athenura-lead::first-letter {
+        .artnest-story-copy p.artnest-lead::first-letter {
           font-family: 'Playfair Display', serif;
           float: left;
           font-size: 4.4rem;
@@ -189,39 +189,39 @@ export default function About() {
           color: #b45309;
           font-weight: 500;
         }
-        .athenura-story-copy p strong {
+        .artnest-story-copy p strong {
           font-weight: 600;
           color: #1c1917;
         }
-        .athenura-story-copy p em {
+        .artnest-story-copy p em {
           font-style: italic;
           color: #92400e;
         }
         @media (max-width: 640px) {
-          .athenura-story-copy p { font-size: 19px; }
-          .athenura-story-copy p.athenura-lead { font-size: 22px; }
+          .artnest-story-copy p { font-size: 19px; }
+          .artnest-story-copy p.artnest-lead { font-size: 22px; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .athenura-marquee { animation: none; }
-          .athenura-drift { animation: none; }
+          .artnest-marquee { animation: none; }
+          .artnest-drift { animation: none; }
         }
       `}</style>
 
       <section className="relative flex items-center overflow-hidden bg-[#2a1a10] min-h-[100svh] font-['Work_Sans',sans-serif]">
         <HeroVideo />
-        <div className="athenura-hero-glow" aria-hidden="true" />
-        <div className="athenura-hero-overlay" aria-hidden="true" />
+        <div className="artnest-hero-glow" aria-hidden="true" />
+        <div className="artnest-hero-overlay" aria-hidden="true" />
 
         <div className="relative z-10 w-full max-w-[1100px] mx-auto px-6 pt-[clamp(104px,16vh,140px)] pb-[clamp(96px,14vh,128px)] text-center text-white">
           <p className="inline-flex items-center gap-2 rounded-full border border-[#f0d9a3]/40 bg-white/10 px-4 py-2 text-[12px] font-medium uppercase tracking-[0.2em] text-[#f1d9a3] backdrop-blur-md">
-            <Sparkles size={13} className="text-[#e0bb74]" /> About Athenura
+            <Sparkles size={13} className="text-[#e0bb74]" /> About Artnest
           </p>
           <h1 className="mt-3 mx-auto max-w-[800px] font-['Fraunces',serif] text-[34px] sm:text-[48px] lg:text-[60px] leading-[1.08] font-medium tracking-tight [text-shadow:0_4px_40px_rgba(0,0,0,.45)]">
             Every artwork starts with someone who{" "}
-            <em className="athenura-hero-accent">couldn't stop making it.</em>
+            <em className="artnest-hero-accent">couldn't stop making it.</em>
           </h1>
           <p className="mt-5 mx-auto max-w-[580px] text-[15px] sm:text-[17px] leading-relaxed text-[#fbf1da] [text-shadow:0_1px_18px_rgba(0,0,0,.55)]">
-            Athenura is a gallery built for independent painters, sculptors and makers, and for collectors who want to know the hands behind the work.
+            Artnest is a gallery built for independent painters, sculptors and makers, and for collectors who want to know the hands behind the work.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
@@ -240,8 +240,8 @@ export default function About() {
         </div>
       </section>
 
-      <section className="overflow-hidden border-b border-[var(--color-outline,#e5e5e5)] bg-[var(--color-section,#f5f4f0)] py-4" aria-label="Art mediums on Athenura">
-        <div className="athenura-marquee flex w-max gap-10 whitespace-nowrap font-['Playfair_Display',serif] italic text-[20px] text-stone-600">
+      <section className="overflow-hidden border-b border-[var(--color-outline,#e5e5e5)] bg-[var(--color-section,#f5f4f0)] py-4" aria-label="Art mediums on Artnest">
+        <div className="artnest-marquee flex w-max gap-10 whitespace-nowrap font-['Playfair_Display',serif] italic text-[20px] text-stone-600">
           {[...MEDIUMS, ...MEDIUMS].map((m, i) => (
             <span key={i}>{m}</span>
           ))}
@@ -251,16 +251,16 @@ export default function About() {
       <section id="mission" className="scroll-mt-20 max-w-[1100px] mx-auto px-6 py-16 sm:py-24 grid grid-cols-1 md:grid-cols-2 gap-14 md:gap-20 items-center">
         <StoryMedia />
 
-        <div className="athenura-story-copy">
+        <div className="artnest-story-copy">
           <p className="text-[12px] font-semibold uppercase tracking-[0.28em] text-amber-700 !font-['Plus_Jakarta_Sans',sans-serif] !text-[12px] !leading-none">
             Our story
           </p>
-          <h2 className="athenura-story-title mt-4 mb-8 text-[38px] sm:text-[52px] leading-[1.05]">
+          <h2 className="artnest-story-title mt-4 mb-8 text-[38px] sm:text-[52px] leading-[1.05]">
             Craft <em>comes first</em>
           </h2>
           <div className="space-y-5">
-            <p className="athenura-lead">
-              Athenura started with a frustration: gifted artists were spending more hours posting online than making art, and buyers had no reliable way to find original work from a real maker.
+            <p className="artnest-lead">
+              Artnest started with a frustration: gifted artists were spending more hours posting online than making art, and buyers had no reliable way to find original work from a real maker.
             </p>
             <p>
               Every piece carries months of practice: sketches discarded, pigments remixed, plates re-inked, kilns fired twice. That effort deserves to be seen, so each listing tells you who made the piece, how, and why.
@@ -319,7 +319,7 @@ export default function About() {
       <section className="bg-[#2a1a10] bg-[radial-gradient(circle_at_20%_20%,rgba(201,163,90,.2),transparent_45%),radial-gradient(circle_at_85%_80%,rgba(92,43,48,.4),transparent_50%)] text-white">
         <div className="max-w-[1100px] mx-auto px-6 py-16 sm:py-24">
           <h2 className="font-['Playfair_Display',serif] text-[30px] sm:text-[38px] leading-tight max-w-[560px]">
-            How an artist joins Athenura
+            How an artist joins Artnest
           </h2>
           <p className="mt-3 max-w-[560px] text-[15px] text-stone-300 leading-relaxed">
             We keep the door open to new talent, and the standard high.
