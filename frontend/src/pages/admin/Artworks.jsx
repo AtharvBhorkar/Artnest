@@ -54,11 +54,22 @@ const ARTWORKS = [
     medium: "White Marble", price: 98000, stock: "1 of 1", status: "Approved",
     image: "https://images.unsplash.com/photo-1580136579312-94651dfd596d?auto=format&fit=crop&w=600&q=80",
   },
+  {
+    id: "AW-9", title: "Standing Figure III", artist: "Farhan Ali", category: "Sculpture",
+    medium: "Welded Steel", price: 112000, stock: "1 of 1", status: "Approved",
+    image: "",
+  },
+  {
+    id: "AW-10", title: "Clay Vessel Study", artist: "Devika Rao", category: "Sculpture",
+    medium: "Stoneware", price: 18900, stock: "1 of 1", status: "Pending",
+    image: "",
+  },
 ];
 
 const CATEGORIES = ["All categories", "Painting", "Digital Art", "Sculpture", "Abstract Art", "Photography"];
 const PRICE_BANDS = ["Any price", "Under ₹20,000", "₹20,000 – ₹60,000", "Above ₹60,000"];
 const STATUSES = ["All statuses", "Approved", "Pending", "Rejected"];
+const ARTISTS = ["All artists", ...new Set(ARTWORKS.map((a) => a.artist))];
 
 const CATEGORY_OPTIONS = CATEGORIES.slice(1);
 const STATUS_OPTIONS = STATUSES.slice(1);
@@ -348,6 +359,7 @@ export default function Artworks() {
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [priceBand, setPriceBand] = useState(PRICE_BANDS[0]);
   const [status, setStatus] = useState(STATUSES[0]);
+  const [artistFilter, setArtistFilter] = useState(ARTISTS[0]);
 
   const [modal, setModal] = useState(null); // { mode: "view" | "edit", id?: string }
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -366,10 +378,11 @@ export default function Artworks() {
       if (!a.title.toLowerCase().includes(search.toLowerCase())) return false;
       if (category !== CATEGORIES[0] && a.category !== category) return false;
       if (status !== STATUSES[0] && a.status !== status) return false;
+      if (artistFilter !== ARTISTS[0] && a.artist !== artistFilter) return false;
       if (!inBand(a.price, priceBand)) return false;
       return true;
     });
-  }, [artworks, search, category, priceBand, status]);
+  }, [artworks, search, category, priceBand, status, artistFilter]);
 
   /* ------------------------------ actions ------------------------------ */
 
@@ -439,6 +452,17 @@ export default function Artworks() {
             className="appearance-none h-11 pl-4 pr-10 rounded-full border border-[#E8E1DB] bg-white text-[14px] text-[#362F26] focus:outline-none focus:border-[#9F5639] cursor-pointer"
           >
             {STATUSES.map((o) => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A28F7D] pointer-events-none" />
+        </div>
+
+        <div className="relative">
+          <select
+            value={artistFilter}
+            onChange={(e) => setArtistFilter(e.target.value)}
+            className="appearance-none h-11 pl-4 pr-10 rounded-full border border-[#E8E1DB] bg-white text-[14px] text-[#362F26] focus:outline-none focus:border-[#9F5639] cursor-pointer"
+          >
+            {ARTISTS.map((o) => <option key={o} value={o}>{o}</option>)}
           </select>
           <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A28F7D] pointer-events-none" />
         </div>

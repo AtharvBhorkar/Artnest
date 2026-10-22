@@ -14,6 +14,7 @@ const COLUMNS = [
       { label: "Custom Artworks", href: "/custom-art" },
       { label: "Collections", href: "/collections" },
       { label: "Blog", href: "/blog" },
+      { label: "Testimonials", href: "/testimonials" },
     ],
   },
   {

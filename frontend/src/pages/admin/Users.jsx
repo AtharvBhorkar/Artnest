@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  Search, Eye, Pencil, Ban, CheckCircle2, X, AlertCircle
+  Search, Eye, Ban, CheckCircle2, X, AlertCircle
 } from "lucide-react";
 
 export function formatINR(amount) {
@@ -292,13 +292,6 @@ export default function Users() {
                       <Eye size={18} />
                     </button>
                     <button
-                      title="Edit"
-                      onClick={() => setModal({ mode: "edit", id: u.id })}
-                      className="text-[#A28F7D] hover:text-[#362F26] transition-colors"
-                    >
-                      <Pencil size={18} />
-                    </button>
-                    <button
                       title={u.status === "Blocked" ? "Unblock" : "Block"}
                       onClick={() => toggleBlock(u.id)}
                       className={`transition-colors ${
@@ -336,12 +329,6 @@ export default function Users() {
               className="h-10 px-5 rounded-full border border-[#E8E1DB] text-[14px] text-[#362F26] hover:bg-[#F7F3EE] transition-colors"
             >
               Close
-            </button>
-            <button
-              onClick={() => setModal({ mode: "edit", id: modal.id })}
-              className="inline-flex items-center gap-2 h-10 px-5 rounded-full bg-[#9F5639] text-white text-[14px] font-medium hover:bg-[#8A4930] transition-colors"
-            >
-              <Pencil size={15} /> Edit
             </button>
           </>
         }
