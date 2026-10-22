@@ -1,4 +1,16 @@
-# React + Vite
+# Artnest
+
+The Vite application lives in `frontend`. From the repository root, install
+its dependencies and start the development server with:
+
+```sh
+npm --prefix frontend install
+npm run dev
+```
+
+You can also run the frontend scripts directly from `frontend`.
+
+## Frontend template notes
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
