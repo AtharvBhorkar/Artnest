@@ -58,11 +58,9 @@ import ArtistProfile from "./pages/artist/Profile";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminArtists from "./pages/admin/Artists";
 import AdminArtworks from "./pages/admin/Artworks";
-import AdminSculptures from "./pages/admin/Sculptures";
 import AdminCustomArtRequests from "./pages/admin/CustomArtRequests";
 import Users from "./pages/admin/Users";
 import AdminOrders from "./pages/admin/Orders";
-import AdminPayments from "./pages/admin/Payments";
 import AdminReviews from "./pages/admin/Reviews";
 import AdminSettings from "./pages/admin/Settings";
 
@@ -124,11 +122,9 @@ export default function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="artists" element={<AdminArtists />} />
           <Route path="artworks" element={<AdminArtworks />} />
-          <Route path="sculptures" element={<AdminSculptures />} />
           <Route path="custom-requests" element={<AdminCustomArtRequests />} />
           <Route path="users" element={<Users />} />
           <Route path="orders" element={<AdminOrders />} />
-          <Route path="payments" element={<AdminPayments />} />
           <Route path="reviews" element={<AdminReviews />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>

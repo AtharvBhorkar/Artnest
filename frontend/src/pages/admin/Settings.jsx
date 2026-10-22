@@ -77,14 +77,7 @@ function Toggle({ label, hint, checked, onChange }) {
 }
 
 export default function Settings() {
-  const [general, setGeneral] = useState({
-    websiteName: "ArtNest",
-    contactEmail: "hello@artnest.com",
-    phone: "+91 98765 43210",
-    address: "14, MG Road, Bengaluru, Karnataka",
-  });
-
-  const [admin, setAdmin] = useState({
+ const [admin, setAdmin] = useState({
     name: "Amara Deshmukh",
     email: "amara@artnest.com",
     password: "••••••••",
@@ -112,34 +105,6 @@ export default function Settings() {
 
   return (
     <div className="p-6 max-w-[1400px] mx-auto space-y-6 font-['Plus_Jakarta_Sans']">
-      <Card title="General">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <Field
-            label="Website name"
-            value={general.websiteName}
-            onChange={(e) => setGeneral({ ...general, websiteName: e.target.value })}
-          />
-          <Field
-            label="Contact email"
-            type="email"
-            value={general.contactEmail}
-            onChange={(e) => setGeneral({ ...general, contactEmail: e.target.value })}
-            icon={<Mail size={18} />}
-          />
-          <Field
-            label="Phone"
-            value={general.phone}
-            onChange={(e) => setGeneral({ ...general, phone: e.target.value })}
-          />
-          <Field
-            label="Address"
-            value={general.address}
-            onChange={(e) => setGeneral({ ...general, address: e.target.value })}
-            className="md:col-span-2"
-          />
-        </div>
-      </Card>
-
       <Card title="Admin profile">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <Field

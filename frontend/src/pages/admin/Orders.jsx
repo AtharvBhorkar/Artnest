@@ -36,8 +36,8 @@ const DETAILS = {
 const FALLBACK = { phone: "—", payment: "—", address: "Address not provided" };
 
 const ORDER_ACTIONS = {
-  Pending: [["Mark processing", "Processing"], ["Cancel order", "Cancelled", true]],
-  Processing: [["Cancel order", "Cancelled", true]],
+  Pending: [["Mark processing", "Processing"]],
+  Processing: [],
   Completed: [],
   Cancelled: [],
 };
