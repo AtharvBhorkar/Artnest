@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Search, Plus, Pencil, Trash2, ChevronDown, Tag, X, ChevronLeft,
+import {
+  Search, Plus, Pencil, Trash2, ChevronDown, Tag, X, ChevronLeft,
   ChevronRight,
-  CalendarDays, } from "lucide-react";
+  CalendarDays,
+} from "lucide-react";
 import { ARTWORKS, Badge, PAGE, inr, inputCls, btnPrimary, btnGhost } from "./shared";
 import { CATEGORY_LABELS } from "../../data/artworks";
 
@@ -419,10 +421,10 @@ function ThemeCalendar({ value, min, onChange }) {
         <span className={value ? "text-[#362F26]" : "text-[#A28F7D]"}>
           {selectedDate
             ? selectedDate.toLocaleDateString("en-IN", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-              })
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })
             : "Select date"}
         </span>
 
@@ -538,18 +540,16 @@ function ThemeCalendar({ value, min, onChange }) {
                     rounded-full text-[12.5px]
                     transition-all duration-150 ease-out
 
-                    ${
-                      isSelected
-                        ? "bg-[#9F5639] font-semibold text-white shadow-[0_5px_12px_rgba(159,86,57,0.22)]"
-                        : isToday
+                    ${isSelected
+                      ? "bg-[#9F5639] font-semibold text-white shadow-[0_5px_12px_rgba(159,86,57,0.22)]"
+                      : isToday
                         ? "border border-[#D9BBAA] bg-[#FFF5EE] font-medium text-[#9F5639]"
                         : "text-[#4E4037] hover:bg-[#F3E2D7] hover:text-[#9F5639]"
                     }
 
-                    ${
-                      isDisabled
-                        ? "cursor-not-allowed opacity-30 hover:bg-transparent hover:text-[#4E4037]"
-                        : "cursor-pointer"
+                    ${isDisabled
+                      ? "cursor-not-allowed opacity-30 hover:bg-transparent hover:text-[#4E4037]"
+                      : "cursor-pointer"
                     }
                   `}
                 >
@@ -622,13 +622,13 @@ function OfferModal({ art, existing, onClose, onSave, onRemove }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-  <div
-    className="absolute inset-0 bg-[#2B211B]/45 backdrop-blur-[4px]"
-    onClick={onClose}
-  />
+      <div
+        className="absolute inset-0 bg-[#2B211B]/45 backdrop-blur-[4px]"
+        onClick={onClose}
+      />
       <form
-  onSubmit={submit}
-  className="
+        onSubmit={submit}
+        className="
     relative w-full max-w-[460px]
     max-h-[calc(100vh-32px)]
     overflow-y-auto
@@ -638,7 +638,7 @@ function OfferModal({ art, existing, onClose, onSave, onRemove }) {
     p-6
     shadow-xl
   "
->
+      >
         <div className="flex items-start justify-between">
           <div>
             <h3 className="text-[18px] text-[#362F26]">
@@ -650,20 +650,20 @@ function OfferModal({ art, existing, onClose, onSave, onRemove }) {
             </p>
           </div>
           <motion.button
-  type="button"
-  onClick={onClose}
-  whileHover={{
-    scale: 1.06,
-  }}
-  whileTap={{
-    scale: 0.94,
-  }}
-  transition={{
-    duration: 0.2,
-    ease: "easeOut",
-  }}
-  aria-label="Close artwork details"
-  className="
+            type="button"
+            onClick={onClose}
+            whileHover={{
+              scale: 1.06,
+            }}
+            whileTap={{
+              scale: 0.94,
+            }}
+            transition={{
+              duration: 0.2,
+              ease: "easeOut",
+            }}
+            aria-label="Close artwork details"
+            className="
     group
     absolute
     right-4
@@ -687,18 +687,18 @@ function OfferModal({ art, existing, onClose, onSave, onRemove }) {
     hover:text-white
     hover:border-[#9F5639]
   "
->
-  <X
-    size={17}
-    strokeWidth={1.9}
-    className="
+          >
+            <X
+              size={17}
+              strokeWidth={1.9}
+              className="
       transition-transform
       duration-200
       ease-out
       group-hover:rotate-90
     "
-  />
-</motion.button>
+            />
+          </motion.button>
         </div>
         <label className="block">
           {label("Offer price (₹)")}
@@ -709,14 +709,14 @@ function OfferModal({ art, existing, onClose, onSave, onRemove }) {
           )}
         </label>
         <label className="block">
-  {label("Offer valid until")}
+          {label("Offer valid until")}
 
-  <ThemeCalendar
-    value={endsAt}
-    min={today}
-    onChange={setEndsAt}
-  />
-</label>
+          <ThemeCalendar
+            value={endsAt}
+            min={today}
+            onChange={setEndsAt}
+          />
+        </label>
         <label className="block">
           {label("Offer note")}
           <input value={note} onChange={(e) => setNote(e.target.value)} maxLength={40} className={inputCls} placeholder="e.g. Festive sale" />
@@ -1019,6 +1019,7 @@ export default function MyArtworks() {
   });
   const [q, setQ] = useState("");
   const [status, setStatus] = useState(STATUSES[0]);
+  const [statusOpen, setStatusOpen] = useState(false);
   const [offerFor, setOfferFor] = useState(null);
   const [offers, setOffers] = useState(readOffers);
   const [selectedArtwork, setSelectedArtwork] = useState(null);
@@ -1106,28 +1107,170 @@ export default function MyArtworks() {
           />
         )}
 
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative min-w-[260px] flex-1">
-            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A28F7D]" />
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          {/* Search */}
+          <div className="relative min-w-0 flex-1">
+            <Search
+              size={17}
+              strokeWidth={1.9}
+              className="
+        pointer-events-none
+        absolute left-4 top-1/2
+        -translate-y-1/2
+        text-[#A28F7D]
+        transition-colors duration-200
+      "
+            />
+
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search your artworks…"
-              className="h-11 w-full rounded-full border border-[#E8E1DB] bg-white pl-11 pr-4 text-[14px] text-[#362F26] placeholder:text-[#A28F7D] focus:border-[#9F5639] focus:outline-none"
+              className="
+        h-11 w-full
+        rounded-full
+        border border-[#E5DAD2]
+        bg-[linear-gradient(135deg,#FFFFFF_0%,#FFFDFC_100%)]
+        pl-11 pr-4
+        text-[13.5px]
+        text-[#362F26]
+        shadow-[0_3px_10px_rgba(65,43,31,0.035)]
+        outline-none
+        placeholder:text-[#A28F7D]
+        transition-all duration-200 ease-out
+        hover:border-[#D8C5B9]
+        hover:shadow-[0_5px_14px_rgba(65,43,31,0.05)]
+        focus:border-[#B96B4A]
+        focus:bg-white
+        focus:shadow-[0_0_0_3px_rgba(159,86,57,0.08),0_5px_14px_rgba(65,43,31,0.05)]
+      "
             />
           </div>
-          <div className="relative">
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="h-11 cursor-pointer appearance-none rounded-full border border-[#E8E1DB] bg-white pl-4 pr-10 text-[14px] text-[#362F26] focus:border-[#9F5639] focus:outline-none"
-            >
-              {STATUSES.map((s) => <option key={s}>{s}</option>)}
-            </select>
-            <ChevronDown size={16} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#A28F7D]" />
-          </div>
-          <Link to="/artist/artworks/new" className="flex h-11 items-center gap-2 rounded-full bg-[#9F5639] px-5 text-[14px] text-white hover:bg-[#8A4A30]">
-            <Plus size={16} /> New artwork
+
+          {/* Status filter */}
+          <div className="relative w-full sm:w-[175px]">
+  {/* Selected status */}
+  <button
+    type="button"
+    onClick={() => setStatusOpen((prev) => !prev)}
+    className={`
+      flex h-11 w-full
+      cursor-pointer
+      items-center justify-between
+      rounded-full
+      border
+      bg-[linear-gradient(135deg,#FFFFFF_0%,#FFFDFC_100%)]
+      px-4
+      text-left
+      text-[13.5px]
+      font-medium
+      text-[#4E4037]
+      shadow-[0_3px_10px_rgba(65,43,31,0.035)]
+      outline-none
+      transition-all duration-200 ease-out
+      ${
+        statusOpen
+          ? "border-[#B96B4A] shadow-[0_0_0_3px_rgba(159,86,57,0.08),0_5px_14px_rgba(65,43,31,0.05)]"
+          : "border-[#E5DAD2] hover:border-[#D8C5B9] hover:shadow-[0_5px_14px_rgba(65,43,31,0.05)]"
+      }
+    `}
+  >
+    <span>{status}</span>
+
+    <ChevronDown
+      size={16}
+      strokeWidth={1.9}
+      className={`
+        text-[#9F5639]
+        transition-transform duration-200 ease-out
+        ${statusOpen ? "rotate-180" : ""}
+      `}
+    />
+  </button>
+
+  {/* Dropdown */}
+  {statusOpen && (
+    <div
+      className="
+        absolute left-0 top-[calc(100%+8px)] z-30
+        w-full
+        overflow-hidden
+        rounded-[16px]
+        border border-[#E7DDD6]
+        bg-[linear-gradient(145deg,#FFFFFF_0%,#FFF9F5_100%)]
+        p-1.5
+        shadow-[0_14px_35px_rgba(65,43,31,0.14)]
+      "
+    >
+      {STATUSES.map((s) => {
+        const isSelected = status === s;
+
+        return (
+          <button
+            key={s}
+            type="button"
+            onClick={() => {
+              setStatus(s);
+              setStatusOpen(false);
+            }}
+            className={`
+              flex w-full
+              cursor-pointer
+              items-center
+              rounded-[11px]
+              px-3
+              py-2.5
+              text-left
+              text-[13px]
+              transition-all duration-150 ease-out
+              ${
+                isSelected
+                  ? "bg-[#F3E2D7] font-medium text-[#9F5639]"
+                  : "text-[#5F4D42] hover:bg-[#FAF1EB] hover:text-[#9F5639]"
+              }
+            `}
+          >
+            {s}
+          </button>
+        );
+      })}
+    </div>
+  )}
+</div>
+
+          {/* New artwork */}
+          <Link
+            to="/artist/artworks/new"
+            className="
+      group
+      inline-flex h-11
+      w-full shrink-0
+      items-center justify-center
+      gap-2
+      rounded-full
+      bg-[linear-gradient(135deg,#B96B4A_0%,#9F5639_100%)]
+      px-5
+      text-[13.5px]
+      font-semibold
+      text-white
+      shadow-[0_7px_18px_rgba(159,86,57,0.16)]
+      transition-all duration-300 ease-out
+      hover:-translate-y-0.5
+      hover:shadow-[0_11px_24px_rgba(159,86,57,0.23)]
+      active:translate-y-0
+      active:scale-[0.97]
+      sm:w-auto
+    "
+          >
+            <Plus
+              size={16}
+              strokeWidth={2}
+              className="
+        transition-transform duration-300 ease-out
+        group-hover:rotate-90
+      "
+            />
+            New artwork
           </Link>
         </div>
 

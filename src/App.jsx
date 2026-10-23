@@ -51,7 +51,7 @@ import ArtistOrders from "./pages/artist/Orders";
 import CustomRequests from "./pages/artist/CustomRequests";
 import Earnings from "./pages/artist/Earnings";
 import Reviews from "./pages/artist/Reviews";
-import Messages from "./pages/artist/Messages";
+// import Messages from "./pages/artist/Messages";
 import ArtistProfile from "./pages/artist/Profile";
 
 // Admin pages
@@ -119,7 +119,7 @@ export default function App() {
           <Route path="requests" element={<CustomRequests />} />
           <Route path="earnings" element={<Earnings />} />
           <Route path="reviews" element={<Reviews />} />
-          <Route path="messages" element={<Messages />} />
+          {/* <Route path="messages" element={<Messages />} /> */}
           <Route path="profile" element={<ArtistProfile />} />
         </Route>
 

@@ -1,22 +1,54 @@
 import { useState } from "react";
-import { Send } from "lucide-react";
+import { Send, Check, CheckCheck, MoreHorizontal, Pencil, Trash2, Forward, Info, X, } from "lucide-react";
+import { motion } from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
 
 const INITIAL = [
-  { id: 1, name: "Priya Sharma", subject: "Portrait Commission", unread: true, msgs: [
-    { from: "them", text: "Hi Aarav, could the portrait be finished by 5 Oct?", time: "10:42 AM" },
-  ] },
-  { id: 2, name: "Ishaan Joshi", subject: "Family Portrait", unread: true, msgs: [
-    { from: "them", text: "Sharing a few reference photos of the family.", time: "9:15 AM" },
-    { from: "me", text: "Received, thank you. I will start the sketch this week.", time: "9:40 AM" },
-    { from: "them", text: "Great, looking forward to it!", time: "9:52 AM" },
-  ] },
-  { id: 3, name: "Rohit Malhotra", subject: "Landscape Commission", unread: false, msgs: [
-    { from: "me", text: "Your landscape has been delivered. Hope you like it!", time: "Yesterday" },
-  ] },
+  {
+    id: 1, name: "Priya Sharma", subject: "Portrait Commission", unread: true, msgs: [
+      { from: "them", text: "Hi Aarav, could the portrait be finished by 5 Oct?", time: "10:42 AM" },
+    ]
+  },
+  {
+    id: 2, name: "Ishaan Joshi", subject: "Family Portrait", unread: true, msgs: [
+      { from: "them", text: "Sharing a few reference photos of the family.", time: "9:15 AM" },
+      { from: "me", text: "Received, thank you. I will start the sketch this week.", time: "9:40 AM" },
+      { from: "them", text: "Great, looking forward to it!", time: "9:52 AM" },
+    ]
+  },
+  {
+    id: 3, name: "Rohit Malhotra", subject: "Landscape Commission", unread: false, msgs: [
+      { from: "me", text: "Your landscape has been delivered. Hope you like it!", time: "Yesterday" },
+    ]
+  },
 ];
 
 const MSG_KEY = "artnest_messages";
+const HIDDEN_MSGS_KEY = "artnest_hidden_messages";
+const DELETED_MSGS_KEY = "artnest_deleted_messages";
+
+const readMessageMap = (key) => {
+  try {
+    return JSON.parse(localStorage.getItem(key)) || {};
+  } catch {
+    return {};
+  }
+};
+
+const rememberMessage = (key, threadId, messageId) => {
+  try {
+    const map = readMessageMap(key);
+
+    map[threadId] = [
+      ...new Set([...(map[threadId] || []), messageId]),
+    ];
+
+    localStorage.setItem(key, JSON.stringify(map));
+  } catch {
+    // Keep the current UI usable if storage is unavailable.
+  }
+};
+
 const readStored = () => {
   try {
     return JSON.parse(localStorage.getItem(MSG_KEY)) || [];
@@ -24,15 +56,44 @@ const readStored = () => {
     return [];
   }
 };
+
 const fromStored = (name) =>
-  readStored().filter((t) => t.artist === name).map((t) => ({
-    id: `o-${t.id}`,
-    orderId: t.id,
-    name: t.buyer,
-    subject: t.subject,
-    unread: t.msgs[t.msgs.length - 1]?.from === "buyer",
-    msgs: t.msgs.map((m) => ({ from: m.from === "artist" ? "me" : "them", text: m.text, time: m.time })),
-  }));
+  readStored()
+    .filter((t) => t.artist === name)
+    .map((t) => {
+      const threadId = `o-${t.id}`;
+
+      return {
+        id: threadId,
+        orderId: t.id,
+        name: t.buyer,
+        subject: t.subject,
+        unread: t.msgs[t.msgs.length - 1]?.from === "buyer",
+        msgs: t.msgs.map((m, index) => ({
+          ...m,
+          id: m.id || `${threadId}-msg-${index}`,
+          from: m.from === "artist" ? "me" : "them",
+          delivery:
+            m.delivery ||
+            (m.from === "artist" ? "delivered" : undefined),
+        })),
+      };
+    });
+
+const WALLPAPER = [
+  { emoji: "🎨", left: "8%", top: "9%", rotate: "-14deg" },
+  { emoji: "✨", left: "32%", top: "17%", rotate: "12deg" },
+  { emoji: "🌿", left: "72%", top: "10%", rotate: "10deg" },
+  { emoji: "🖼️", left: "89%", top: "27%", rotate: "-10deg" },
+  { emoji: "🤎", left: "18%", top: "38%", rotate: "8deg" },
+  { emoji: "🌸", left: "49%", top: "43%", rotate: "-12deg" },
+  { emoji: "🖌️", left: "81%", top: "51%", rotate: "14deg" },
+  { emoji: "💌", left: "7%", top: "66%", rotate: "-8deg" },
+  { emoji: "⭐", left: "36%", top: "73%", rotate: "12deg" },
+  { emoji: "🏺", left: "67%", top: "70%", rotate: "-14deg" },
+  { emoji: "🌷", left: "90%", top: "85%", rotate: "10deg" },
+  { emoji: "🪴", left: "53%", top: "91%", rotate: "12deg" },
+];
 
 export default function Messages() {
   const { user } = useAuth();
@@ -68,46 +129,210 @@ export default function Messages() {
   };
 
   return (
-    <div className="mx-auto max-w-[1400px] p-6">
-      <div className="grid h-[calc(100vh-190px)] min-h-[440px] overflow-hidden rounded-2xl border border-[#E8E1DB] bg-white md:grid-cols-[320px_1fr]">
-        <div className="overflow-y-auto border-b border-[#E8E1DB] md:border-b-0 md:border-r">
-          {threads.map((t) => (
-            <button
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: 0.55,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      className="mx-auto w-full max-w-[1400px] px-3 py-4 sm:px-5 sm:py-5 lg:p-6"
+    >
+      <div
+        className="
+    grid h-[calc(100dvh-170px)] min-h-[460px]
+    grid-rows-[125px_minmax(0,1fr)]
+    overflow-hidden rounded-[22px]
+    border border-[#E7DDD6] bg-white
+    shadow-[0_10px_35px_rgba(65,43,31,0.075)]
+    md:h-[calc(100vh-190px)] md:min-h-[480px]
+    md:grid-cols-[280px_minmax(0,1fr)]
+    md:grid-rows-1
+    lg:grid-cols-[320px_minmax(0,1fr)]
+  "
+      >
+        <div className="
+    flex min-h-0 gap-2 overflow-x-auto
+    border-b border-[#E8E1DB]
+    bg-[linear-gradient(180deg,#FFFCFA_0%,#FAF5F0_100%)]
+    px-3 py-2
+    md:block md:overflow-x-hidden md:overflow-y-auto
+    md:border-b-0 md:border-r md:px-0 md:py-0
+  ">
+    <div
+  className="
+    flex min-w-[175px] shrink-0 items-center justify-between
+    rounded-xl border border-[#E8DDD4] bg-white px-3 py-2
+    md:sticky md:top-0 md:z-10 md:w-full
+    md:rounded-none md:border-x-0 md:border-t-0
+    md:border-b md:border-[#E8DDD4]
+    md:bg-[#FFFCFA] md:px-5 md:py-3
+  "
+>
+  <span className="font-serif text-[16px] text-[#362F26]">
+    Messages
+  </span>
+
+  <button
+    type="button"
+    title="Clear all chats"
+    onClick={() => setShowClearConfirm(true)}
+    className="
+      group inline-flex cursor-pointer items-center gap-1.5
+      rounded-full border border-transparent px-2.5 py-2
+      text-[11px] font-medium text-[#8A6B5A]
+      transition-all duration-200
+      hover:border-[#EBCFC9] hover:bg-[#FFF1ED]
+      hover:text-[#9B3B2E]
+      hover:shadow-[0_4px_12px_rgba(155,59,46,0.08)]
+      active:scale-95
+    "
+  >
+    <Trash2 size={14} />
+    <span className="hidden sm:inline">Clear all</span>
+  </button>
+</div>
+          {threads.map((t, index) => (
+            <motion.button
               key={t.id}
               type="button"
               onClick={() => open(t.id)}
-              className={`block w-full border-b border-[#E8E1DB] px-5 py-4 text-left transition-colors last:border-b-0 hover:bg-[#F9F8F6] ${
-                t.id === activeId ? "bg-[#F9F8F6]" : ""
-              }`}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{
+                duration: 0.4,
+                delay: index * 0.06,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              className={`
+      group relative min-w-[190px] shrink-0
+      rounded-xl border px-3 py-2.5 text-left
+      transition-colors duration-200
+      hover:shadow-[0_5px_14px_rgba(65,43,31,0.07)]
+
+      md:block md:w-full md:min-w-0
+      md:rounded-none md:border-x-0 md:border-t-0
+      md:border-b md:border-[#E8E1DB]
+      md:px-5 md:py-4 md:hover:shadow-none
+
+      ${t.id === activeId
+                  ? "border-[#D9BBAA] bg-[#F5E8DF] shadow-[inset_3px_0_0_#9F5639] md:border-transparent md:bg-[#F9F1EB]"
+                  : "border-[#E8E1DB] bg-white hover:bg-[#FFFCFA] md:border-transparent md:bg-transparent"
+                }
+    `}
             >
               <div className="flex items-center justify-between gap-2">
-                <span className={`text-[14px] text-[#362F26] ${t.unread ? "font-semibold" : ""}`}>{t.name}</span>
-                {t.unread && <span className="h-2 w-2 rounded-full bg-[#9F5639]" />}
+                <span
+                  className={`truncate text-[13.5px] text-[#362F26] ${t.unread ? "font-semibold" : "font-medium"
+                    }`}
+                >
+                  {t.name}
+                </span>
+
+                {t.unread && (
+                  <span className="h-2 w-2 shrink-0 rounded-full bg-[#9F5639] shadow-[0_0_0_3px_rgba(159,86,57,0.09)]" />
+                )}
               </div>
-              <p className="mt-0.5 truncate text-[13px] text-[#A28F7D]">{t.subject}</p>
-            </button>
+
+              <p className="mt-1 truncate text-[12px] text-[#958073]">
+                {t.subject}
+              </p>
+            </motion.button>
           ))}
+
+          {threads.length === 0 && (
+  <p className="min-w-[175px] px-4 py-6 text-center text-[12px] text-[#958073] md:min-w-0">
+    No conversations yet.
+  </p>
+)}
         </div>
 
         <div className="flex min-h-0 flex-col">
-          <div className="border-b border-[#E8E1DB] px-6 py-4">
+          <div className="
+    shrink-0 border-b border-[#E8E1DB]
+    bg-[linear-gradient(110deg,#FFFFFF_0%,#FFFAF6_100%)]
+    px-4 py-3.5
+    shadow-[0_3px_12px_rgba(65,43,31,0.025)]
+    sm:px-6 sm:py-4
+  ">
             <p className="text-[15px] text-[#362F26]">{active.name}</p>
             <p className="text-[12.5px] text-[#A28F7D]">{active.subject}</p>
           </div>
 
-          <div className="flex-1 space-y-3 overflow-y-auto p-6">
-            {active.msgs.map((m, i) => (
-              <div key={i} className={`flex ${m.from === "me" ? "justify-end" : ""}`}>
-                <div
-                  className={`max-w-[70%] rounded-2xl px-4 py-2.5 text-[14px] ${
-                    m.from === "me" ? "bg-[#9F5639] text-white" : "bg-[#F3ECE5] text-[#362F26]"
-                  }`}
+          <div
+            className="
+    relative min-h-0 flex-1 overflow-y-auto
+    bg-[linear-gradient(135deg,#FCF8F4_0%,#F8F0E9_48%,#FFFCFA_100%)]
+  "
+          >
+            {/* Decorative wallpaper behind messages */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 select-none overflow-hidden"
+            >
+              {WALLPAPER.map((item, index) => (
+                <span
+                  key={index}
+                  className="absolute text-[20px] opacity-[0.14] sm:text-[23px]"
+                  style={{
+                    left: item.left,
+                    top: item.top,
+                    transform: `rotate(${item.rotate})`,
+                  }}
                 >
-                  <p>{m.text}</p>
-                  <p className={`mt-1 text-[11px] ${m.from === "me" ? "text-white/70" : "text-[#A28F7D]"}`}>{m.time}</p>
-                </div>
-              </div>
-            ))}
+                  {item.emoji}
+                </span>
+              ))}
+            </div>
+
+            {/* Messages */}
+            <div className="relative z-10 space-y-3 p-3 sm:space-y-4 sm:p-6">
+              {active.msgs.map((m, i) => (
+                <motion.div
+                  key={`${active.id}-${i}`}
+                  initial={{
+                    opacity: 0,
+                    y: 10,
+                    x: m.from === "me" ? 8 : -8,
+                  }}
+                  animate={{ opacity: 1, y: 0, x: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    delay: Math.min(i * 0.035, 0.18),
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className={`flex ${m.from === "me" ? "justify-end" : "justify-start"
+                    }`}
+                >
+                  <div
+                    className={`
+            max-w-[90%] break-words
+            rounded-[18px] px-3.5 py-2.5
+            text-[13px] leading-relaxed
+            shadow-[0_3px_10px_rgba(65,43,31,0.045)]
+            sm:max-w-[80%] sm:px-4 sm:py-3
+            lg:max-w-[72%]
+
+            ${m.from === "me"
+                        ? "rounded-br-[5px] border border-[#975036] bg-[linear-gradient(135deg,#A85D3E_0%,#91472F_100%)] text-white shadow-[0_5px_14px_rgba(145,71,47,0.13)]"
+                        : "rounded-bl-[5px] border border-[#EAE0D8] bg-[linear-gradient(135deg,#FFFFFF_0%,#FFFAF6_100%)] text-[#44352C]"
+                      }
+          `}
+                  >
+                    <p className="whitespace-pre-wrap">{m.text}</p>
+
+                    <p
+                      className={`mt-1.5 text-right text-[10px] ${m.from === "me" ? "text-white/70" : "text-[#9B887A]"
+                        }`}
+                    >
+                      {m.time}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
 
           <form onSubmit={send} className="flex gap-3 border-t border-[#E8E1DB] p-4">
@@ -115,14 +340,57 @@ export default function Messages() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Type a message…"
-              className="h-11 flex-1 rounded-full border border-[#E8E1DB] px-4 text-[14px] outline-none focus:border-[#9F5639]"
+              className="
+  h-11 min-w-0 flex-1 rounded-full
+  border border-[#E6DAD1] bg-[#FFFCFA]
+  px-4 text-[13px] text-[#362F26]
+  outline-none placeholder:text-[#A28F7D]
+  shadow-[inset_0_1px_3px_rgba(65,43,31,0.025)]
+  transition-all duration-200
+  focus:border-[#C69B85] focus:bg-white
+  focus:ring-4 focus:ring-[#9F5639]/[0.08]
+  sm:h-12 sm:px-5 sm:text-[14px]
+"
             />
-            <button type="submit" disabled={!text.trim()} className="grid h-11 w-11 place-items-center rounded-full bg-[#9F5639] text-white hover:bg-[#8A4A30] disabled:opacity-50">
-              <Send size={17} />
-            </button>
+            <motion.button
+              type="submit"
+              disabled={!text.trim()}
+              whileHover={
+                text.trim()
+                  ? {
+                    y: -2,
+                    scale: 1.05,
+                    boxShadow: "0 9px 20px rgba(159,86,57,0.26)",
+                  }
+                  : undefined
+              }
+              whileTap={text.trim() ? { scale: 0.92, y: 0 } : undefined}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              aria-label="Send message"
+              className="
+    grid h-11 w-11 shrink-0 cursor-pointer
+    place-items-center rounded-full
+    border border-[#9F5639]
+    bg-[linear-gradient(135deg,#A85D3E_0%,#91472F_100%)]
+    text-white
+    shadow-[0_4px_12px_rgba(159,86,57,0.17)]
+    transition-colors duration-200
+    hover:border-[#85432C] hover:bg-[#8A4A30]
+    disabled:cursor-not-allowed
+    disabled:border-[#D8C8BE] disabled:bg-[#E9DED6]
+    disabled:text-[#A28F7D] disabled:shadow-none
+    sm:h-12 sm:w-12
+  "
+            >
+              <Send
+                size={17}
+                strokeWidth={2}
+                className="transition-transform duration-200 hover:translate-x-0.5"
+              />
+            </motion.button>
           </form>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

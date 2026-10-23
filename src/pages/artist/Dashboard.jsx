@@ -1,17 +1,27 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
-import { ArrowUpRight, CheckCircle2, Image, IndianRupee, MessageCircle,
+import {
+  BarChart3,
+  CheckCircle2,
+  Image,
   Palette,
-  Plus,ShoppingBag, Star } from "lucide-react";
-import { ARTWORKS, Badge, Card, PAGE, inr } from "./shared";
+  ShoppingBag,
+  Star,
+} from "lucide-react";
+import {
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 
-const MONTHS = [["Apr", 42], ["May", 58], ["Jun", 51], ["Jul", 73], ["Aug", 66], ["Sep", 89]];
-const RECENT = [
-  { id: "ORD-10245", item: "Golden Silence", buyer: "Priya Sharma", amount: 18500, status: "Delivered" },
-  { id: "ORD-10244", item: "Monsoon Reverie", buyer: "Rahul Kapoor", amount: 32400, status: "Processing" },
-  { id: "ORD-10243", item: "Bronze Whisper", buyer: "Sneha Iyer", amount: 64200, status: "Shipped" },
-];
+import { ARTWORKS, Card, PAGE, inr } from "./shared";
+
+
+// ─────────────────────────────────────────────
+// Stat Card
+// ─────────────────────────────────────────────
 
 function StatCard({ label, value, note, icon: Icon, index }) {
   const ref = useRef(null);
@@ -31,24 +41,52 @@ function StatCard({ label, value, note, icon: Icon, index }) {
 
   const accents = [
     {
-      icon: "bg-[linear-gradient(135deg,#f9eee6_0%,#f1ddd1_100%)]",
-      glow: "group-hover:shadow-[0_0_28px_rgba(159,86,57,0.13)]",
+      icon:
+        "bg-[linear-gradient(135deg,#f9eee6_0%,#f1ddd1_100%)]",
+      glow:
+        "group-hover:shadow-[0_0_28px_rgba(159,86,57,0.13)]",
     },
     {
-      icon: "bg-[linear-gradient(135deg,#f4efe7_0%,#ebe2d5_100%)]",
-      glow: "group-hover:shadow-[0_0_28px_rgba(192,138,62,0.12)]",
+      icon:
+        "bg-[linear-gradient(135deg,#f4efe7_0%,#ebe2d5_100%)]",
+      glow:
+        "group-hover:shadow-[0_0_28px_rgba(192,138,62,0.12)]",
     },
     {
-      icon: "bg-[linear-gradient(135deg,#f8ece5_0%,#ecd9ce_100%)]",
-      glow: "group-hover:shadow-[0_0_28px_rgba(159,86,57,0.13)]",
+      icon:
+        "bg-[linear-gradient(135deg,#f8ece5_0%,#ecd9ce_100%)]",
+      glow:
+        "group-hover:shadow-[0_0_28px_rgba(159,86,57,0.13)]",
     },
     {
-      icon: "bg-[linear-gradient(135deg,#f4efe7_0%,#e7e9dc_100%)]",
-      glow: "group-hover:shadow-[0_0_28px_rgba(76,107,63,0.10)]",
+      icon:
+        "bg-[linear-gradient(135deg,#f4efe7_0%,#e7e9dc_100%)]",
+      glow:
+        "group-hover:shadow-[0_0_28px_rgba(76,107,63,0.10)]",
     },
   ];
 
   const accent = accents[index % accents.length];
+
+//   const mediumCounts = ARTWORKS.reduce((acc, artwork) => {
+//   const medium = artwork.medium || "Other";
+//   acc[medium] = (acc[medium] || 0) + 1;
+//   return acc;
+// }, {});
+
+// const totalArtworks = ARTWORKS.length;
+
+// const mediumData = Object.entries(mediumCounts).map(
+//   ([name, count], index) => {
+//     const fills = ["#9F5639", "#B8955A", "#6F8F7A", "#8B7465", "#A88B76"];
+
+//     return {
+//       name,
+//       value: Math.round((count / totalArtworks) * 100),
+//       fill: fills[index % fills.length],
+//     };
+//   }
+// );
 
   return (
     <motion.div
@@ -120,7 +158,7 @@ function StatCard({ label, value, note, icon: Icon, index }) {
 
       <div className="relative z-10 flex items-start justify-between gap-4">
 
-        {/* Label */}
+        {/* Label + Value */}
         <div className="min-w-0">
           <p className="text-[12.5px] font-medium text-[#A28F7D] sm:text-[13px]">
             {label}
@@ -130,13 +168,7 @@ function StatCard({ label, value, note, icon: Icon, index }) {
             {value}
           </p>
 
-          <p
-            className={`mt-3 text-[11.5px] sm:text-[12px] ${index === 0
-              ? "font-medium text-[#4C6B3F]"
-              : "text-[#A28F7D]"
-              }`}
-          >
-            {index === 0 && "↑ "}
+          <p className="mt-3 text-[11.5px] text-[#A28F7D] sm:text-[12px]">
             {note}
           </p>
         </div>
@@ -187,51 +219,328 @@ function StatCard({ label, value, note, icon: Icon, index }) {
   );
 }
 
+
+function ThreeDPieChart({ data }) {
+  const cx = 250;
+  const cy = 165;
+  const radius = 145;
+  const yScale = 0.72;
+  const depth = 32;
+
+  const polar = (angle, r = radius) => {
+    const rad = (angle * Math.PI) / 180;
+
+    return {
+      x: cx + r * Math.cos(rad),
+      y: cy + r * Math.sin(rad) * yScale,
+    };
+  };
+
+  const getTopPath = (startAngle, endAngle) => {
+    const start = polar(startAngle);
+    const end = polar(endAngle);
+
+    const largeArc = endAngle - startAngle > 180 ? 1 : 0;
+
+    return `
+      M ${cx} ${cy}
+      L ${start.x} ${start.y}
+      A ${radius} ${radius * yScale} 0 ${largeArc} 1 ${end.x} ${end.y}
+      Z
+    `;
+  };
+
+  const getSidePath = (startAngle, endAngle) => {
+    const startTop = polar(startAngle);
+    const endTop = polar(endAngle);
+
+    const startBottom = {
+      x: startTop.x,
+      y: startTop.y + depth,
+    };
+
+    const endBottom = {
+      x: endTop.x,
+      y: endTop.y + depth,
+    };
+
+    const largeArc = endAngle - startAngle > 180 ? 1 : 0;
+
+    return `
+      M ${startTop.x} ${startTop.y}
+      A ${radius} ${radius * yScale} 0 ${largeArc} 1 ${endTop.x} ${endTop.y}
+      L ${endBottom.x} ${endBottom.y}
+      A ${radius} ${radius * yScale} 0 ${largeArc} 0 ${startBottom.x} ${startBottom.y}
+      Z
+    `;
+  };
+
+  const slices = [];
+  let currentAngle = -90;
+
+  data.forEach((item) => {
+    const angle = (item.value / 100) * 360;
+
+    slices.push({
+      ...item,
+      startAngle: currentAngle,
+      endAngle: currentAngle + angle,
+    });
+
+    currentAngle += angle;
+  });
+
+  return (
+    <div className="mx-auto w-full max-w-[620px]">
+      <svg
+        viewBox="0 0 500 410"
+        className="h-auto w-full overflow-visible"
+      >
+        {/* 3D SIDE / EXTRUSION */}
+        {slices.map((slice, index) => {
+          const start = Math.max(slice.startAngle, 0);
+          const end = Math.min(slice.endAngle, 180);
+
+          if (start >= end) return null;
+
+          return (
+            <path
+              key={`side-${index}`}
+              d={getSidePath(start, end)}
+              fill={slice.darkFill}
+              stroke="#FFFFFF"
+              strokeWidth="2"
+              strokeLinejoin="round"
+            />
+          );
+        })}
+
+        {/* Additional bottom edge for stronger depth */}
+        {slices.map((slice, index) => {
+          const start = Math.max(slice.startAngle, 0);
+          const end = Math.min(slice.endAngle, 180);
+
+          if (start >= end) return null;
+
+          const startPoint = polar(start);
+          const endPoint = polar(end);
+
+          return (
+            <path
+              key={`bottom-${index}`}
+              d={`
+                M ${startPoint.x} ${startPoint.y + depth}
+                A ${radius} ${radius * yScale}
+                0 ${end - start > 180 ? 1 : 0} 1
+                ${endPoint.x} ${endPoint.y + depth}
+              `}
+              fill="none"
+              stroke={slice.darkFill}
+              strokeWidth="3"
+            />
+          );
+        })}
+
+        {/* TOP SURFACE */}
+        {slices.map((slice, index) => (
+          <path
+            key={`slice-${index}`}
+            d={getTopPath(slice.startAngle, slice.endAngle)}
+            fill={slice.fill}
+            stroke="#FFFFFF"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
+        ))}
+
+        {/* LABELS */}
+        {slices.map((slice, index) => {
+          const middleAngle =
+            (slice.startAngle + slice.endAngle) / 2;
+
+          const labelRadius = radius * 0.58;
+
+          const point = polar(middleAngle, labelRadius);
+
+          return (
+            <g key={`label-${index}`}>
+              <text
+                x={point.x}
+                y={point.y - 7}
+                textAnchor="middle"
+                fill="#FFFFFF"
+                fontSize="12"
+                fontWeight="600"
+                style={{
+                  paintOrder: "stroke",
+                  stroke: "rgba(0,0,0,0.22)",
+                  strokeWidth: "3px",
+                  strokeLinejoin: "round",
+                }}
+              >
+                {slice.name}
+              </text>
+
+              <text
+                x={point.x}
+                y={point.y + 11}
+                textAnchor="middle"
+                fill="#FFFFFF"
+                fontSize="12"
+                fontWeight="700"
+                style={{
+                  paintOrder: "stroke",
+                  stroke: "rgba(0,0,0,0.22)",
+                  strokeWidth: "3px",
+                  strokeLinejoin: "round",
+                }}
+              >
+                {slice.value}%
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+
+// ─────────────────────────────────────────────
+// Dashboard
+// ─────────────────────────────────────────────
+
 export default function Dashboard() {
-  const published = ARTWORKS.filter((a) => a.status === "Published").length;
-  const max = Math.max(...MONTHS.map(([, v]) => v));
+  // ─────────────────────────────────────────────
+  // Artwork calculations
+  // ─────────────────────────────────────────────
+
+  const published = ARTWORKS.filter(
+    (artwork) => artwork.status === "Published"
+  ).length;
+
+  const draft = ARTWORKS.filter(
+    (artwork) => artwork.status === "Draft"
+  ).length;
+
+  const sold = ARTWORKS.filter(
+    (artwork) => artwork.status === "Sold"
+  ).length;
+
+  const totalArtworks = ARTWORKS.length;
+
+  // Average artwork price
+  const averagePrice =
+    totalArtworks > 0
+      ? ARTWORKS.reduce(
+        (sum, artwork) => sum + Number(artwork.price || 0),
+        0
+      ) / totalArtworks
+      : 0;
+
+  // Published percentage
+  const publishedRate =
+    totalArtworks > 0
+      ? Math.round((published / totalArtworks) * 100)
+      : 0;
+
+  // Category / medium count
+  const categoryCounts = ARTWORKS.reduce((acc, artwork) => {
+    const category = artwork.medium || "Other";
+
+    acc[category] = (acc[category] || 0) + 1;
+
+    return acc;
+  }, {});
+
+  const mediumData = Object.entries(categoryCounts).map(
+  ([name, count], index) => {
+    const colors = [
+      { fill: "#B8955A", darkFill: "#76572C" },
+      { fill: "#A95738", darkFill: "#69301F" },
+      { fill: "#71917F", darkFill: "#405B4C" },
+      { fill: "#927B6B", darkFill: "#5E4A3E" },
+      { fill: "#AA8E78", darkFill: "#695443" },
+    ];
+
+    const color = colors[index % colors.length];
+
+    return {
+      name,
+      value: Math.round((count / totalArtworks) * 100),
+      fill: color.fill,
+      darkFill: color.darkFill,
+    };
+  }
+);
+
+
+  // ─────────────────────────────────────────────
+  // Dashboard stats
+  // ─────────────────────────────────────────────
+
   const stats = [
-  {
-    label: "Total sales",
-    value: inr(612000),
-    note: "+12% this month",
-    icon: IndianRupee,
-  },
-  {
-    label: "Published artworks",
-    value: published,
-    note: `${ARTWORKS.length} in total`,
-    icon: Image,
-  },
-  {
-    label: "Open orders",
-    value: 2,
-    note: "Need your attention",
-    icon: ShoppingBag,
-  },
-  {
-    label: "Average rating",
-    value: "4.9",
-    note: "From 128 reviews",
-    icon: Star,
-  },
-  {
-    label: "Total reviews",
-    value: 128,
-    note: "Across all artworks",
-    icon: Star,
-  },
-  {
-    label: "Order success",
-    value: "96%",
-    note: "Successful orders",
-    icon: CheckCircle2,
-  },
-];
+    {
+      label: "Published artworks",
+      value: published,
+      note: `${totalArtworks} in total`,
+      icon: Image,
+    },
+    {
+      label: "Open orders",
+      value: 2,
+      note: "Need your attention",
+      icon: ShoppingBag,
+    },
+    {
+      label: "Open requests",
+      value: 3,
+      note: "Custom requests",
+      icon: Palette,
+    },
+    {
+      label: "Average rating",
+      value: "4.9",
+      note: "From 128 reviews",
+      icon: Star,
+    },
+    {
+      label: "Total reviews",
+      value: 128,
+      note: "Across all artworks",
+      icon: Star,
+    },
+    {
+      label: "Order success",
+      value: "96%",
+      note: "Successful orders",
+      icon: CheckCircle2,
+    },
+  ];
+
+
+  // ─────────────────────────────────────────────
+  // Render
+  // ─────────────────────────────────────────────
 
   return (
     <div className={PAGE}>
-      <div className="grid gap-y-4 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-8 lg:gap-y-5">
+
+      {/* ═══════════════════════════════════════════
+          QUICK STATS
+      ═══════════════════════════════════════════ */}
+
+      <div
+        className="
+          grid
+          gap-y-4
+          gap-x-6
+          sm:grid-cols-2
+          lg:grid-cols-3
+          lg:gap-x-8
+          lg:gap-y-5
+        "
+      >
         {stats.map((stat, index) => (
           <StatCard
             key={stat.label}
@@ -241,363 +550,316 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <div className="grid gap-5">
-        <Card
-          title="Sales overview"
-          className="
-    w-full
-    bg-[linear-gradient(315deg,#fffdfb_0%,#fff8f2_48%,#f8eee6_100%)]
-  "
-          action={
-            <div className="flex items-center gap-1.5 text-[12px] font-semibold tracking-[0.1px] text-[#4C6B3F]">
-              <ArrowUpRight size={14} strokeWidth={2} />
-              +12% this month
-            </div>
-          }
-        >
-          <div className="mb-9 flex flex-wrap items-end justify-between gap-4 sm:mb-10">
-            <div>
-              <p className="text-[12px] font-medium tracking-[0.1px] text-[#9B8877]">
-                Total sales · last 6 months
-              </p>
 
-              <p className="mt-1 font-serif text-[28px] leading-none text-[#362F26] sm:text-[31px]">
-                {inr(MONTHS.reduce((sum, [, value]) => sum + value, 0) * 1000)}
-              </p>
-            </div>
+      {/* ═══════════════════════════════════════════
+          ARTWORK STATUS
+      ═══════════════════════════════════════════ */}
 
-            <p className="text-[12px] font-medium tracking-[0.1px] text-[#A28F7D]">
-              Monthly performance
-            </p>
-          </div>
+      <Card
+        title="Artwork Status"
+        className="
+          bg-[linear-gradient(315deg,#fffdfb_0%,#fff8f2_48%,#f8eee6_100%)]
+        "
+      >
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
 
-          <div className="flex h-56 items-end gap-2 sm:gap-4">
-            {MONTHS.map(([month, value], index) => (
-  <div
-    key={month}
-    className="
-      group
-      flex
-      h-full
-      flex-1
-      flex-col
-      items-center
-      justify-end
-    "
-  >
-    {/* Value */}
-    <motion.span
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: 0.35,
-        delay: 0.2 + index * 0.03,
-        ease: "easeOut",
-      }}
-      className="
-        mb-3
-        rounded-full
-        border
-        border-[#E7D8CE]
-        bg-[#FFF9F5]
-        px-2.5
-        py-1
-        text-[10px]
-        font-semibold
-        tracking-[0.2px]
-        text-[#7F4632]
-        shadow-[0_4px_10px_rgba(70,45,32,0.08)]
-        transition-all
-        duration-300
-        group-hover:-translate-y-1
-        group-hover:border-[#D8B8A7]
-        group-hover:bg-white
-        group-hover:shadow-[0_7px_16px_rgba(70,45,32,0.12)]
-        sm:text-[11px]
-      "
-    >
-      ₹{value}k
-    </motion.span>
-
-    {/* Bar */}
-    <motion.div
-  className="
-    relative
-    w-full
-    max-w-[32px] sm:max-w-[38px] md:max-w-[44px] xl:max-w-[54px]
-    rounded-t-[10px]
-    bg-[linear-gradient(135deg,#D9A184_0%,#C17A58_22%,#9F5639_65%,#783B2B_100%)]
-    shadow-[inset_3px_0_0_rgba(255,255,255,0.20),0_10px_22px_rgba(159,86,57,0.18),0_0_20px_rgba(201,140,105,0.16)]
-    transform-gpu
-  "
-  initial={{ height: 0 }}
-  animate={{ height: `${(value / max) * 72}%` }}
-  transition={{
-    duration: 0.5,
-    delay: index * 0.03,
-    ease: "easeOut",
-  }}
-  whileHover={{
-    y: -5,
-    scaleX: 1.05,
-    boxShadow:
-      "inset 3px 0 0 rgba(255,255,255,0.28), 0 14px 28px rgba(159,86,57,0.25), 0 0 28px rgba(201,140,105,0.32)",
-    transition: {
-      duration: 0.25,
-      ease: "easeOut",
-    },
-  }}
->
-  {/* glow */}
-  <span
-    aria-hidden="true"
-    className="
-      pointer-events-none
-      absolute
-      -inset-2
-      -z-10
-      rounded-[14px]
-      bg-[#C98C69]/15
-      blur-xl
-      transition-all
-      duration-300
-      group-hover:bg-[#C98C69]/30
-      group-hover:blur-2xl
-    "
-  />
-
-  {/* highlight */}
-  <span
-    aria-hidden="true"
-    className="
-      pointer-events-none
-      absolute
-      inset-y-1
-      left-1
-      w-[2px]
-      rounded-full
-      bg-white/20
-      blur-[1px]
-      transition-colors
-      duration-300
-      group-hover:bg-white/35
-    "
-  />
-</motion.div>
-
-    {/* Month */}
-    <span
-  className="
-    mt-3
-    text-[11.5px]
-    font-medium
-    tracking-[0.1px]
-    text-[#4A4037]
-    transition-all
-    duration-300
-    group-hover:translate-y-0.5
-    group-hover:text-[#9F5639]
-    sm:text-[12px]
-  "
->
-  {month}
-</span>
-  </div>
-))}
-          </div>
-        </Card>
-
-        <motion.div
-  initial={{ opacity: 0, y: 28 }}
-  whileInView={{ opacity: 1, y: 0 }}
-  viewport={{ once: true, amount: 0.2 }}
-  transition={{
-    duration: 0.65,
-    ease: [0.22, 1, 0.36, 1],
-  }}
-  className="w-full"
->
-  <Card
-    title={
-  <span className="font-serif text-[19px] font-medium tracking-[-0.2px] text-[#362F26] sm:text-[20px]">
-    Recent orders
-  </span>
-}
-    className="
-  h-full
-  bg-[linear-gradient(145deg,#fffefc_0%,#fcf8f4_55%,#f9f1eb_100%)]
-"
-    action={
-      <Link
-  to="/artist/orders"
-  className="
-    group
-    inline-flex
-    items-center
-    gap-1.5
-    text-[12px]
-    font-medium
-    tracking-[0.1px]
-    text-[#9F5639]
-    transition-all
-    duration-300
-    hover:gap-2
-    hover:text-[#7F402C]
-    sm:text-[13px]
-  "
->
-  <span>View all</span>
-
-  <ArrowUpRight
-    size={14}
-    strokeWidth={1.9}
-    className="
-      transition-transform
-      duration-300
-      ease-out
-      group-hover:translate-x-0.5
-      group-hover:-translate-y-0.5
-    "
-  />
-</Link>
-    }
-  >
-    <div className="space-y-2.5 sm:space-y-3">
-      {RECENT.map((order, index) => (
-        <motion.div
-          key={order.id}
-          initial={{ opacity: 0, y: 14 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{
-            duration: 0.45,
-            delay: 0.12 + index * 0.08,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-          whileHover={{
-            y: -2,
-            transition: {
-              duration: 0.2,
-              ease: "easeOut",
+          {[
+            {
+              label: "Published",
+              value: published,
             },
-          }}
-          className="
-  group
-  relative
-  overflow-hidden
-  rounded-[14px]
-  border
-  border-[#E9DFD8]
-  bg-[linear-gradient(135deg,#ffffff_0%,#fffdfb_100%)]
-  px-3.5
-  py-3.5
-  cursor-pointer
-  shadow-[0_2px_8px_rgba(65,43,31,0.04)]
-  transition-all
-  duration-300
-  ease-out
-  hover:-translate-y-1
-  hover:border-[#DCC2B3]
-  hover:bg-[linear-gradient(135deg,#FFF9F4_0%,#FCEDE3_100%)]
-  hover:shadow-[0_10px_24px_rgba(65,43,31,0.11)]
-  sm:px-4
-  sm:py-4
-"
-        >
-          {/* Hover accent */}
-          <span
-            aria-hidden="true"
-            className="
-              pointer-events-none
-              absolute
-              inset-y-2
-              left-0
-              w-[3px]
-              origin-center
-              scale-y-0
-              rounded-full
-              bg-[linear-gradient(to_bottom,#C98C69,#9F5639)]
-              transition-transform
-              duration-300
-              ease-out
-              group-hover:scale-y-100
-            "
-          />
-
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            {/* Order information */}
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <p
-                  className="
-  truncate
-  font-serif
-  text-[14px]
-  font-medium
-  leading-snug
-  tracking-[-0.1px]
-  text-[#362F26]
-  transition-colors
-  duration-200
-  group-hover:text-[#9F5639]
-  sm:text-[15px]
-"
-                >
-                  {order.item}
-                </p>
-              </div>
-
-              <p className="mt-1 truncate text-[11.5px] font-medium leading-relaxed text-[#927F72] sm:text-[12px]">
-                {order.buyer}
-                <span className="mx-1.5 text-[#D2C3B8]">·</span>
-                {inr(order.amount)}
-              </p>
-
-              <p className="mt-1 text-[10px] font-medium tracking-[0.35px] text-[#AD9C90]">
-                {order.id}
-              </p>
-            </div>
-
-            {/* Status */}
-            <div
+            {
+              label: "Draft",
+              value: draft,
+            },
+            {
+              label: "Sold",
+              value: sold,
+            },
+            {
+              label: "Total artworks",
+              value: totalArtworks,
+            },
+          ].map((item, index) => (
+            <motion.div
+              key={item.label}
+              initial={{
+                opacity: 0,
+                y: 20,
+              }}
+              whileInView={{
+                opacity: 1,
+                y: 0,
+              }}
+              viewport={{
+                once: true,
+                amount: 0.2,
+              }}
+              transition={{
+                duration: 0.5,
+                delay: index * 0.06,
+                ease: [0.22, 1, 0.36, 1],
+              }}
               className="
-                flex
-                shrink-0
-                items-center
-                justify-between
-                gap-3
-                sm:justify-end
+                rounded-[16px]
+                border
+                border-[#E8E1DB]
+                bg-white/70
+                p-4
+                shadow-[0_4px_14px_rgba(65,43,31,0.04)]
+                transition-all
+                duration-300
+                hover:-translate-y-1
+                hover:border-[#D8C1B4]
+                hover:shadow-[0_10px_24px_rgba(65,43,31,0.08)]
               "
             >
-              <Badge status={order.status} />
+              <p className="text-[12px] font-medium text-[#A28F7D]">
+                {item.label}
+              </p>
 
-            </div>
-          </div>
+              <p className="mt-2 font-serif text-[28px] leading-none text-[#362F26]">
+                {item.value}
+              </p>
+            </motion.div>
+          ))}
 
-          {/* Bottom hover glow */}
-          <span
-            aria-hidden="true"
-            className="
-              pointer-events-none
-              absolute
-              inset-x-6
-              bottom-0
-              h-px
-              origin-left
-              scale-x-0
-              bg-[linear-gradient(90deg,transparent,#D7B09B,transparent)]
-              transition-transform
-              duration-500
-              ease-out
-              group-hover:scale-x-100
-            "
-          />
-        </motion.div>
-      ))}
+        </div>
+      </Card>
+
+
+      {/* Artist Insights */}
+<motion.div
+  initial={{ opacity: 0, y: 18 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true, amount: 0.15 }}
+  transition={{ duration: 0.45, ease: "easeOut" }}
+>
+  <Card className="overflow-hidden">
+    <div className="mb-1">
+      <h2 className="text-[18px] font-semibold text-[#362F26]">
+        Artist Insights
+      </h2>
+
+      <p className="mt-1 text-[13px] text-[#8A796B]">
+        Your artwork distribution by medium
+      </p>
+    </div>
+
+    <div className="flex justify-center px-2 pt-2">
+      <svg
+        viewBox="0 0 560 450"
+        className="h-auto w-full max-w-[650px]"
+      >
+        {/* Ground shadow */}
+        <ellipse
+          cx="280"
+          cy="382"
+          rx="150"
+          ry="24"
+          fill="rgba(54,47,38,0.12)"
+        />
+
+        {/* 3D EXTRUSION */}
+        <g>
+          {mediumData.map((item, index) => {
+            const startAngle =
+              -90 +
+              mediumData
+                .slice(0, index)
+                .reduce(
+                  (sum, current) =>
+                    sum + (current.value / 100) * 360,
+                  0
+                );
+
+            const endAngle =
+              startAngle + (item.value / 100) * 360;
+
+            const startRad =
+              (startAngle * Math.PI) / 180;
+
+            const endRad =
+              (endAngle * Math.PI) / 180;
+
+            const largeArc =
+              endAngle - startAngle > 180 ? 1 : 0;
+
+            const cx = 280;
+            const cy = 170;
+            const rx = 165;
+            const ry = 92;
+            const depth = 48;
+
+            const startX = cx + rx * Math.cos(startRad);
+            const startY = cy + ry * Math.sin(startRad);
+
+            const endX = cx + rx * Math.cos(endRad);
+            const endY = cy + ry * Math.sin(endRad);
+
+            const bottomStartY = startY + depth;
+            const bottomEndY = endY + depth;
+
+            return (
+              <path
+                key={`side-${index}`}
+                d={`
+                  M ${startX} ${startY}
+
+                  A ${rx} ${ry}
+                  0 ${largeArc} 1
+                  ${endX} ${endY}
+
+                  L ${endX} ${bottomEndY}
+
+                  A ${rx} ${ry}
+                  0 ${largeArc} 0
+                  ${startX} ${bottomStartY}
+
+                  Z
+                `}
+                fill={item.darkFill}
+                stroke="#FFFFFF"
+                strokeWidth="2.5"
+                strokeLinejoin="round"
+              />
+            );
+          })}
+        </g>
+
+        {/* TOP SURFACE */}
+        <g>
+          {mediumData.map((item, index) => {
+            const startAngle =
+              -90 +
+              mediumData
+                .slice(0, index)
+                .reduce(
+                  (sum, current) =>
+                    sum + (current.value / 100) * 360,
+                  0
+                );
+
+            const endAngle =
+              startAngle + (item.value / 100) * 360;
+
+            const startRad =
+              (startAngle * Math.PI) / 180;
+
+            const endRad =
+              (endAngle * Math.PI) / 180;
+
+            const largeArc =
+              endAngle - startAngle > 180 ? 1 : 0;
+
+            const cx = 280;
+            const cy = 170;
+            const rx = 165;
+            const ry = 92;
+
+            const startX = cx + rx * Math.cos(startRad);
+            const startY = cy + ry * Math.sin(startRad);
+
+            const endX = cx + rx * Math.cos(endRad);
+            const endY = cy + ry * Math.sin(endRad);
+
+            return (
+              <path
+                key={`top-${index}`}
+                d={`
+                  M ${cx} ${cy}
+
+                  L ${startX} ${startY}
+
+                  A ${rx} ${ry}
+                  0 ${largeArc} 1
+                  ${endX} ${endY}
+
+                  Z
+                `}
+                fill={item.fill}
+                stroke="#FFFFFF"
+                strokeWidth="3"
+                strokeLinejoin="round"
+              />
+            );
+          })}
+        </g>
+
+        {/* LABELS */}
+        <g>
+          {mediumData.map((item, index) => {
+            const startAngle =
+              -90 +
+              mediumData
+                .slice(0, index)
+                .reduce(
+                  (sum, current) =>
+                    sum + (current.value / 100) * 360,
+                  0
+                );
+
+            const endAngle =
+              startAngle + (item.value / 100) * 360;
+
+            const middleAngle =
+              (startAngle + endAngle) / 2;
+
+            const middleRad =
+              (middleAngle * Math.PI) / 180;
+
+            const labelRadius = 92;
+
+            const x =
+              280 +
+              labelRadius * Math.cos(middleRad);
+
+            const y =
+              170 +
+              55 * Math.sin(middleRad);
+
+            return (
+              <g key={`label-${index}`}>
+                <text
+                  x={x}
+                  y={y - 7}
+                  textAnchor="middle"
+                  fill="#FFFFFF"
+                  fontSize="12"
+                  fontWeight="600"
+                  style={{
+                    paintOrder: "stroke",
+                    stroke: "rgba(0,0,0,0.28)",
+                    strokeWidth: "3px",
+                  }}
+                >
+                  {item.name}
+                </text>
+
+                <text
+                  x={x}
+                  y={y + 12}
+                  textAnchor="middle"
+                  fill="#FFFFFF"
+                  fontSize="12"
+                  fontWeight="700"
+                  style={{
+                    paintOrder: "stroke",
+                    stroke: "rgba(0,0,0,0.28)",
+                    strokeWidth: "3px",
+                  }}
+                >
+                  {item.value}%
+                </text>
+              </g>
+            );
+          })}
+        </g>
+      </svg>
     </div>
   </Card>
 </motion.div>
-      </div>
+
     </div>
   );
 }

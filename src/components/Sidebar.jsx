@@ -1,8 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
-  LayoutDashboard, Image, ShoppingBag, Palette, Wallet, Star,
-  MessageSquare, CircleUser, LogOut, Sparkles,
+  LayoutDashboard, Image, ShoppingBag, Palette, Wallet, Star, CircleUser, LogOut,
 } from "lucide-react";
 
 // [label, path, icon, badge count]
@@ -16,7 +15,7 @@ const GROUPS = [
   ["Business", [
     ["Earnings", "/artist/earnings", Wallet],
     ["Reviews", "/artist/reviews", Star],
-    ["Messages", "/artist/messages", MessageSquare, 2],
+    // ["Messages", "/artist/messages", MessageSquare, 2],
   ]],
 ];
 

@@ -1271,6 +1271,9 @@ const Home = () => {
 
   return (
     <div>
+      <style>{`
+      @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Work+Sans:wght@400;500;600&display=swap');
+    `}</style>
       <section className="relative isolate w-full overflow-hidden bg-[#1c1712]">
 
         {/* Background Video */}
@@ -1303,9 +1306,15 @@ const Home = () => {
                 duration: 0.7,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="mb-5 inline-flex items-center gap-[9px] rounded-full  text-[10px] font-semibold tracking-[0.5px] text-white"
+              className="
+  mb-[26px] inline-flex items-center gap-[9px]
+  rounded-full border border-[rgba(240,217,163,0.4)]
+  bg-white/10 px-[14px] py-2
+  text-[12px] font-medium uppercase tracking-[0.2em]
+  text-[#f1d9a3] backdrop-blur-[10px]
+"
             >
-              <span className="h-[7px] w-[7px] rounded-full bg-[#a65335]" />
+              <span className="h-[7px] w-[7px] rounded-full bg-[#e0bb74] shadow-[0_0_12px_rgba(224,187,116,0.5)]" />
               CURATED GLOBAL MARKETPLACE
             </motion.div>
 
@@ -1320,14 +1329,34 @@ const Home = () => {
                 delay: 0.12,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="mb-5 font-serif text-[clamp(34px,7vw,68px)] font-normal leading-[1.04] text-white sm:leading-[0.99]"
+              className="
+  mb-[26px]
+  text-[clamp(40px,6.4vw,84px)]
+  font-medium leading-[1.04]
+  tracking-[-0.025em] text-white
+  [text-shadow:0_4px_40px_rgba(0,0,0,0.45)]
+  [text-wrap:balance]
+"
+style={{
+  fontFamily: '"Fraunces", "Iowan Old Style", Georgia, serif',
+}}
             >
               A marketplace for{" "}
-              <em className="font-normal italic text-[#f0b39a]">
+              <em className="
+  bg-[linear-gradient(100deg,#f8e6b8_0%,#e0bb74_45%,#c9a35a_100%)]
+  bg-clip-text font-normal italic text-transparent
+  [filter:drop-shadow(0_4px_24px_rgba(0,0,0,0.35))]
+  [padding-right:0.08em]
+">
                 original
               </em>
               <br className="hidden sm:block" />{" "}
-              <em className="font-normal italic text-[#f0b39a]">
+              <em className="
+  bg-[linear-gradient(100deg,#f8e6b8_0%,#e0bb74_45%,#c9a35a_100%)]
+  bg-clip-text font-normal italic text-transparent
+  [filter:drop-shadow(0_4px_24px_rgba(0,0,0,0.35))]
+  [padding-right:0.08em]
+">
                 art
               </em>
               , sculptures &amp;
@@ -1345,7 +1374,13 @@ const Home = () => {
                 delay: 0.25,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="mx-auto max-w-[610px] text-[14px] leading-[1.65] text-white/90 sm:text-[16px]"
+              className="
+  mx-auto mb-[38px] max-w-[620px]
+  text-[clamp(15.5px,1.4vw,17.5px)]
+  leading-[1.75] text-[#fbf1da]
+  [text-shadow:0_1px_18px_rgba(0,0,0,0.55)]
+  [text-wrap:pretty]
+"
             >
               Connect directly with independent creators worldwide.
               Acquire museum-grade paintings, studio ceramics, and
@@ -1363,7 +1398,11 @@ const Home = () => {
                 delay: 0.38,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-[30px]"
+              className="
+  mx-auto mt-0 flex w-full max-w-[500px]
+  flex-col items-center justify-center gap-3
+  sm:flex-row sm:gap-[14px]
+"
             >
 
               {/* Explore Art */}
@@ -1375,7 +1414,18 @@ const Home = () => {
                   stiffness: 400,
                   damping: 20,
                 }}
-                className="group flex h-[43px] w-full max-w-[230px] items-center justify-center gap-[10px] rounded-[10px] border border-[#a65335] bg-[#a65335] px-[22px] text-[15px] font-semibold text-white transition-colors duration-300 sm:w-auto"
+                className="
+  group inline-flex h-[48px] w-full max-w-[240px]
+  items-center justify-center gap-2
+  rounded-full border border-white/20
+  bg-[linear-gradient(135deg,#b88a3e_0%,#96702f_55%,#7a5a22_100%)]
+  px-7 text-[14.5px] font-medium text-white
+  shadow-[0_12px_30px_-8px_rgba(150,112,47,0.45)]
+  transition-[background-color,border-color,color,box-shadow,filter] duration-200 ease-out
+  hover:border-white/35 hover:brightness-110
+  hover:shadow-[0_16px_32px_-8px_rgba(150,112,47,0.6)]
+  sm:w-auto
+"
               >
                 Explore Art
                 <span className="inline-block text-[18px] transition-transform duration-300 group-hover:translate-x-1.5 group-hover:rotate-[45deg]">
@@ -1393,7 +1443,16 @@ const Home = () => {
                   stiffness: 400,
                   damping: 20,
                 }}
-                className="flex h-[43px] w-full max-w-[230px] items-center justify-center gap-[10px] border-none rounded-[10px] bg-[#f0b39a] px-[22px] text-[15px] font-semibold text-[#1c1712] transition-colors duration-300 hover:bg-[#f0b39a] hover:text-[#1c1712] sm:w-auto"
+                className="
+  inline-flex h-[48px] w-full max-w-[240px]
+  items-center justify-center gap-2
+  rounded-full border border-white/55
+  bg-white px-7
+  text-[14.5px] font-medium text-[#5c2b30]
+  backdrop-blur-[10px]
+  transition-[box-shadow,filter] duration-200 ease-out
+  sm:w-auto
+"
               >
                 Meet the Artists
                 <span className="text-[18px]">
@@ -1414,21 +1473,26 @@ const Home = () => {
                 delay: 0.5,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="mt-6 flex flex-wrap items-center justify-center gap-x-[18px] gap-y-3 text-[12px] text-white/90 sm:gap-x-[20px] sm:text-[13px]"
+              className="
+  mt-[clamp(28px,5vw,44px)]
+  inline-flex max-w-full flex-wrap items-center gap-4 justify-center
+   
+  text-[13px] text-[#f6ead0]
+"
             >
 
-              <div className="flex items-center gap-[7px] whitespace-nowrap ">
-                <TfiMedall className="text-[17px] text-[#f0b39a]" />
+              <div className="flex items-center gap-2 whitespace-nowrap px-3 py-2 sm:px-5 rounded-full border border-[rgba(240,217,163,0.4)] bg-white/10 p-1.5">
+                <TfiMedall className="text-[17px] text-[#e0bb74]" />
                 100% Original Work
               </div>
 
-              <div className="flex items-center gap-[7px] whitespace-nowrap ">
-                <MdHandshake className="text-[17px] text-[#f0b39a]" />
+              <div className="flex items-center gap-2 whitespace-nowrap px-3 py-2 sm:px-5 rounded-full border border-[rgba(240,217,163,0.4)] bg-white/10 p-1.5">
+                <MdHandshake className="text-[17px] text-[#e0bb74]" />
                 Direct From Artists
               </div>
 
-              <div className="flex items-center gap-[7px] whitespace-nowrap ">
-                <FaShieldHeart className="text-[17px] text-[#f0b39a]" />
+              <div className="flex items-center gap-2 whitespace-nowrap px-3 py-2 sm:px-5 rounded-full border border-[rgba(240,217,163,0.4)] bg-white/10 p-1.5">
+                <FaShieldHeart className="text-[17px] text-[#e0bb74]" />
                 Worldwide Insured Delivery
               </div>
 
