@@ -9,23 +9,47 @@ export const btnGhost =
   "rounded-full border border-[#E8E1DB] bg-white px-5 py-2.5 text-[14px] text-[#362F26] transition-colors hover:bg-[#F9F8F6]";
 
 const TONES = {
-  amber: "bg-[#F6E7D0] text-[#8A5A22]",
-  green: "bg-[#E7EEDD] text-[#4C6B3F]",
-  red: "bg-[#F6DFDA] text-[#9B3B2E]",
-  gray: "bg-[#EFE9E1] text-[#736153]",
+  amber:
+    "border border-[#E8D8B9] bg-[linear-gradient(135deg,#FFF7E8_0%,#F6E7D0_100%)] text-[#8A5A22] shadow-[0_2px_6px_rgba(138,90,34,0.06)]",
+
+  green:
+    "border border-[#D6E2CC] bg-[linear-gradient(135deg,#F1F6EC_0%,#E2EBDD_100%)] text-[#4C6B3F] shadow-[0_2px_6px_rgba(76,107,63,0.07)]",
+
+  red:
+    "border border-[#EBCFC9] bg-[linear-gradient(135deg,#FFF0ED_0%,#F6DFDA_100%)] text-[#9B3B2E] shadow-[0_2px_6px_rgba(155,59,46,0.06)]",
+
+  gray:
+    "border border-[#E4D9D0] bg-[linear-gradient(135deg,#FAF7F3_0%,#EDE5DE_100%)] text-[#725F52] shadow-[0_2px_6px_rgba(114,95,82,0.06)]",
+
+  blue:
+    "border border-[#D4E0E5] bg-[linear-gradient(135deg,#F1F5F7_0%,#DFE9ED_100%)] text-[#4E6873] shadow-[0_2px_6px_rgba(78,104,115,0.07)]",
 };
+
 const MAP = {
   New: "amber", "In Progress": "amber", Processing: "amber", Pending: "amber", Shipped: "amber", Confirmed: "amber", Packed: "green",
   Completed: "green", Delivered: "green", Paid: "green", Published: "green",
   Declined: "red", Cancelled: "red",
-  Draft: "gray", Sold: "gray",
+  Draft: "gray", Sold: "blue",
 };
 
 export function Badge({ status }) {
   return (
-    <span className={`inline-block whitespace-nowrap rounded-full px-3 py-1 text-[12px] font-medium ${TONES[MAP[status] || "gray"]}`}>
-      {status}
-    </span>
+    <span
+  className={`
+    inline-flex
+    items-center
+    whitespace-nowrap
+    rounded-full
+    px-3
+    py-1
+    text-[12px]
+    font-medium
+    leading-none
+    ${TONES[MAP[status] || "gray"]}
+  `}
+>
+  {status}
+</span>
   );
 }
 
