@@ -1,0 +1,634 @@
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  Search, ChevronDown, Image as ImageIcon, Eye, Pencil,
+  Check, X, Trash2, AlertCircle, CheckCircle2,
+} from "lucide-react";
+
+export function formatINR(amount) {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+/* ------------------------- Real online images ------------------------- */
+const ARTWORKS = [
+  {
+    id: "AW-1", title: "Golden Silence", artist: "Aarav Mehta", category: "Painting",
+    medium: "Acrylic on Canvas", price: 18500, stock: "1 of 1", status: "Approved",
+    image: "https://images.unsplash.com/photo-1541961017774-22349e4a1262?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: "AW-2", title: "Monsoon Reverie", artist: "Riya Sharma", category: "Digital Art",
+    medium: "Digital Print", price: 32400, stock: "3 of 5", status: "Approved",
+    image: "https://images.unsplash.com/photo-1547891654-e66ed7ebb968?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: "AW-3", title: "Bronze Whisper", artist: "Kabir Verma", category: "Sculpture",
+    medium: "Cast Bronze", price: 64200, stock: "1 of 1", status: "Pending",
+    image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: "AW-4", title: "City in Ochre", artist: "Ananya Kapoor", category: "Abstract Art",
+    medium: "Oil on Canvas", price: 21800, stock: "1 of 1", status: "Approved",
+    image: "https://images.unsplash.com/photo-1549490349-8643362247b5?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: "AW-5", title: "Still Water Study", artist: "Meera Iyer", category: "Photography",
+    medium: "Archival Print", price: 15600, stock: "5 of 10", status: "Pending",
+    image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: "AW-6", title: "Ink and Rust", artist: "Riya Sharma", category: "Digital Art",
+    medium: "Mixed Media", price: 12400, stock: "1 of 1", status: "Rejected",
+    image: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: "AW-7", title: "Terracotta Dream", artist: "Meera Iyer", category: "Sculpture",
+    medium: "Terracotta", price: 27500, stock: "1 of 1", status: "Approved",
+    image: "https://images.unsplash.com/photo-1561839561-b13bcfe95249?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: "AW-8", title: "Marble Repose", artist: "Kabir Verma", category: "Sculpture",
+    medium: "White Marble", price: 98000, stock: "1 of 1", status: "Approved",
+    image: "https://images.unsplash.com/photo-1580136579312-94651dfd596d?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: "AW-9", title: "Standing Figure III", artist: "Farhan Ali", category: "Sculpture",
+    medium: "Welded Steel", price: 112000, stock: "1 of 1", status: "Approved",
+    image: "",
+  },
+  {
+    id: "AW-10", title: "Clay Vessel Study", artist: "Devika Rao", category: "Sculpture",
+    medium: "Stoneware", price: 18900, stock: "1 of 1", status: "Pending",
+    image: "",
+  },
+];
+
+const CATEGORIES = ["All categories", "Painting", "Digital Art", "Sculpture", "Abstract Art", "Photography"];
+const PRICE_BANDS = ["Any price", "Under ₹20,000", "₹20,000 – ₹60,000", "Above ₹60,000"];
+const STATUSES = ["All statuses", "Approved", "Pending", "Rejected"];
+const ARTISTS = ["All artists", ...new Set(ARTWORKS.map((a) => a.artist))];
+
+const CATEGORY_OPTIONS = CATEGORIES.slice(1);
+const STATUS_OPTIONS = STATUSES.slice(1);
+
+const EMPTY_FORM = {
+  title: "", artist: "", category: "Painting", medium: "",
+  price: "", stock: "1 of 1", status: "Pending", image: "",
+};
+
+const inputCls =
+  "w-full h-10 px-3.5 rounded-xl border border-[#E8E1DB] bg-white text-[14px] text-[#362F26] placeholder:text-[#A28F7D] focus:outline-none focus:border-[#9F5639] transition-colors";
+const selectCls =
+  "appearance-none w-full h-10 pl-3.5 pr-9 rounded-xl border border-[#E8E1DB] bg-white text-[14px] text-[#362F26] focus:outline-none focus:border-[#9F5639] cursor-pointer transition-colors";
+
+function inBand(price, band) {
+  if (band === PRICE_BANDS[1]) return price < 20000;
+  if (band === PRICE_BANDS[2]) return price >= 20000 && price <= 60000;
+  if (band === PRICE_BANDS[3]) return price > 60000;
+  return true;
+}
+
+/* ------------------------------- UI bits ------------------------------- */
+
+function StatusBadge({ status }) {
+  const map = {
+    Approved: "bg-[#E7EEDD] text-[#4C6B3F]",
+    Pending: "bg-[#F6E7D0] text-[#8A5A22]",
+    Rejected: "bg-[#F6DFDA] text-[#9B3B2E]",
+  };
+  const cls = map[status] || "bg-[#EFE9E1] text-[#736153]";
+  return (
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-medium whitespace-nowrap ${cls}`}>
+      {status}
+    </span>
+  );
+}
+
+/* Image with neutral placeholder fallback */
+function ArtworkImage({ src, alt, className = "" }) {
+  const [failed, setFailed] = useState(false);
+
+  return (
+    <div className={`relative overflow-hidden bg-[#F7F3EE] ${className}`}>
+      {!failed && src ? (
+        <img
+          src={src}
+          alt={alt}
+          className="absolute inset-0 w-full h-full object-cover"
+          onError={() => setFailed(true)}
+          loading="lazy"
+        />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <ImageIcon size={24} className="text-[#C4B7A8]" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Field({ label, children }) {
+  return (
+    <label className="block">
+      <span className="block text-[12.5px] font-medium text-[#736153] mb-1.5">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function Detail({ label, value }) {
+  return (
+    <div>
+      <p className="text-[11.5px] uppercase tracking-wide text-[#A28F7D]">{label}</p>
+      <div className="mt-1 text-[14px] text-[#362F26] font-medium">{value}</div>
+    </div>
+  );
+}
+
+function Modal({ open, onClose, title, children, footer }) {
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-[#362F26]/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white rounded-2xl border border-[#E8E1DB] shadow-xl">
+        <div className="sticky top-0 z-10 bg-white flex items-center justify-between px-6 py-4 border-b border-[#E8E1DB]">
+          <h2 className="text-[16px] font-semibold text-[#362F26]">{title}</h2>
+          <button onClick={onClose} className="text-[#A28F7D] hover:text-[#362F26] transition-colors" aria-label="Close">
+            <X size={18} />
+          </button>
+        </div>
+        <div className="px-6 py-5">{children}</div>
+        {footer && (
+          <div className="sticky bottom-0 bg-white px-6 py-4 border-t border-[#E8E1DB] flex justify-end gap-3">
+            {footer}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------------------- Edit form --------------------------- */
+
+function ArtworkFormModal({ open, mode, initial, onClose, onSave }) {
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!open) return;
+    setError("");
+    if (mode === "edit" && initial) {
+      setForm({
+        title: initial.title,
+        artist: initial.artist,
+        category: initial.category,
+        medium: initial.medium,
+        price: String(initial.price),
+        stock: initial.stock,
+        status: initial.status,
+        image: initial.image || "",
+      });
+    } else {
+      setForm(EMPTY_FORM);
+    }
+  }, [open, mode, initial]);
+
+  function set(field, value) {
+    setForm((f) => ({ ...f, [field]: value }));
+  }
+
+  function submit(e) {
+    e.preventDefault();
+    if (!form.title.trim()) return setError("Title is required.");
+    if (!form.artist.trim()) return setError("Artist name is required.");
+    if (!form.medium.trim()) return setError("Medium is required.");
+    const price = Number(form.price);
+    if (!form.price || !Number.isFinite(price) || price <= 0)
+      return setError("Enter a valid price greater than 0.");
+
+    setError("");
+    onSave({
+      title: form.title.trim(),
+      artist: form.artist.trim(),
+      category: form.category,
+      medium: form.medium.trim(),
+      price,
+      stock: form.stock.trim() || "1 of 1",
+      status: form.status,
+      image: form.image.trim(),
+    });
+  }
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="Edit artwork"
+      footer={
+        <>
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-10 px-5 rounded-full border border-[#E8E1DB] text-[14px] text-[#362F26] hover:bg-[#F7F3EE] transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="artwork-form"
+            className="h-10 px-5 rounded-full bg-[#9F5639] text-white text-[14px] font-medium hover:bg-[#8A4930] transition-colors"
+          >
+            Save changes
+          </button>
+        </>
+      }
+    >
+      <form id="artwork-form" onSubmit={submit} className="space-y-4">
+        {error && (
+          <div className="flex items-start gap-2 rounded-xl bg-[#F6DFDA] text-[#9B3B2E] px-3 py-2.5 text-[13px]">
+            <AlertCircle size={16} className="mt-0.5 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <Field label="Title">
+          <input
+            type="text"
+            value={form.title}
+            onChange={(e) => set("title", e.target.value)}
+            placeholder="e.g. Golden Silence"
+            className={inputCls}
+          />
+        </Field>
+
+        <Field label="Artist">
+          <input
+            type="text"
+            value={form.artist}
+            onChange={(e) => set("artist", e.target.value)}
+            placeholder="e.g. Aarav Mehta"
+            className={inputCls}
+          />
+        </Field>
+
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Category">
+            <div className="relative">
+              <select value={form.category} onChange={(e) => set("category", e.target.value)} className={selectCls}>
+                {CATEGORY_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+              </select>
+              <ChevronDown size={15} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#A28F7D] pointer-events-none" />
+            </div>
+          </Field>
+
+          <Field label="Status">
+            <div className="relative">
+              <select value={form.status} onChange={(e) => set("status", e.target.value)} className={selectCls}>
+                {STATUS_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+              </select>
+              <ChevronDown size={15} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#A28F7D] pointer-events-none" />
+            </div>
+          </Field>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Medium">
+            <input
+              type="text"
+              value={form.medium}
+              onChange={(e) => set("medium", e.target.value)}
+              placeholder="e.g. Oil on Canvas"
+              className={inputCls}
+            />
+          </Field>
+
+          <Field label="Stock">
+            <input
+              type="text"
+              value={form.stock}
+              onChange={(e) => set("stock", e.target.value)}
+              placeholder="e.g. 1 of 1"
+              className={inputCls}
+            />
+          </Field>
+        </div>
+
+        <Field label="Price (₹)">
+          <input
+            type="number"
+            min="0"
+            value={form.price}
+            onChange={(e) => set("price", e.target.value)}
+            placeholder="e.g. 25000"
+            className={inputCls}
+          />
+        </Field>
+
+        <Field label="Image URL (optional)">
+          <input
+            type="url"
+            value={form.image}
+            onChange={(e) => set("image", e.target.value)}
+            placeholder="https://images.unsplash.com/..."
+            className={inputCls}
+          />
+        </Field>
+      </form>
+    </Modal>
+  );
+}
+
+/* ------------------------------- Main page ------------------------------ */
+
+export default function Artworks() {
+  const [artworks, setArtworks] = useState(ARTWORKS);
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState(CATEGORIES[0]);
+  const [priceBand, setPriceBand] = useState(PRICE_BANDS[0]);
+  const [status, setStatus] = useState(STATUSES[0]);
+  const [artistFilter, setArtistFilter] = useState(ARTISTS[0]);
+
+  const [modal, setModal] = useState(null); // { mode: "view" | "edit", id?: string }
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  const activeArtwork = modal?.id ? artworks.find((a) => a.id === modal.id) : null;
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 2600);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  const filtered = useMemo(() => {
+    return artworks.filter((a) => {
+      if (!a.title.toLowerCase().includes(search.toLowerCase())) return false;
+      if (category !== CATEGORIES[0] && a.category !== category) return false;
+      if (status !== STATUSES[0] && a.status !== status) return false;
+      if (artistFilter !== ARTISTS[0] && a.artist !== artistFilter) return false;
+      if (!inBand(a.price, priceBand)) return false;
+      return true;
+    });
+  }, [artworks, search, category, priceBand, status, artistFilter]);
+
+  /* ------------------------------ actions ------------------------------ */
+
+  function setArtStatus(id, s) {
+    setArtworks((prev) => prev.map((a) => (a.id === id ? { ...a, status: s } : a)));
+    setToast({ msg: s === "Approved" ? "Artwork approved." : "Artwork rejected." });
+  }
+
+  function handleSave(data) {
+    if (modal?.mode === "edit" && modal.id) {
+      setArtworks((prev) => prev.map((a) => (a.id === modal.id ? { ...a, ...data } : a)));
+      setToast({ msg: "Artwork updated." });
+    }
+    setModal(null);
+  }
+
+  function confirmDelete() {
+    if (!deleteTarget) return;
+    setArtworks((prev) => prev.filter((a) => a.id !== deleteTarget.id));
+    setToast({ msg: "Artwork deleted." });
+    if (modal?.id === deleteTarget.id) setModal(null);
+    setDeleteTarget(null);
+  }
+
+  return (
+    <div className="p-6 max-w-[1400px] mx-auto space-y-6 font-['Plus_Jakarta_Sans']">
+
+      {/* ------------------------------ Toolbar ----------------------------- */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[240px] max-w-[400px]">
+          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A28F7D]" />
+          <input
+            type="text"
+            placeholder="Search artworks..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full h-11 pl-11 pr-4 rounded-full border border-[#E8E1DB] bg-white text-[14px] text-[#362F26] placeholder:text-[#A28F7D] focus:outline-none focus:border-[#9F5639] transition-colors"
+          />
+        </div>
+
+        <div className="relative">
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="appearance-none h-11 pl-4 pr-10 rounded-full border border-[#E8E1DB] bg-white text-[14px] text-[#362F26] focus:outline-none focus:border-[#9F5639] cursor-pointer"
+          >
+            {CATEGORIES.map((o) => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A28F7D] pointer-events-none" />
+        </div>
+
+        <div className="relative">
+          <select
+            value={priceBand}
+            onChange={(e) => setPriceBand(e.target.value)}
+            className="appearance-none h-11 pl-4 pr-10 rounded-full border border-[#E8E1DB] bg-white text-[14px] text-[#362F26] focus:outline-none focus:border-[#9F5639] cursor-pointer"
+          >
+            {PRICE_BANDS.map((o) => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A28F7D] pointer-events-none" />
+        </div>
+
+        <div className="relative">
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="appearance-none h-11 pl-4 pr-10 rounded-full border border-[#E8E1DB] bg-white text-[14px] text-[#362F26] focus:outline-none focus:border-[#9F5639] cursor-pointer"
+          >
+            {STATUSES.map((o) => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A28F7D] pointer-events-none" />
+        </div>
+
+        <div className="relative">
+          <select
+            value={artistFilter}
+            onChange={(e) => setArtistFilter(e.target.value)}
+            className="appearance-none h-11 pl-4 pr-10 rounded-full border border-[#E8E1DB] bg-white text-[14px] text-[#362F26] focus:outline-none focus:border-[#9F5639] cursor-pointer"
+          >
+            {ARTISTS.map((o) => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A28F7D] pointer-events-none" />
+        </div>
+      </div>
+
+      {/* ------------------------------- Grid ------------------------------ */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+        {filtered.map((a) => (
+          <div key={a.id} className="bg-white border border-[#E8E1DB] rounded-2xl overflow-hidden shadow-sm flex flex-col">
+            <ArtworkImage src={a.image} alt={a.title} className="h-28 w-full" />
+
+            <div className="p-5 flex-1 flex flex-col">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-[14.5px] font-semibold text-[#362F26] truncate">{a.title}</p>
+                  <p className="text-[13px] text-[#A28F7D] truncate mt-0.5">{a.artist} · {a.medium}</p>
+                </div>
+                <StatusBadge status={a.status} />
+              </div>
+
+              <div className="mt-4 flex items-center justify-between text-[13px] text-[#A28F7D]">
+                <span className="font-semibold text-[#362F26] text-[15px]">{formatINR(a.price)}</span>
+                <span>{a.stock}</span>
+              </div>
+
+              <div className="mt-5 pt-4 border-t border-[#E8E1DB] flex items-center gap-3">
+                <button
+                  title="View"
+                  onClick={() => setModal({ mode: "view", id: a.id })}
+                  className="text-[#A28F7D] hover:text-[#362F26] transition-colors"
+                >
+                  <Eye size={18} />
+                </button>
+                <button
+                  title="Edit"
+                  onClick={() => setModal({ mode: "edit", id: a.id })}
+                  className="text-[#A28F7D] hover:text-[#362F26] transition-colors"
+                >
+                  <Pencil size={18} />
+                </button>
+                <button
+                  title="Approve"
+                  onClick={() => setArtStatus(a.id, "Approved")}
+                  className="text-[#4C6B3F] hover:text-[#3a5230] transition-colors"
+                >
+                  <Check size={18} />
+                </button>
+                <button
+                  title="Reject"
+                  onClick={() => setArtStatus(a.id, "Rejected")}
+                  className="text-[#9B3B2E] hover:text-[#7a2e23] transition-colors"
+                >
+                  <X size={18} />
+                </button>
+                <button
+                  title="Delete"
+                  onClick={() => setDeleteTarget(a)}
+                  className="ml-auto text-[#A28F7D] hover:text-[#9B3B2E] transition-colors"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {filtered.length === 0 && (
+          <div className="col-span-full py-16 text-center text-[14px] text-[#A28F7D]">
+            No artworks match these filters.
+          </div>
+        )}
+      </div>
+
+      {/* ---------------------------- View modal --------------------------- */}
+      <Modal
+        open={modal?.mode === "view"}
+        onClose={() => setModal(null)}
+        title="Artwork details"
+        footer={
+          <>
+            <button
+              onClick={() => setModal(null)}
+              className="h-10 px-5 rounded-full border border-[#E8E1DB] text-[14px] text-[#362F26] hover:bg-[#F7F3EE] transition-colors"
+            >
+              Close
+            </button>
+            <button
+              onClick={() => setModal({ mode: "edit", id: modal.id })}
+              className="inline-flex items-center gap-2 h-10 px-5 rounded-full bg-[#9F5639] text-white text-[14px] font-medium hover:bg-[#8A4930] transition-colors"
+            >
+              <Pencil size={15} /> Edit
+            </button>
+          </>
+        }
+      >
+        {activeArtwork && (
+          <div className="space-y-5">
+            <ArtworkImage
+              src={activeArtwork.image}
+              alt={activeArtwork.title}
+              className="h-40 w-full rounded-xl"
+            />
+
+            <div>
+              <h3 className="text-[18px] font-semibold text-[#362F26]">{activeArtwork.title}</h3>
+              <p className="text-[13.5px] text-[#A28F7D] mt-0.5">
+                {activeArtwork.artist} · {activeArtwork.medium}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Detail label="Artwork ID" value={activeArtwork.id} />
+              <Detail label="Category" value={activeArtwork.category} />
+              <Detail label="Price" value={formatINR(activeArtwork.price)} />
+              <Detail label="Stock" value={activeArtwork.stock} />
+              <Detail label="Status" value={<StatusBadge status={activeArtwork.status} />} />
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* --------------------------- Edit modal ---------------------------- */}
+      <ArtworkFormModal
+        open={modal?.mode === "edit"}
+        mode={modal?.mode}
+        initial={activeArtwork}
+        onClose={() => setModal(null)}
+        onSave={handleSave}
+      />
+
+      {/* -------------------------- Delete confirm ------------------------- */}
+      <Modal
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        title="Delete artwork"
+        footer={
+          <>
+            <button
+              onClick={() => setDeleteTarget(null)}
+              className="h-10 px-5 rounded-full border border-[#E8E1DB] text-[14px] text-[#362F26] hover:bg-[#F7F3EE] transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmDelete}
+              className="h-10 px-5 rounded-full bg-[#9B3B2E] text-white text-[14px] font-medium hover:bg-[#7a2e23] transition-colors"
+            >
+              Delete
+            </button>
+          </>
+        }
+      >
+        <p className="text-[14px] leading-relaxed text-[#736153]">
+          Are you sure you want to delete{" "}
+          <span className="font-semibold text-[#362F26]">{deleteTarget?.title}</span>? This action
+          cannot be undone.
+        </p>
+      </Modal>
+
+      {/* ------------------------------- Toast ----------------------------- */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-[60] flex items-center gap-2.5 rounded-xl bg-[#362F26] text-white px-4 py-3 text-[13.5px] shadow-lg">
+          <CheckCircle2 size={16} className="text-[#B9D3A6]" />
+          {toast.msg}
+        </div>
+      )}
+    </div>
+  );
+}
