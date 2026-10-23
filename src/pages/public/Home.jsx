@@ -4,7 +4,7 @@ import { Heart, X, ShoppingCart, CreditCard } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 import { IoMdBrush } from "react-icons/io";
 import { IoCameraOutline, IoColorPaletteOutline } from "react-icons/io5";
-import homeHeroVideo from "../../assets/home_hero_video.mp4";
+import homeHeroVideo from "../../assets/home_hero_video3.mp4";
 import { PiCubeFocus, PiPaintBrushBroadFill } from "react-icons/pi";
 import { FaArrowsToCircle, FaShieldHeart } from "react-icons/fa6";
 import {
