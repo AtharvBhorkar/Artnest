@@ -183,10 +183,6 @@ export default function ArtistSignup() {
             </div>
           </motion.div>
 
-          <motion.div variants={item} className="mb-4">
-            <Field label="Portfolio or Instagram URL" placeholder="https://instagram.com/yourstudio or yourportfolio.art" />
-          </motion.div>
-
           <motion.label variants={item} className="flex items-start gap-2 mb-4 cursor-pointer select-none">
             <input
               type="checkbox"

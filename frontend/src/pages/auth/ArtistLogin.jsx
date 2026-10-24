@@ -31,8 +31,23 @@ const FEATURES = [
 export default function ArtistLogin() {
   const navigate = useNavigate();
   const { login } = useAuth();
+  
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  
   const [showPw, setShowPw] = useState(false);
   const [remember, setRemember] = useState(true);
+
+  const handleLogin = () => {
+    if (!email.trim() || !password.trim()) {
+      setError("Please enter both email and password.");
+      return;
+    }
+    setError("");
+    login("artist");
+    navigate("/artist");
+  };
 
   return (
     <div className="h-screen w-full bg-[#FDF1E8] flex items-center justify-center p-3 sm:p-6 overflow-hidden">
@@ -116,6 +131,8 @@ export default function ArtistLogin() {
             <input
               type="email"
               placeholder="e-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-lg border border-stone-200 bg-[#FBEFE6]/60 px-3 py-2 text-[13px] text-stone-800 placeholder:text-stone-400 outline-none transition focus:border-[#A5522F] focus:bg-white focus:ring-2 focus:ring-[#A5522F]/15"
             />
           </motion.div>
@@ -129,6 +146,8 @@ export default function ArtistLogin() {
               <input
                 type={showPw ? "text" : "password"}
                 placeholder="Please enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-lg border border-stone-200 bg-[#FBEFE6]/60 px-3 py-2 pr-8 text-[13px] outline-none transition focus:border-[#A5522F] focus:bg-white focus:ring-2 focus:ring-[#A5522F]/15"
               />
               <button
@@ -140,6 +159,12 @@ export default function ArtistLogin() {
               </button>
             </div>
           </motion.div>
+
+          {error && (
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[12px] font-medium text-red-500 mb-3">
+              {error}
+            </motion.p>
+          )}
 
           <motion.label variants={item} className="flex items-center gap-2 mb-4 cursor-pointer select-none">
             <input
@@ -156,10 +181,7 @@ export default function ArtistLogin() {
             whileHover={{ y: -1 }}
             whileTap={{ scale: 0.98 }}
             type="button"
-            onClick={() => {
-              login("artist");
-              navigate("/artist");
-            }}
+            onClick={handleLogin}
             className="w-full flex items-center justify-center gap-2 rounded-lg bg-[#A5522F] py-2.5 text-[13px] font-semibold text-white shadow-sm transition hover:bg-[#8f4526]"
           >
             Sign In <ArrowRight size={14} />
