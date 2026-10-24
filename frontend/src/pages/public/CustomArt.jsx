@@ -1207,7 +1207,7 @@ export default function CustomArt() {
         .ca-input:focus { border-color: var(--brass); box-shadow: 0 0 0 4px rgba(150,112,47,.14); }
         .ca-field.has-error .ca-input, .ca-field.has-error .ca-chips { border-color: var(--danger); }
         .ca-field.has-error .ca-input:focus { box-shadow: 0 0 0 4px rgba(166,58,43,.14); }
-        .ca-textarea { height: auto; padding: 13px 14px; line-height: 1.6; resize: vertical; min-height: 132px; }
+        .ca-textarea { height: auto; padding: 13px 14px; line-height: 1.6; resize: none; min-height: 132px; }
         .ca-textarea.is-short { min-height: 74px; }
         .ca-error { font-size: 12.5px; color: var(--danger); overflow: hidden; padding-top: 6px; }
         .ca-count { align-self: flex-end; display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); margin-top: 6px; transition: color .2s; }
