@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, Eye } from "lucide-react";
+import { Modal } from "./shared";
 
 export function formatINR(amount) {
   return new Intl.NumberFormat("en-IN", {
@@ -37,8 +38,30 @@ function StatusBadge({ status }) {
   );
 }
 
+const fmtDate = (d) => {
+  if (!d) return "—";
+  const dt = new Date(/^\d{4}-\d{2}-\d{2}$/.test(d) ? `${d}T00:00:00` : d);
+  return isNaN(dt) ? d : dt.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+};
+
+function loadBuyerRequests() {
+  try {
+    const list = JSON.parse(localStorage.getItem("artnest_custom_requests")) || [];
+    return list.map((r) => ({
+      ...r,
+      customer: r.name || "Buyer",
+      deadline: fmtDate(r.deadline),
+      requested: fmtDate(r.requested),
+      status: r.status || "New",
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export default function CustomArtRequests() {
-  const [requests, setRequests] = useState(CUSTOM_REQUESTS);
+  const [requests, setRequests] = useState(() => [...loadBuyerRequests(), ...CUSTOM_REQUESTS]);
+  const [viewing, setViewing] = useState(null);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState(STATUSES[0]);
 
@@ -78,6 +101,45 @@ export default function CustomArtRequests() {
         </div>
       </div>
 
+      {viewing && (
+        <Modal title={`Request ${viewing.id}`} onClose={() => setViewing(null)}>
+          <dl className="grid grid-cols-2 gap-x-6 gap-y-4 text-[14px]">
+            {[
+              ["Customer", viewing.customer],
+              ["Email", viewing.email],
+              ["Phone", viewing.phone],
+              ["Preferred artist", viewing.artist],
+              ["Artwork type", viewing.type],
+              ["Size", viewing.size],
+              ["Style", viewing.style],
+              ["Budget", typeof viewing.budget === "number" ? formatINR(viewing.budget) : viewing.budget],
+              ["Deadline", viewing.deadline],
+              ["Requested on", viewing.requested],
+              ["Status", viewing.status],
+            ].map(([k, v]) => (
+              <div key={k}>
+                <dt className="text-[11.5px] uppercase tracking-[0.08em] text-[#A28F7D]">{k}</dt>
+                <dd className="mt-0.5 break-words text-[#362F26]">{v || "—"}</dd>
+              </div>
+            ))}
+          </dl>
+          {[["Project description", viewing.description], ["Additional notes", viewing.notes]].map(([k, v]) => (
+            <div key={k} className="mt-5">
+              <p className="text-[11.5px] uppercase tracking-[0.08em] text-[#A28F7D]">{k}</p>
+              <p className="mt-1 whitespace-pre-wrap text-[14px] leading-relaxed text-[#4A4037]">{v || "—"}</p>
+            </div>
+          ))}
+          {viewing.images?.length > 0 && (
+            <div className="mt-5">
+              <p className="text-[11.5px] uppercase tracking-[0.08em] text-[#A28F7D]">Reference images</p>
+              <ul className="mt-1 list-disc pl-5 text-[14px] text-[#4A4037]">
+                {viewing.images.map((n) => <li key={n}>{n}</li>)}
+              </ul>
+            </div>
+          )}
+        </Modal>
+      )}
+
       <div className="bg-white border border-[#E8E1DB] rounded-2xl overflow-x-auto shadow-sm">
         <table className="w-full text-left min-w-[1000px] border-collapse">
           <thead>
@@ -89,6 +151,7 @@ export default function CustomArtRequests() {
               <th className="px-6 py-4 font-medium">Budget</th>
               <th className="px-6 py-4 font-medium">Deadline</th>
               <th className="px-6 py-4 font-medium">Status</th>
+              <th className="px-6 py-4 font-medium">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -100,14 +163,23 @@ export default function CustomArtRequests() {
                 <td className="px-6 py-5 text-[14px] text-[#362F26]">
                   {r.artist}
                 </td>
-                <td className="px-6 py-5 text-[14px] font-medium text-[#362F26]">{formatINR(r.budget)}</td>
+                <td className="px-6 py-5 text-[14px] font-medium text-[#362F26]">{typeof r.budget === "number" ? formatINR(r.budget) : r.budget}</td>
                 <td className="px-6 py-5 text-[14px] text-[#A28F7D] whitespace-nowrap">{r.deadline}</td>
                 <td className="px-6 py-5"><StatusBadge status={r.status} /></td>
+                <td className="px-6 py-5">
+                  <button
+                    type="button"
+                    onClick={() => setViewing(r)}
+                    className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[#E8E1DB] px-3 text-[12.5px] font-medium text-[#6B5B4C] transition-colors hover:bg-[#F7F3EE] hover:text-[#362F26]"
+                  >
+                    <Eye size={14} /> View
+                  </button>
+                </td>
               </tr>
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-6 py-10 text-center text-[14px] text-[#A28F7D]">
+                <td colSpan={8} className="px-6 py-10 text-center text-[14px] text-[#A28F7D]">
                   No requests match these filters.
                 </td>
               </tr>
