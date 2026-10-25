@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import { Heart, X, ShoppingCart, CreditCard } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 import { IoMdBrush } from "react-icons/io";
@@ -17,7 +18,7 @@ import {
 } from "react-icons/md";
 import { LuTruck, LuHeadset } from "react-icons/lu";
 import { TfiMedall } from "react-icons/tfi";
-const MotionLink = motion(Link);
+const MotionLink = motion.create(Link);
 
 const mediums = [
   {
@@ -1197,6 +1198,7 @@ function ArtworkDetailModal({
 }
 
 const Home = () => {
+  const { user } = useAuth();
   const [selectedArtist, setSelectedArtist] = useState(null);
   const [selectedWork, setSelectedWork] = useState(null);
 
@@ -1549,9 +1551,9 @@ style={{
         <div className="mx-auto max-w-[1600px]">
           <div className="mb-8 flex flex-wrap items-end justify-between gap-5 border-b border-[#eee8e3] pb-6 sm:mb-10">
             <div>
-              <EyebrowLabel>Painting Collection</EyebrowLabel>
+              <EyebrowLabel>Featured Paintings</EyebrowLabel>
               <SectionHeading>
-                This week&apos;s exhibition
+                The curated collection of paintings
               </SectionHeading>
             </div>
             <MotionLink
@@ -1683,7 +1685,7 @@ style={{
         shadow-[0_25px_60px_rgba(20,13,9,0.20)]
       "
           >
-            {/* Fixed Close Button */}
+            {/* Close Button */}
             <button
               type="button"
               onClick={() => setSelectedArtist(null)}
@@ -1732,7 +1734,7 @@ style={{
               </span>
             </button>
 
-            {/* Scrollable Modal Content */}
+            {/* Modal Content */}
             <div
               className="
     max-h-[90vh]
@@ -2219,6 +2221,7 @@ hover:shadow-[0_12px_26px_rgba(65,43,31,0.08)]
         </div>
       </section>
 
+      {!user && (
       <section className="w-full bg-white px-4 py-10 sm:px-6 sm:py-12 md:px-8 md:py-14 lg:px-[5%] lg:py-16">
         <div className="mx-auto max-w-[1600px]">
           <motion.div
@@ -2300,6 +2303,7 @@ hover:shadow-[0_12px_26px_rgba(65,43,31,0.08)]
           </motion.div>
         </div>
       </section>
+      )}
     </div>
   );
 };
