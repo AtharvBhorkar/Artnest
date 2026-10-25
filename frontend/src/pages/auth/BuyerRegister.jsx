@@ -57,7 +57,7 @@ export default function BuyerSignup() {
             Welcome to ArtNest
           </motion.p>
           <motion.h1 variants={item} className="font-serif text-[26px] sm:text-[28px] leading-tight text-stone-900 mb-1.5">
-            Create your account
+            Create your Buyer account
           </motion.h1>
           <motion.p variants={item} className="text-[13px] text-stone-500 mb-5 max-w-sm">
             Discover and collect original art, handcrafted sculptures, and bespoke works from independent artists worldwide.

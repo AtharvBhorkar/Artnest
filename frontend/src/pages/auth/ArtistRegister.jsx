@@ -21,6 +21,15 @@ const Field = ({ label, ...props }) => (
     />
   </div>
 );
+const TextAreaField = ({ label, ...props }) => (
+  <div className="flex-1">
+    <label className="block text-[12px] font-medium text-stone-700 mb-1">{label}</label>
+    <textarea
+      {...props}
+      className="w-full rounded-lg border border-stone-200 bg-[#FBEFE6]/60 px-3 py-2 text-[13px] text-stone-800 placeholder:text-stone-400 outline-none transition focus:border-[#A5522F] focus:bg-white focus:ring-2 focus:ring-[#A5522F]/15 min-h-[80px] resize-y"
+    />
+  </div>
+);
 
 const container = {
   hidden: { opacity: 0 },
@@ -115,7 +124,6 @@ export default function ArtistSignup() {
             <span className="font-medium text-white/90">Global Guild</span>
           </div>
         </motion.div>
-
         <motion.div
           variants={container}
           initial="hidden"
@@ -150,6 +158,10 @@ export default function ArtistSignup() {
           <motion.div variants={item} className="mb-3">
             <Field label="Email Address" placeholder="e-mail" type="email" />
           </motion.div>
+          <motion.div variants={item} className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-3">
+            <Field label="Phone" placeholder="+91 98765 43210" type="tel" />
+            <Field label="Location" placeholder="City, Country" type="text" />
+          </motion.div>
 
           <motion.div variants={item} className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-3">
             <Field label="Password" placeholder="Min. 8 characters" type="password" />
@@ -158,7 +170,7 @@ export default function ArtistSignup() {
 
           <motion.div variants={item} className="mb-4">
             <div className="flex items-baseline justify-between mb-1.5">
-              <label className="text-[12px] font-medium text-stone-700">Primary Medium / Discipline</label>
+              <label className="text-[12px] font-medium text-stone-700">Primary Medium / Specialty</label>
               <span className="text-[10px] text-stone-400">Select all that apply</span>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -181,6 +193,12 @@ export default function ArtistSignup() {
                 );
               })}
             </div>
+          </motion.div>
+          <motion.div variants={item} className="mb-4">
+            <TextAreaField 
+              label="Bio" 
+              placeholder="Contemporary painter working with oils and acrylics, inspired by light, silence and everyday city life..." 
+            />
           </motion.div>
 
           <motion.label variants={item} className="flex items-start gap-2 mb-4 cursor-pointer select-none">
