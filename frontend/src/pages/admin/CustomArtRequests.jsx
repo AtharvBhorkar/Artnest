@@ -11,24 +11,22 @@ export function formatINR(amount) {
 }
 
 const CUSTOM_REQUESTS = [
-  { id: "CR-501", customer: "Priya Sharma", type: "Portrait Commission", artist: "Aarav Mehta", budget: 45000, deadline: "05 Oct 2026", requested: "18 Sep 2026", status: "New" },
-  { id: "CR-500", customer: "Rahul Kapoor", type: "Custom Sculpture", artist: "Kabir Verma", budget: 120000, deadline: "20 Oct 2026", requested: "17 Sep 2026", status: "Reviewing" },
-  { id: "CR-499", customer: "Sneha Iyer", type: "Digital Illustration", artist: "Riya Sharma", budget: 22000, deadline: "28 Sep 2026", requested: "16 Sep 2026", status: "Accepted" },
-  { id: "CR-498", customer: "Vikram Nair", type: "Abstract Canvas", artist: "Ananya Kapoor", budget: 38000, deadline: "12 Oct 2026", requested: "14 Sep 2026", status: "In Progress" },
-  { id: "CR-497", customer: "Ishaan Joshi", type: "Family Portrait", artist: "Aarav Mehta", budget: 52000, deadline: "01 Oct 2026", requested: "10 Sep 2026", status: "Completed" },
-  { id: "CR-496", customer: "Divya Menon", type: "Pet Portrait", artist: "Devika Rao", budget: 15000, deadline: "22 Sep 2026", requested: "08 Sep 2026", status: "Rejected" },
+  { id: "CR-501", customer: "Priya Sharma", type: "Portrait Commission", artist: "Aarav Mehta", budget: 45000, deadline: "05 Oct 2026", requested: "18 Sep 2026", status: "Not started" },
+  { id: "CR-500", customer: "Rahul Kapoor", type: "Custom Sculpture", artist: "Kabir Verma", budget: 120000, deadline: "20 Oct 2026", requested: "17 Sep 2026", status: "Sketching" },
+  { id: "CR-499", customer: "Sneha Iyer", type: "Digital Illustration", artist: "Riya Sharma", budget: 22000, deadline: "28 Sep 2026", requested: "16 Sep 2026", status: "Sketching" },
+  { id: "CR-498", customer: "Vikram Nair", type: "Abstract Canvas", artist: "Ananya Kapoor", budget: 38000, deadline: "12 Oct 2026", requested: "14 Sep 2026", 	status: "In progress" },
+  { id: "CR-497", customer: "Ishaan Joshi", type: "Family Portrait", artist: "Aarav Mehta", budget: 52000, deadline: "01 Oct 2026", requested: "10 Sep 2026", status: "Finishing" },
+  { id: "CR-496", customer: "Divya Menon", type: "Pet Portrait", artist: "Devika Rao", budget: 15000, deadline: "22 Sep 2026", requested: "08 Sep 2026", status: "Not started" },
 ];
 
-const STATUSES = ["All statuses", "New", "Reviewing", "Accepted", "In Progress", "Completed", "Rejected"];
+const STATUSES = ["All statuses", "Not started", "Sketching", "In progress", "Finishing"];
 
 function StatusBadge({ status }) {
   const map = {
-    New: "bg-[#F6E7D0] text-[#8A5A22]",
-    Reviewing: "bg-[#F6E7D0] text-[#8A5A22]",
-    "In Progress": "bg-[#F6E7D0] text-[#8A5A22]",
-    Accepted: "bg-[#E7EEDD] text-[#4C6B3F]",
-    Completed: "bg-[#E7EEDD] text-[#4C6B3F]",
-    Rejected: "bg-[#F6DFDA] text-[#9B3B2E]",
+    "Not started": "bg-[#EFE9E1] text-[#736153]",
+    Sketching: "bg-[#F6E7D0] text-[#8A5A22]",
+    "In progress": "bg-[#F6E7D0] text-[#8A5A22]",
+    Finishing: "bg-[#E7EEDD] text-[#4C6B3F]",
   };
   const cls = map[status] || "bg-[#EFE9E1] text-[#736153]";
   return (
@@ -52,7 +50,7 @@ function loadBuyerRequests() {
       customer: r.name || "Buyer",
       deadline: fmtDate(r.deadline),
       requested: fmtDate(r.requested),
-      status: r.status || "New",
+      status: ["Not started", "Sketching", "In progress", "Finishing"].includes(r.status) ? r.status : "Not started",
     }));
   } catch {
     return [];

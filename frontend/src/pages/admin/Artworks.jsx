@@ -66,6 +66,26 @@ export const ARTWORKS = [
   },
 ];
 
+const unsplash = (id) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=600&q=80`;
+const EXTRA_IMAGES = {
+  Painting: ["1579783902614-a3fb3927b6a5", "1578926288207-a90a5366759d", "1549289524-06cf8837ace5"].map(unsplash),
+  "Digital Art": ["1620121692029-d088224ddc74", "1513364776144-60967b0f800f", "1547891654-e66ed7ebb968"].map(unsplash),
+  Sculpture: ["1554188248-986adbb73be4", "1544967082-d9d25d867d66", "1577083552431-6e5fd01aa342"].map(unsplash),
+  "Abstract Art": ["1549289524-06cf8837ace5", "1541961017774-22349e4a1262", "1549490349-8643362247b5"].map(unsplash),
+  Photography: ["1519681393784-d120267933ba", "1500534623283-312aade485b7", "1500530855697-b586d89ba3ee"].map(unsplash),
+};
+
+function getArtworkImages(a) {
+  let own = [];
+  try {
+    const s = (JSON.parse(localStorage.getItem("artnest_artist_artworks")) || []).find((x) => x.title === a.title);
+    if (s) own = (s.images?.length ? s.images : [s.img]).filter(Boolean);
+  } catch {}
+  if (!own.length && a.image) own = [a.image];
+  const extras = (EXTRA_IMAGES[a.category] || []).filter((u) => !own.includes(u));
+  return [...own, ...extras].slice(0, 3);
+}
+
 const CATEGORIES = ["All categories", "Painting", "Digital Art", "Sculpture", "Abstract Art", "Photography"];
 const PRICE_BANDS = ["Any price", "Under ₹20,000", "₹20,000 – ₹60,000", "Above ₹60,000"];
 const STATUSES = ["All statuses", "Approved", "Pending", "Rejected"];
@@ -124,6 +144,30 @@ function ArtworkImage({ src, alt, className = "" }) {
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">
           <ImageIcon size={24} className="text-[#C4B7A8]" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ArtworkGallery({ artwork }) {
+  const images = getArtworkImages(artwork);
+  const [active, setActive] = useState(0);
+  return (
+    <div>
+      <ArtworkImage src={images[active]} alt={artwork.title} className="h-56 w-full rounded-xl" />
+      {images.length > 1 && (
+        <div className="mt-2 grid grid-cols-3 gap-2">
+          {images.map((src, i) => (
+            <button
+              key={src}
+              type="button"
+              onClick={() => setActive(i)}
+              className={`overflow-hidden rounded-lg border-2 transition-colors ${active === i ? "border-[#9F5639]" : "border-transparent"}`}
+            >
+              <ArtworkImage src={src} alt={`${artwork.title} view ${i + 1}`} className="h-16 w-full" />
+            </button>
+          ))}
         </div>
       )}
     </div>
@@ -560,11 +604,7 @@ export default function Artworks() {
       >
         {activeArtwork && (
           <div className="space-y-5">
-            <ArtworkImage
-              src={activeArtwork.image}
-              alt={activeArtwork.title}
-              className="h-40 w-full rounded-xl"
-            />
+            <ArtworkGallery key={activeArtwork.id} artwork={activeArtwork} />
 
             <div>
               <h3 className="text-[18px] font-semibold text-[#362F26]">{activeArtwork.title}</h3>
