@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import discVideo from "../../assets/disc.mp4";
 import { useWishlist } from "../../context/WishlistContext";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
 import {
   Search, Heart, SlidersHorizontal, X, ChevronDown, ChevronLeft, ChevronRight,
   LayoutGrid, List, Eye, ArrowUpRight, ShoppingBag, Check, MapPin, Ruler, Sparkles, Star, ArrowLeft,
@@ -388,7 +389,8 @@ function ArtworkDetailModal({ art, onClose, favorite, toggleFavorite }) {
   const gallery = (art?.images?.length ? art.images : [art?.img]).filter(Boolean).slice(0, 3);
   const [activeImg, setActiveImg] = useState(gallery[0]);
   const { inCart, toggleCart } = useCart();
-  const navigate = useNavigate();
+  const { blockIfArtist } = useAuth();
+const navigate = useNavigate();
 
   useEffect(() => {
     if (!toast) return;
@@ -420,8 +422,9 @@ function ArtworkDetailModal({ art, onClose, favorite, toggleFavorite }) {
     setToast(favorite ? "Removed from wishlist" : "Added to wishlist");
   };
   const handleCart = () => {
-    if (carted) return navigate("/cart");
-    toggleCart(art);
+    if (blockIfArtist()) return;
+if (carted) return navigate("/cart");
+toggleCart(art);
     setToast("Added to cart");
   };
 

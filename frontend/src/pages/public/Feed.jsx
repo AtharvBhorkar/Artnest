@@ -364,8 +364,8 @@ export default function Feed() {
   const [searchParams] = useSearchParams();
   const { favorites, toggle } = useWishlist();
   const { inCart, toggleCart } = useCart();
-  const { user } = useAuth();
-  const ARTWORKS = useMemo(loadOffers, []);
+const { user, blockIfArtist } = useAuth();
+const ARTWORKS = useMemo(loadOffers, []);
 
   const scrollerRef = useRef(null);
   const [active, setActive] = useState(0);
@@ -468,8 +468,9 @@ export default function Feed() {
     setToast(saved ? "Removed from wishlist" : "Added to wishlist");
   };
 
-  const handleCart = (art) => {
-    const has = inCart.has(art.id);
+const handleCart = (art) => {
+if (blockIfArtist()) return;
+const has = inCart.has(art.id);
     toggleCart(art);
     setToast(has ? "Removed from cart" : "Added to cart");
   };

@@ -4,13 +4,15 @@ import { Heart, ShoppingBag, Link2, ArrowLeft, Check } from "lucide-react";
 import { getArtwork, CATEGORY_LABELS } from "../../data/artworks";
 import { useWishlist } from "../../context/WishlistContext";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
 
 export default function ArtworkDetail() {
   const { id } = useParams();
   const art = getArtwork(id);
   const { favorites, toggle } = useWishlist();
-  const { inCart, toggleCart } = useCart();
-  const [copied, setCopied] = useState(false);
+const { inCart, toggleCart } = useCart();
+const { blockIfArtist } = useAuth();
+const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -89,7 +91,10 @@ export default function ArtworkDetail() {
               <button
                 type="button"
                 className={`aw-primary ${carted ? "is-on" : ""}`}
-                onClick={() => toggleCart(art)}
+                onClick={() => {
+                  if (blockIfArtist()) return;
+                  toggleCart(art);
+                }}
               >
                 <ShoppingBag size={17} strokeWidth={1.8} />
                 {carted ? "Added to cart" : "Add to cart"}

@@ -874,6 +874,7 @@ function ArtworkDetailModal({
   onAddToCart,
 }) {
 
+  const { blockIfArtist } = useAuth();
   const [activeImage, setActiveImage] = useState(
     work.images?.[0] || work.img
   );
@@ -1111,6 +1112,7 @@ function ArtworkDetailModal({
                 <motion.button
                   type="button"
                   onClick={() => {
+                    if (blockIfArtist()) return;
                     localStorage.setItem(
                       "artnest-buy-now",
                       JSON.stringify(work)
@@ -1198,7 +1200,7 @@ function ArtworkDetailModal({
 }
 
 const Home = () => {
-  const { user } = useAuth();
+ const { user, blockIfArtist } = useAuth();
   const [selectedArtist, setSelectedArtist] = useState(null);
   const [selectedWork, setSelectedWork] = useState(null);
 
@@ -1232,8 +1234,9 @@ const Home = () => {
     });
   };
 
-  const addToCart = (work) => {
-    setCart((currentCart) => {
+const addToCart = (work) => {
+   if (blockIfArtist()) return;
+setCart((currentCart) => {
       const alreadyExists = currentCart.some(
         (item) => item.title === work.title
       );

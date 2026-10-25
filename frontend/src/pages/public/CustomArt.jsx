@@ -583,7 +583,7 @@ function Head({ title, sub, shine }) {
 }
 
 export default function CustomArt() {
-  const { user } = useAuth();
+const { user, blockIfArtist } = useAuth();
   const reduce = useReducedMotion();
   const [form, setForm] = useState(() => makeEmpty(user));
   const [errors, setErrors] = useState({});
@@ -677,8 +677,9 @@ export default function CustomArt() {
 
   const submit = (e) => {
     e.preventDefault();
-    if (phase !== "form") return;
-    const errs = validate();
+if (phase !== "form") return;
+if (blockIfArtist()) return;
+const errs = validate();
     setErrors(errs);
     const first = REQUIRED.find((k) => errs[k]);
     if (first) {
