@@ -4,7 +4,9 @@ import artistVideo from "../../assets/artist.mp4";
 
 const ARTIST_LOGIN_PATH = "/artist/login";
 const DISCOVER_PATH = "/discover";
-const STICKY_TOP = 80;
+// Height of your site navbar. Adjust if your navbar differs per breakpoint.
+const NAV_MOBILE = 64;   // below lg (1024px)
+const NAV_DESKTOP = 80;  // lg and up
 const HEADING = "font-serif";
 const SPOTLIGHT_ID = "elora-vance";
 
@@ -29,6 +31,25 @@ const RAW = [
   { name: "Julien Moreau", craft: "Painting", medium: "Oil painting", location: "Normandy, France", since: 2006, bio: "Julien paints the Normandy coast outdoors in all weather, finishing in the studio only while the sea air is still in the canvas.", quote: "I paint what the weather lets me keep.", portrait: "1560250097-0b93528c311a", works: ["1577083552431-6e5fd01aa342", "1541701494587-cb58502866ab", "1561214115-f2f134cc4912"] },
   { name: "Mei-Ling Tan", craft: "Pottery", medium: "Ceramics", location: "Hsinchu, Taiwan", since: 2013, bio: "Mei-Ling fires porcelain with celadon glazes, aiming for the quiet green of rain on leaves.", quote: "The kiln always has the final say.", portrait: "1580489944761-15a19d654956", works: ["1565193566173-7a0ee3dbe261", "1610701596007-11502861dcfa", "1578749556568-bc2c40e68b61"] },
   { name: "Rowan Campbell", craft: "Carving", medium: "Woodcraft", location: "Edinburgh, UK", since: 2010, bio: "Rowan carves Scottish oak and ash with hand tools only, leaving the chisel marks as part of the finished piece.", quote: "I leave the marks. They show a person was here.", portrait: "1472099645785-5658abf4ff4e", works: ["1513519245088-0e12902e5a38", "1582561424760-0321d75e81fa", "1579783900882-c0d3dad7b119"] },
+  // ---- Painting ----
+  { name: "Isabela Ferreira", craft: "Painting", medium: "Watercolour & gouache", location: "Lisbon, Portugal", since: 2012, bio: "Isabela paints the tiled facades and tidal light of Lisbon in loose watercolour washes, then sharpens the edges with opaque gouache.", quote: "Water does half the painting. I just decide when to stop it.", portrait: "1494790108377-be9c29b29330", works: ["1578926375605-eaf7559b1458", "1577083552431-6e5fd01aa342", "1561214115-f2f134cc4912"] },
+  // ---- Sculpture ----
+  { name: "Tomasz Nowak", craft: "Sculpture", medium: "Welded steel", location: "Kraków, Poland", since: 2009, bio: "Tomasz cuts and welds salvaged steel into tall, balanced forms that look heavy and feel almost weightless.", quote: "Steel has a memory of fire. I give it a new one.", portrait: "1535713875002-d1d0cf377fde", works: ["1515569067071-ec3b4a3c3a4d", "1582561424760-0321d75e81fa", "1549490349-8643362247b5"] },
+  { name: "Noor Al-Rashid", craft: "Sculpture", medium: "Kiln-cast glass", location: "Amman, Jordan", since: 2015, bio: "Noor casts glass in sand and plaster moulds, trapping bubbles and colour inside pieces that change with the light in the room.", quote: "Glass is the only material that lets you hold light.", portrait: "1531746020798-e6953c6e8e04", works: ["1577083552431-6e5fd01aa342", "1515569067071-ec3b4a3c3a4d", "1513519245088-0e12902e5a38"] },
+  // ---- Pottery ----
+  { name: "Kaito Mori", craft: "Pottery", medium: "Wood-fired stoneware", location: "Bizen, Japan", since: 2008, bio: "Kaito fires unglazed stoneware in a wood kiln for ten days, letting ash and flame decide the colour of every piece.", quote: "I build the pot. The fire signs it.", portrait: "1527980965255-d3b416303d12", works: ["1578749556568-bc2c40e68b61", "1493106641515-6b5631de4bb9", "1565193566173-7a0ee3dbe261"] },
+  // ---- Carving ----
+  { name: "Ingrid Solheim", craft: "Carving", medium: "Birch & spruce relief carving", location: "Bergen, Norway", since: 2011, bio: "Ingrid carves flowing relief panels in Norwegian birch, drawing on the old stave-church tradition of vines and animals.", quote: "A good carving looks like the wood was always going to say this.", portrait: "1489424731084-a5d8b219a5bb", works: ["1579783900882-c0d3dad7b119", "1513519245088-0e12902e5a38", "1582561424760-0321d75e81fa"] },
+  { name: "Tomás Herrera", craft: "Carving", medium: "Olive wood bowls & utensils", location: "Granada, Spain", since: 2013, bio: "Tomás turns and carves fallen olive wood from nearby groves into bowls and spoons, keeping the twisting grain visible.", quote: "Every branch already knows its shape. I clear the way.", portrait: "1568602471122-7832951cc4c5", works: ["1582561424760-0321d75e81fa", "1549490349-8643362247b5", "1579783900882-c0d3dad7b119"] },
+  { name: "Kofi Mensah", craft: "Carving", medium: "Ebony & iroko figures", location: "Kumasi, Ghana", since: 2006, bio: "Kofi carves ebony and iroko figures in the Ashanti tradition, polishing each one by hand until the wood glows.", quote: "My father carved stools. I carve the people who sit on them.", portrait: "1599566150163-29194dcaad36", works: ["1549490349-8643362247b5", "1513519245088-0e12902e5a38", "1579783900882-c0d3dad7b119"] },
+  // ---- Weaving ----
+  { name: "Priya Nair", craft: "Weaving", medium: "Handloom silk & cotton", location: "Varanasi, India", since: 2010, bio: "Priya weaves silk and cotton on a pit loom, reworking classic Banarasi motifs into scarves and wall hangings.", quote: "One saree can hold a month of someone's patience.", portrait: "1508214751196-bcfd4ca60f91", works: ["1544816155-12df9643f363", "1600585154340-be6161a56a0c", "1584551246679-0daf3d275d0f"] },
+  { name: "Lucía Quispe", craft: "Weaving", medium: "Alpaca wool tapestry", location: "Cusco, Peru", since: 2007, bio: "Lucía spins and dyes alpaca wool with plants from the Andean valleys, weaving tapestries that follow patterns her family has used for generations.", quote: "The mountains give the colours. My hands give the order.", portrait: "1517841905240-472988babdf9", works: ["1584551246679-0daf3d275d0f", "1544816155-12df9643f363", "1600585154340-be6161a56a0c"] },
+  { name: "Ebba Lindqvist", craft: "Weaving", medium: "Linen rugs & runners", location: "Dalarna, Sweden", since: 2012, bio: "Ebba weaves rugs and runners from linen and recycled fabric, using a Swedish rag-rug technique with a modern, quiet palette.", quote: "Old cloth deserves a second life underfoot.", portrait: "1522529599102-193c0d76b5b6", works: ["1600585154340-be6161a56a0c", "1584551246679-0daf3d275d0f", "1544816155-12df9643f363"] },
+  // ---- Printmaking ----
+  { name: "Hiro Tanabe", craft: "Printmaking", medium: "Woodblock prints", location: "Tokyo, Japan", since: 2009, bio: "Hiro carves each colour into a separate cherry block and prints by hand, building city scenes layer by layer.", quote: "Every colour is another block, another chance to be wrong.", portrait: "1463453091185-61582044d556", works: ["1501004318641-b39e6451bec6", "1549887534-1541e9326642", "1460661419201-fd4cecdf8a8b"] },
+  { name: "Camille Laurent", craft: "Printmaking", medium: "Etching & aquatint", location: "Paris, France", since: 2011, bio: "Camille bites fine lines into copper plates with acid, then adds soft aquatint tones for quiet, grainy interiors.", quote: "The acid works while I wait. Waiting is the craft.", portrait: "1494790108377-be9c29b29330", works: ["1549887534-1541e9326642", "1460661419201-fd4cecdf8a8b", "1501004318641-b39e6451bec6"] },
+  { name: "Marisol Vega", craft: "Printmaking", medium: "Linocut & screen print", location: "Mexico City, Mexico", since: 2016, bio: "Marisol combines bold linocut shapes with screen-printed colour fields, making posters and editions inspired by Mexican street life.", quote: "A print should be loud enough to be seen across the street.", portrait: "1531746020798-e6953c6e8e04", works: ["1460661419201-fd4cecdf8a8b", "1501004318641-b39e6451bec6", "1549887534-1541e9326642"] },
 ];
 
 const SECTIONS = [
@@ -161,13 +182,15 @@ const LEFT = "M15 19l-7-7 7-7";
 const RIGHT = "M9 5l7 7-7 7";
 const USER = "M16 7a4 4 0 11-8 0 4 4 0 018 0zM4 21a8 8 0 0116 0";
 const PIN = "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z";
+const DOWN = "M19 9l-7 7-7-7";
 
 const ring = "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A9462A]";
 const primaryBtn = `bg-gradient-to-b from-[#B54D2C] to-[#8F3A22] hover:from-[#A9462A] hover:to-[#7E321D] text-white font-semibold shadow-md hover:shadow-lg cursor-pointer transition-all hover:-translate-y-0.5 active:scale-95 ${ring}`;
+const heroTile = `group relative block w-full cursor-pointer rounded-xl border border-white/20 bg-white/10 px-2 py-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-[#fbbf24]/50 hover:bg-white/20 active:scale-95 sm:rounded-2xl sm:px-3 sm:py-4 ${ring}`;
 
 function ArtistCard({ artist, onOpen }) {
   return (
-    <article className="ath-card group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_8px_24px_rgba(120,60,40,0.08)] ring-1 ring-[#EBD9CF]/50 hover:ring-[#A9462A]/30">
+    <article className="ath-card group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-[0_8px_24px_rgba(120,60,40,0.08)] ring-1 ring-[#EBD9CF]/50 hover:ring-[#A9462A]/30">
       <button
         type="button"
         onClick={() => onOpen(artist.id)}
@@ -189,7 +212,7 @@ function ArtistCard({ artist, onOpen }) {
         <div className="flex items-center gap-2.5">
           <Avatar artist={artist} className="h-10 w-10" />
           <div className="min-w-0">
-            <h3 className={`${HEADING} text-lg leading-snug text-[#1F1410]`}>{artist.name}</h3>
+            <h3 className={`${HEADING} truncate text-lg leading-snug text-[#1F1410]`}>{artist.name}</h3>
             <p className="truncate text-xs text-[#7A6258]">{artist.location}</p>
           </div>
         </div>
@@ -201,7 +224,7 @@ function ArtistCard({ artist, onOpen }) {
           <p className="text-xs text-[#7A6258]">
             <span className="font-semibold text-[#A9462A]">{artist.works.length}</span> artworks
           </p>
-          <button type="button" onClick={() => onOpen(artist.id)} className={`rounded-lg px-3.5 py-1.5 text-xs ${primaryBtn}`}>
+          <button type="button" onClick={() => onOpen(artist.id)} className={`rounded-lg px-3.5 py-2 text-xs ${primaryBtn}`}>
             View artist
           </button>
         </div>
@@ -233,50 +256,57 @@ function QuickView({ artist, position, total, onPrev, onNext, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center sm:p-6 animate-[fadeIn_.25s_ease-out]"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm md:items-center md:p-6 animate-[fadeIn_.25s_ease-out]"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label={`${artist.name} quick view`}
     >
       <div
-        className="max-h-[94vh] w-full overflow-y-auto rounded-t-3xl bg-[#FFF9F5] shadow-2xl ring-1 ring-[#EBD9CF] sm:max-w-5xl sm:rounded-3xl animate-[slideUp_.4s_cubic-bezier(.22,1,.36,1)]"
+        className="relative max-h-[94dvh] w-full overflow-y-auto overscroll-contain rounded-t-3xl bg-[#FFF9F5] shadow-2xl ring-1 ring-[#EBD9CF] md:max-w-5xl md:rounded-3xl animate-[slideUp_.4s_cubic-bezier(.22,1,.36,1)]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="grid sm:grid-cols-2">
+        <div className="sticky top-0 z-20 h-0">
+          <button
+            ref={closeRef}
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className={`absolute right-3 top-3 rounded-full bg-white/90 p-2.5 text-[#5C453B] shadow-md backdrop-blur hover:bg-white hover:text-[#A9462A] transition-colors cursor-pointer ${ring}`}
+          >
+            <Icon d={CLOSE} className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="grid md:grid-cols-2">
           <div className="relative overflow-hidden">
             <Photo
               key={work.image}
               src={work.image}
               alt={`Artwork ${active + 1} by ${artist.name}`}
-              className="aspect-[4/3] w-full object-cover sm:aspect-auto sm:h-full sm:min-h-[440px] transition-transform duration-700 hover:scale-105"
+              className="aspect-[4/3] w-full object-cover md:aspect-auto md:h-full md:min-h-[440px] transition-transform duration-700 hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
           </div>
 
-          <div className="flex flex-col gap-3 p-6 sm:p-8">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-4">
-                <Avatar artist={artist} className="h-14 w-14" />
-                <div>
-                  <p className="mb-1 text-xs font-semibold tracking-[0.14em] bg-gradient-to-r from-[#A9462A] to-[#d97706] bg-clip-text text-transparent">
-                    {artist.craft.toUpperCase()}
-                  </p>
-                  <h2 className={`${HEADING} text-3xl leading-tight text-[#1F1410]`}>{artist.name}</h2>
-                </div>
+          <div className="flex min-w-0 flex-col gap-3 p-5 sm:p-8">
+            <div className="flex items-center gap-3 sm:gap-4 md:pr-10">
+              <Avatar artist={artist} className="h-12 w-12 sm:h-14 sm:w-14" />
+              <div className="min-w-0">
+                <p className="mb-1 text-xs font-semibold tracking-[0.14em] bg-gradient-to-r from-[#A9462A] to-[#d97706] bg-clip-text text-transparent">
+                  {artist.craft.toUpperCase()}
+                </p>
+                <h2 className={`${HEADING} text-2xl leading-tight text-[#1F1410] sm:text-3xl`}>{artist.name}</h2>
               </div>
-              <button ref={closeRef} type="button" onClick={onClose} aria-label="Close" className={`rounded-full p-2 text-[#7A6258] hover:bg-white hover:text-[#A9462A] transition-colors cursor-pointer ${ring}`}>
-                <Icon d={CLOSE} className="w-5 h-5" />
-              </button>
             </div>
 
-            <span className="flex items-center gap-1 text-sm text-[#7A6258]">
-              <Icon d={PIN} className="w-3.5 h-3.5" /> {artist.location} · Making art since {artist.since}
+            <span className="flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm text-[#7A6258]">
+              <Icon d={PIN} className="w-3.5 h-3.5 shrink-0" /> {artist.location} · Making art since {artist.since}
             </span>
 
             <p className="mt-1 text-base leading-relaxed text-[#3A2A22]">{artist.bio}</p>
 
-            <blockquote className={`${HEADING} border-l-4 border-[#A9462A] pl-4 text-lg italic leading-snug text-[#5C453B] bg-gradient-to-r from-[#FBEFE9]/60 to-transparent py-2`}>
+            <blockquote className={`${HEADING} border-l-4 border-[#A9462A] pl-4 text-base italic leading-snug text-[#5C453B] sm:text-lg bg-gradient-to-r from-[#FBEFE9]/60 to-transparent py-2`}>
               "{artist.quote}"
             </blockquote>
 
@@ -286,16 +316,16 @@ function QuickView({ artist, position, total, onPrev, onNext, onClose }) {
             </div>
 
             <div className="mt-auto flex flex-wrap gap-2 pt-2">
-              <Link to={DISCOVER_PATH} className={`rounded-lg px-5 py-2.5 text-sm ${primaryBtn}`}>
+              <Link to={DISCOVER_PATH} className={`w-full rounded-lg px-5 py-3 text-center text-sm sm:w-auto sm:py-2.5 ${primaryBtn}`}>
                 Browse artworks
               </Link>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-[#EBD9CF] px-6 py-5 sm:px-8">
-          <h3 className={`${HEADING} text-xl text-[#1F1410]`}>Artworks by {artist.name}</h3>
-          <ul className="mt-3 grid grid-cols-3 gap-3 sm:gap-4">
+        <div className="border-t border-[#EBD9CF] px-5 py-5 sm:px-8">
+          <h3 className={`${HEADING} text-lg text-[#1F1410] sm:text-xl`}>Artworks by {artist.name}</h3>
+          <ul className="mt-3 grid grid-cols-3 gap-2 sm:gap-4">
             {artist.works.map((w, i) => (
               <li key={i}>
                 <button type="button" onClick={() => setActive(i)} aria-pressed={i === active} aria-label={`Show artwork ${i + 1}`} className={`block w-full cursor-pointer text-left ${ring} rounded-xl`}>
@@ -308,13 +338,16 @@ function QuickView({ artist, position, total, onPrev, onNext, onClose }) {
           </ul>
         </div>
 
-        <div className="flex items-center justify-between border-t border-[#EBD9CF] px-5 py-3 text-sm text-[#7A6258] sm:px-8">
-          <button type="button" onClick={onPrev} className={`inline-flex items-center gap-1 rounded-lg px-2 py-1.5 hover:bg-white hover:text-[#A9462A] cursor-pointer transition-colors ${ring}`}>
-            <Icon d={LEFT} /> Previous artist
+        <div
+          className="flex items-center justify-between gap-2 border-t border-[#EBD9CF] px-3 py-3 text-sm text-[#7A6258] sm:px-8"
+          style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+        >
+          <button type="button" onClick={onPrev} aria-label="Previous artist" className={`inline-flex items-center gap-1 rounded-lg px-3 py-2.5 hover:bg-white hover:text-[#A9462A] cursor-pointer transition-colors ${ring}`}>
+            <Icon d={LEFT} /> Previous<span className="hidden sm:inline">&nbsp;artist</span>
           </button>
           <span className="font-medium text-[#A9462A]">{position} of {total}</span>
-          <button type="button" onClick={onNext} className={`inline-flex items-center gap-1 rounded-lg px-2 py-1.5 hover:bg-white hover:text-[#A9462A] cursor-pointer transition-colors ${ring}`}>
-            Next artist <Icon d={RIGHT} />
+          <button type="button" onClick={onNext} aria-label="Next artist" className={`inline-flex items-center gap-1 rounded-lg px-3 py-2.5 hover:bg-white hover:text-[#A9462A] cursor-pointer transition-colors ${ring}`}>
+            Next<span className="hidden sm:inline">&nbsp;artist</span> <Icon d={RIGHT} />
           </button>
         </div>
       </div>
@@ -324,41 +357,41 @@ function QuickView({ artist, position, total, onPrev, onNext, onClose }) {
 
 function Spotlight({ artist, onOpen }) {
   return (
-    <section className="ath-reveal relative mb-16 grid items-center gap-8 lg:grid-cols-5 lg:gap-12" aria-label={`Artist spotlight: ${artist.name}`}>
+    <section className="ath-reveal relative mb-12 grid items-center gap-6 sm:mb-16 sm:gap-8 lg:grid-cols-5 lg:gap-12" aria-label={`Artist spotlight: ${artist.name}`}>
       <div className="absolute -inset-4 bg-[radial-gradient(ellipse_50%_70%_at_30%_50%,rgba(251,191,36,.18),transparent_70%)] pointer-events-none rounded-3xl" aria-hidden="true" />
 
       <div className="relative lg:col-span-3">
-        <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-2 group min-h-[240px] overflow-hidden rounded-3xl bg-[#F1E4DC] shadow-[0_20px_50px_rgba(120,60,40,0.18)] ring-1 ring-[#EBD9CF]">
+        <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
+          <div className="col-span-2 group min-h-[200px] overflow-hidden rounded-2xl bg-[#F1E4DC] shadow-[0_20px_50px_rgba(120,60,40,0.18)] ring-1 ring-[#EBD9CF] sm:min-h-[260px] sm:rounded-3xl">
             <Photo src={artist.works[1].image} alt={`Featured artwork by ${artist.name}`} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
           </div>
-          <div className="flex flex-col gap-4">
-            <div className="group overflow-hidden rounded-2xl bg-[#F1E4DC] shadow-md">
+          <div className="flex flex-col gap-2.5 sm:gap-4">
+            <div className="group overflow-hidden rounded-xl bg-[#F1E4DC] shadow-md sm:rounded-2xl">
               <Photo src={artist.works[0].thumb} alt={`Artwork by ${artist.name}`} className="aspect-[4/3] w-full object-cover transition-transform duration-700 group-hover:scale-110" />
             </div>
-            <div className="group overflow-hidden rounded-2xl bg-[#F1E4DC] shadow-md">
+            <div className="group overflow-hidden rounded-xl bg-[#F1E4DC] shadow-md sm:rounded-2xl">
               <Photo src={artist.works[2].thumb} alt={`Artwork by ${artist.name}`} className="aspect-[4/3] w-full object-cover transition-transform duration-700 group-hover:scale-110" />
             </div>
             <div className="mt-auto self-end ath-float">
-              <Avatar artist={artist} className="h-20 w-20" />
+              <Avatar artist={artist} className="h-14 w-14 sm:h-20 sm:w-20" />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="lg:col-span-2">
+      <div className="relative lg:col-span-2">
         <p className="mb-3 inline-flex items-center gap-2 text-xs font-semibold tracking-[0.14em] text-[#A9462A]">
           <span className="inline-block h-px w-8 bg-gradient-to-r from-[#A9462A] to-transparent" />
           ARTIST SPOTLIGHT
         </p>
-        <h2 className={`${HEADING} ath-grad-text text-4xl leading-tight sm:text-5xl`}>{artist.name}</h2>
+        <h2 className={`${HEADING} ath-grad-text text-3xl leading-tight sm:text-4xl lg:text-5xl`}>{artist.name}</h2>
         <p className="mt-2 text-sm text-[#7A6258]">{artist.medium} · {artist.location}</p>
         <p className="mt-4 text-base leading-relaxed text-[#3A2A22]">{artist.bio}</p>
-        <blockquote className={`${HEADING} relative mt-5 border-l-4 border-[#A9462A] pl-5 text-2xl italic leading-snug text-[#5C453B]`}>
+        <blockquote className={`${HEADING} relative mt-5 border-l-4 border-[#A9462A] pl-4 text-xl italic leading-snug text-[#5C453B] sm:pl-5 sm:text-2xl`}>
           <span className="absolute -left-2 -top-3 text-5xl text-[#A9462A]/30 font-serif leading-none" aria-hidden="true">"</span>
           {artist.quote}
         </blockquote>
-        <button type="button" onClick={() => onOpen(artist.id)} className={`mt-6 rounded-xl px-7 py-3.5 text-sm ${primaryBtn}`}>
+        <button type="button" onClick={() => onOpen(artist.id)} className={`mt-6 w-full rounded-xl px-7 py-3.5 text-sm sm:w-auto ${primaryBtn}`}>
           See {artist.name.split(" ")[0]}'s work
         </button>
       </div>
@@ -368,13 +401,13 @@ function Spotlight({ artist, onOpen }) {
 
 function Studio() {
   return (
-    <section className="ath-reveal mb-16" aria-label="Inside the studio">
-      <div className="mb-10 max-w-2xl">
+    <section className="ath-reveal mb-12 sm:mb-16" aria-label="Inside the studio">
+      <div className="mb-8 max-w-2xl sm:mb-10">
         <p className="mb-2 inline-flex items-center gap-2 text-xs font-semibold tracking-[0.14em] text-[#A9462A]">
           <span className="inline-block h-px w-8 bg-gradient-to-r from-[#A9462A] to-transparent" />
           THE PROCESS
         </p>
-        <h2 className={`${HEADING} ath-grad-text text-3xl leading-tight sm:text-5xl`}>
+        <h2 className={`${HEADING} ath-grad-text text-3xl leading-tight sm:text-4xl lg:text-5xl`}>
           What goes into a piece
         </h2>
         <p className="mt-3 text-base leading-relaxed text-[#5C453B] sm:text-lg">
@@ -382,25 +415,25 @@ function Studio() {
         </p>
       </div>
 
-      <div className="relative grid gap-6 md:grid-cols-3">
-        <div className="hidden md:block absolute top-16 left-[16.66%] right-[16.66%] h-px bg-gradient-to-r from-transparent via-[#A9462A]/40 to-transparent pointer-events-none" aria-hidden="true" />
+      <div className="relative grid gap-5 sm:gap-6 lg:grid-cols-3">
+        <div className="hidden lg:block absolute top-16 left-[16.66%] right-[16.66%] h-px bg-gradient-to-r from-transparent via-[#A9462A]/40 to-transparent pointer-events-none" aria-hidden="true" />
 
         {STUDIO.map((s, i) => (
           <article
             key={s.title}
-            className={`ath-reveal ath-d${i + 1} group relative overflow-hidden rounded-3xl bg-white shadow-[0_10px_30px_rgba(120,60,40,0.08)] ring-1 ring-[#EBD9CF]/60 hover:ring-[#A9462A]/30 transition-all hover:-translate-y-1`}
+            className={`ath-reveal ath-d${i + 1} group relative overflow-hidden rounded-3xl bg-white shadow-[0_10px_30px_rgba(120,60,40,0.08)] ring-1 ring-[#EBD9CF]/60 hover:ring-[#A9462A]/30 transition-all hover:-translate-y-1 md:flex lg:block`}
           >
-            <div className="absolute top-4 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md ring-2 ring-[#A9462A]/20 text-xl">
+            <div className="absolute top-4 right-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-md ring-2 ring-[#A9462A]/20 text-xl sm:h-12 sm:w-12">
               {s.icon}
             </div>
-            <div className="overflow-hidden">
-              <Photo src={unsplash(s.image, 900)} alt={s.title} className="aspect-[16/9] w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            <div className="overflow-hidden md:w-5/12 md:shrink-0 lg:w-full">
+              <Photo src={unsplash(s.image, 900)} alt={s.title} className="aspect-[16/9] w-full object-cover transition-transform duration-700 group-hover:scale-105 md:aspect-auto md:h-full md:min-h-[220px] lg:aspect-[16/9] lg:h-auto lg:min-h-0" />
             </div>
-            <div className="p-5 sm:p-6">
+            <div className="p-5 sm:p-6 md:flex md:flex-1 md:flex-col md:justify-center lg:block">
               <p className="text-[11px] font-bold tracking-[0.2em] text-[#A9462A]/70">STEP {String(i + 1).padStart(2, "0")}</p>
-              <h3 className={`${HEADING} mt-1 text-2xl text-[#1F1410]`}>{s.title}</h3>
+              <h3 className={`${HEADING} mt-1 text-xl text-[#1F1410] sm:text-2xl`}>{s.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-[#5C453B]">{s.body}</p>
-              <p className="mt-3 inline-block rounded-full bg-[#FBEFE9] px-3 py-1 text-xs font-medium text-[#A9462A]">
+              <p className="mt-3 inline-block self-start rounded-full bg-[#FBEFE9] px-3 py-1 text-xs font-medium text-[#A9462A]">
                 {s.note}
               </p>
             </div>
@@ -452,15 +485,30 @@ export default function Artists() {
   const openFromSpotlight = (id) => { setQuery(""); setCraft("All"); setSelectedId(id); };
   const reset = () => { setQuery(""); setCraft("All"); };
 
+  const scrollToFilters = () => {
+    const el = document.getElementById("artist-filters");
+    if (!el) return;
+    const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
+  };
+  const goToArtists = () => { reset(); scrollToFilters(); };
+  const goToCrafts = () => scrollToFilters();
+
   return (
-    <div ref={pageRef} className="min-h-screen bg-gradient-to-b from-[#FFFBF8] via-[#FBEFE9] to-[#F3DDD3] text-[#1F1410] antialiased overflow-x-hidden">
+    <div ref={pageRef} className="ath-root min-h-screen bg-gradient-to-b from-[#FFFBF8] via-[#FBEFE9] to-[#F3DDD3] text-[#1F1410] antialiased overflow-x-clip">
       <style>{`
+        .ath-root { --ath-nav: ${NAV_MOBILE}px; }
+        @media (min-width: 1024px) { .ath-root { --ath-nav: ${NAV_DESKTOP}px; } }
+        .ath-hero { min-height: calc(100vh - var(--ath-nav)); min-height: calc(100svh - var(--ath-nav)); }
+        .ath-sticky { top: var(--ath-nav); scroll-margin-top: var(--ath-nav); }
+        .ath-noscroll { scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; }
+        .ath-noscroll::-webkit-scrollbar { display: none; }
+
         @keyframes ath-gradient-shift { 0% { background-position: 0% center; } 100% { background-position: 100% center; } }
         @keyframes ath-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
         @keyframes ath-orb { 0%, 100% { transform: translate(0,0) scale(1); } 33% { transform: translate(30px,-30px) scale(1.1); } 66% { transform: translate(-20px,20px) scale(0.95); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes ath-underline-grow { from { width: 0; } to { width: 100%; } }
 
         .ath-reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s cubic-bezier(.22,1,.36,1), transform .8s cubic-bezier(.22,1,.36,1); }
         .ath-reveal.ath-in { opacity: 1; transform: translateY(0); }
@@ -487,9 +535,11 @@ export default function Artists() {
         .ath-orb { animation: ath-orb 22s ease-in-out infinite; }
 
         .ath-card { transition: transform .5s cubic-bezier(.22,1,.36,1), box-shadow .5s, ring-color .3s; }
-        .ath-card:hover { transform: translateY(-6px); box-shadow: 0 24px 48px -12px rgba(120,60,40,0.25); }
         .ath-card .ath-card-img { transition: transform .7s cubic-bezier(.22,1,.36,1), filter .5s; }
-        .ath-card:hover .ath-card-img { transform: scale(1.08); filter: saturate(1.15); }
+        @media (hover: hover) {
+          .ath-card:hover { transform: translateY(-6px); box-shadow: 0 24px 48px -12px rgba(120,60,40,0.25); }
+          .ath-card:hover .ath-card-img { transform: scale(1.08); filter: saturate(1.15); }
+        }
 
         .ath-chip { transition: all .3s; position: relative; overflow: hidden; }
         .ath-chip::before {
@@ -497,7 +547,7 @@ export default function Artists() {
           background: linear-gradient(135deg, rgba(169,70,42,.15), rgba(217,119,6,.15));
           opacity: 0; transition: opacity .3s; pointer-events: none;
         }
-        .ath-chip:hover::before { opacity: 1; }
+        @media (hover: hover) { .ath-chip:hover::before { opacity: 1; } }
 
         .ath-group-band { position: relative; overflow: hidden; }
         .ath-group-band::before {
@@ -506,7 +556,7 @@ export default function Artists() {
                             radial-gradient(circle at 80% 70%, rgba(169,70,42,.3), transparent 50%);
           opacity: 0; transition: opacity .6s;
         }
-        .ath-group-band:hover::before { opacity: 1; }
+        @media (hover: hover) { .ath-group-band:hover::before { opacity: 1; } }
 
         @media (prefers-reduced-motion: reduce) {
           .ath-reveal { opacity: 1; transform: none; }
@@ -515,53 +565,84 @@ export default function Artists() {
         }
       `}</style>
 
-      <section className="relative flex min-h-[calc(100svh-80px)] items-center overflow-hidden bg-gradient-to-br from-[#3B1C12] to-[#170D09]">
+      <section className="ath-hero relative flex items-center overflow-hidden bg-gradient-to-br from-[#3B1C12] to-[#170D09]">
         {!videoFailed && (
           <video
             ref={videoRef}
             src={artistVideo}
             autoPlay loop muted playsInline preload="auto"
             onError={() => setVideoFailed(true)}
-            className="absolute inset-0 h-full w-full object-cover motion-reduce:hidden opacity-90"
+            className="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden opacity-90"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#160B08]/80 via-[#1A0E0A]/55 to-[#1A0E0A]/35" />
-        <div className="ath-orb absolute top-[15%] left-[10%] w-64 h-64 rounded-full bg-[#A9462A]/30 blur-3xl" aria-hidden="true" />
-        <div className="ath-orb absolute bottom-[10%] right-[15%] w-80 h-80 rounded-full bg-[#fbbf24]/20 blur-3xl" style={{ animationDelay: "-8s" }} aria-hidden="true" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#160B08]/80 via-[#1A0E0A]/60 to-[#1A0E0A]/70 sm:bg-gradient-to-r sm:from-[#160B08]/80 sm:via-[#1A0E0A]/55 sm:to-[#1A0E0A]/35" />
+        <div className="ath-orb absolute top-[15%] left-[5%] h-40 w-40 rounded-full bg-[#A9462A]/30 blur-3xl sm:left-[10%] sm:h-64 sm:w-64" aria-hidden="true" />
+        <div className="ath-orb absolute bottom-[10%] right-[5%] h-48 w-48 rounded-full bg-[#fbbf24]/20 blur-3xl sm:right-[15%] sm:h-80 sm:w-80" style={{ animationDelay: "-8s" }} aria-hidden="true" />
 
-        <div className="relative mx-auto w-full max-w-5xl px-4 py-16 text-center sm:py-20">
-          <p className="ath-reveal ath-in mb-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#F1C9B8] backdrop-blur-md">
+        <div className="relative mx-auto w-full max-w-5xl px-4 pb-12 pt-12 text-center sm:px-6 sm:pb-24 sm:pt-16 lg:pt-20">
+          <p className="ath-reveal ath-in mb-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#F1C9B8] backdrop-blur-md sm:mb-5 sm:px-4 sm:text-xs">
             <span className="h-1.5 w-1.5 rounded-full bg-[#fbbf24] animate-pulse" />
             The makers
           </p>
-          <h1 className={`${HEADING} ath-reveal ath-in ath-d1 ath-grad-text-light text-5xl leading-[1.05] sm:text-6xl lg:text-7xl`}>
+          <h1 className={`${HEADING} ath-reveal ath-in ath-d1 ath-grad-text-light text-4xl leading-[1.1] min-[400px]:text-5xl sm:text-6xl sm:leading-[1.05] lg:text-7xl`}>
             Meet the artists
           </h1>
-          <p className="ath-reveal ath-in ath-d2 mx-auto mt-5 max-w-2xl text-lg text-[#F1E4DC] sm:text-xl">
+          <p className="ath-reveal ath-in ath-d2 mx-auto mt-4 max-w-xl text-base leading-relaxed text-[#F1E4DC] sm:mt-5 sm:max-w-2xl sm:text-lg md:text-xl">
             Every piece on Athenura was made by a person with a story. Meet the painters, potters, sculptors and weavers behind the work, and see how they make it.
           </p>
 
-          <dl className="ath-reveal ath-in ath-d3 mx-auto mt-10 grid max-w-xl grid-cols-3 gap-4 text-white">
+          <div className="ath-reveal ath-in ath-d3 mx-auto mt-7 flex w-full max-w-md flex-col gap-3 sm:mt-8 sm:max-w-none sm:flex-row sm:items-center sm:justify-center">
+            <button type="button" onClick={goToArtists} className={`inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm ${primaryBtn}`}>
+              Browse artists <Icon d={DOWN} />
+            </button>
+            <Link
+              to={ARTIST_LOGIN_PATH}
+              className={`inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:-translate-y-0.5 hover:border-[#fbbf24]/60 hover:bg-white/20 active:scale-95 ${ring}`}
+            >
+              <Icon d={USER} /> Join as an artist
+            </Link>
+          </div>
+
+          <ul className="ath-reveal ath-in ath-d3 mx-auto mt-8 grid max-w-xl grid-cols-3 gap-2 text-white sm:mt-10 sm:gap-4">
             {[
-              [ARTISTS.length, "Independent artists", ""],
-              [SECTIONS.length, "Crafts", ""],
-              [TOTAL_WORKS, "Original works", ""],
-            ].map(([n, label], i) => (
-              <div key={label} className="group relative rounded-2xl border border-white/20 bg-white/10 px-3 py-4 backdrop-blur-md hover:bg-white/15 hover:border-[#fbbf24]/40 transition-all duration-500 hover:-translate-y-1">
-                <dt className="sr-only">{label}</dt>
-                <dd className={`${HEADING} text-3xl sm:text-4xl bg-gradient-to-br from-white via-[#F1E4DC] to-[#fbbf24] bg-clip-text text-transparent`}>
-                  <AnimatedNumber value={n} />
-                </dd>
-                <dd className="mt-1 text-xs text-[#F1E4DC] sm:text-sm">{label}</dd>
-              </div>
-            ))}
-          </dl>
+              { n: ARTISTS.length, label: "Independent artists", onClick: goToArtists },
+              { n: SECTIONS.length, label: "Crafts", onClick: goToCrafts },
+              { n: TOTAL_WORKS, label: "Original works", to: DISCOVER_PATH },
+            ].map(({ n, label, onClick, to }) => {
+              const inner = (
+                <>
+                  <span className={`${HEADING} block text-2xl sm:text-4xl bg-gradient-to-br from-white via-[#F1E4DC] to-[#fbbf24] bg-clip-text text-transparent`}>
+                    <AnimatedNumber value={n} />
+                  </span>
+                  <span className="mt-1 block text-[11px] leading-tight text-[#F1E4DC] sm:text-sm">{label}</span>
+                </>
+              );
+              return (
+                <li key={label}>
+                  {to ? (
+                    <Link to={to} aria-label={`${n} ${label}. Browse artworks`} className={heroTile}>{inner}</Link>
+                  ) : (
+                    <button type="button" onClick={onClick} aria-label={`${n} ${label}. View artists`} className={heroTile}>{inner}</button>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
         </div>
+
+        <button
+          type="button"
+          onClick={goToArtists}
+          aria-label="Scroll to the artists"
+          className={`absolute bottom-5 left-1/2 hidden h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/20 motion-safe:animate-bounce sm:flex ${ring}`}
+        >
+          <Icon d={DOWN} className="h-5 w-5" />
+        </button>
       </section>
 
-      <div className="sticky z-30 border-b border-[#EBD9CF]/80 bg-[#FFFBF8]/85 backdrop-blur-lg shadow-sm" style={{ top: STICKY_TOP }}>
+      <div id="artist-filters" className="ath-sticky sticky z-30 border-b border-[#EBD9CF]/80 bg-[#FFFBF8]/85 backdrop-blur-lg shadow-sm">
         <div className="mx-auto flex max-w-[1400px] flex-col gap-2 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:gap-4 lg:px-12">
-          <label className="relative block lg:w-80 lg:shrink-0 group">
+          <label className="group relative block w-full lg:w-80 lg:shrink-0">
             <span className="sr-only">Search artists</span>
             <Icon d={SEARCH} className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A8938A] group-focus-within:text-[#A9462A] transition-colors" />
             <input
@@ -569,18 +650,18 @@ export default function Artists() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search by artist, material or place"
-              className="w-full rounded-xl border border-[#E4D2C8] bg-white/90 py-2 pl-10 pr-4 text-sm transition-all focus:border-[#A9462A] focus:outline-none focus:ring-2 focus:ring-[#A9462A]/25 focus:bg-white"
+              className="w-full rounded-xl border border-[#E4D2C8] bg-white/90 py-2.5 pl-10 pr-4 text-base transition-all focus:border-[#A9462A] focus:outline-none focus:ring-2 focus:ring-[#A9462A]/25 focus:bg-white sm:py-2 sm:text-sm"
             />
           </label>
 
-          <div className="flex min-w-0 gap-2 overflow-x-auto pb-1" role="group" aria-label="Filter by art form">
+          <div className="ath-noscroll -mx-4 flex min-w-0 gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0" role="group" aria-label="Filter by art form">
             {CRAFTS.map((c) => (
               <button
                 key={c}
                 type="button"
                 onClick={() => setCraft(c)}
                 aria-pressed={craft === c}
-                className={`ath-chip shrink-0 cursor-pointer rounded-full px-3.5 py-1.5 text-sm font-medium transition-all ${ring} ${
+                className={`ath-chip shrink-0 cursor-pointer whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium transition-all sm:py-1.5 ${ring} ${
                   craft === c
                     ? "bg-gradient-to-r from-[#1F1410] to-[#3B1C12] text-white shadow-md"
                     : "border border-[#E4D2C8] bg-white text-[#5C453B] hover:bg-[#F7E9E1] hover:border-[#A9462A]/40"
@@ -594,25 +675,25 @@ export default function Artists() {
         </div>
       </div>
 
-      <main className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-12">
+      <main className="mx-auto max-w-[1400px] px-4 py-8 sm:px-6 sm:py-10 lg:px-12">
         {!isFiltering && spotlight && <Spotlight artist={spotlight} onOpen={openFromSpotlight} />}
 
         {isFiltering && (
-          <div className="ath-reveal mb-6 flex items-center justify-between rounded-xl bg-white/70 px-4 py-3 text-sm text-[#7A6258] ring-1 ring-[#EBD9CF]" aria-live="polite">
+          <div className="ath-reveal mb-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl bg-white/70 px-4 py-3 text-sm text-[#7A6258] ring-1 ring-[#EBD9CF]" aria-live="polite">
             <p>
               <span className="font-semibold text-[#A9462A]">{results.length}</span>{" "}
               {results.length === 1 ? "artist" : "artists"} found
             </p>
-            <button type="button" onClick={reset} className="cursor-pointer font-semibold text-[#A9462A] underline underline-offset-4 hover:text-[#8F3A22] transition-colors">
+            <button type="button" onClick={reset} className="cursor-pointer py-1 font-semibold text-[#A9462A] underline underline-offset-4 hover:text-[#8F3A22] transition-colors">
               Clear filters
             </button>
           </div>
         )}
 
         {groups.length === 0 ? (
-          <div className="ath-reveal py-16 text-center">
+          <div className="ath-reveal py-12 text-center sm:py-16">
             <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-[#FBEFE9] text-4xl">🔍</div>
-            <h2 className={`${HEADING} ath-grad-text text-3xl`}>No artists found</h2>
+            <h2 className={`${HEADING} ath-grad-text text-2xl sm:text-3xl`}>No artists found</h2>
             <p className="mt-2 text-[#7A6258]">Try a different name, material or place.</p>
             <button type="button" onClick={reset} className={`mt-6 rounded-xl px-6 py-3 text-sm ${primaryBtn}`}>
               Show all artists
@@ -620,26 +701,24 @@ export default function Artists() {
           </div>
         ) : (
           groups.map((g, gi) => (
-            <section key={g.craft} className="mb-12">
-              <div className={`ath-reveal ath-group-band relative mb-5 h-36 overflow-hidden rounded-2xl bg-[#2A1510] sm:h-40 lg:h-44 transition-all duration-500 ${"ath-d" + ((gi % 3) + 1)}`}>
-                <Photo src={unsplash(g.image, 1400)} alt={`${g.eyebrow} at work`} className="absolute inset-0 h-full w-full object-cover transition-transform duration-1000 hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#1A0E0A]/90 via-[#1A0E0A]/55 to-transparent" />
+            <section key={g.craft} className="mb-10 sm:mb-12">
+              <div className={`ath-reveal ath-group-band relative mb-5 overflow-hidden rounded-2xl bg-[#2A1510] transition-all duration-500 ${"ath-d" + ((gi % 3) + 1)}`}>
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_50%,rgba(251,191,36,.15),transparent_50%)]" />
-                <div className="relative flex h-full items-center justify-between gap-4 px-5 sm:px-7">
+                <div className="relative flex min-h-[5rem] flex-col justify-center gap-1.5 px-5 py-3 sm:min-h-[6rem] sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-7 sm:py-4">
                   <div>
-                    <p className="mb-1 inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.2em] text-[#F1C9B8]">
+                    <p className="mb-0.5 inline-flex items-center gap-2 text-[10px] font-bold tracking-[0.2em] text-[#F1C9B8]">
                       <span className="h-1.5 w-1.5 rounded-full bg-[#fbbf24] animate-pulse" />
                       {g.eyebrow.toUpperCase()}
                     </p>
-                    <h2 className={`${HEADING} text-xl leading-tight text-white sm:text-3xl`}>{g.title}</h2>
+                    <h2 className={`${HEADING} text-lg leading-tight text-white sm:text-xl lg:text-2xl`}>{g.title}</h2>
                   </div>
-                  <Link to={DISCOVER_PATH} className="group shrink-0 inline-flex items-center gap-1 text-sm font-medium text-white underline underline-offset-4 decoration-[#fbbf24]/50 hover:decoration-[#fbbf24] transition-colors">
+                  <Link to={DISCOVER_PATH} className="group inline-flex shrink-0 items-center gap-1 self-start text-xs font-medium text-white underline underline-offset-4 decoration-[#fbbf24]/50 hover:decoration-[#fbbf24] transition-colors sm:self-auto sm:text-sm">
                     {g.link}
                     <span className="transition-transform group-hover:translate-x-1">→</span>
                   </Link>
                 </div>
               </div>
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
                 {g.items.map((a, ai) => (
                   <div key={a.id} className={`ath-reveal ath-d${(ai % 3) + 1}`}>
                     <ArtistCard artist={a} onOpen={setSelectedId} />
@@ -659,15 +738,15 @@ export default function Artists() {
             ))}
           </div>
           <div className="absolute inset-0 bg-[#1A0E0A]/80" />
-          <div className="ath-orb absolute top-[20%] left-[10%] w-64 h-64 rounded-full bg-[#A9462A]/40 blur-3xl" aria-hidden="true" />
-          <div className="ath-orb absolute bottom-[15%] right-[10%] w-72 h-72 rounded-full bg-[#fbbf24]/25 blur-3xl" style={{ animationDelay: "-10s" }} aria-hidden="true" />
+          <div className="ath-orb absolute top-[20%] left-[10%] h-40 w-40 rounded-full bg-[#A9462A]/40 blur-3xl sm:h-64 sm:w-64" aria-hidden="true" />
+          <div className="ath-orb absolute bottom-[15%] right-[10%] h-44 w-44 rounded-full bg-[#fbbf24]/25 blur-3xl sm:h-72 sm:w-72" style={{ animationDelay: "-10s" }} aria-hidden="true" />
 
-          <div className="relative mx-auto flex min-h-[420px] max-w-3xl flex-col items-center justify-center px-6 py-14 text-center sm:min-h-[480px] sm:px-12 sm:py-20">
+          <div className="relative mx-auto flex min-h-[420px] max-w-3xl flex-col items-center justify-center px-5 py-12 text-center sm:min-h-[480px] sm:px-12 sm:py-20">
             <p className="ath-reveal mb-4 inline-flex items-center gap-2 rounded-full border border-[#fbbf24]/40 bg-[#fbbf24]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-[#fbbf24] backdrop-blur-md">
               <span className="h-1.5 w-1.5 rounded-full bg-[#fbbf24] animate-pulse" />
               Join us
             </p>
-            <h2 className={`${HEADING} ath-reveal ath-d1 ath-grad-text-light text-4xl leading-tight sm:text-5xl lg:text-6xl`}>
+            <h2 className={`${HEADING} ath-reveal ath-d1 ath-grad-text-light text-3xl leading-tight sm:text-5xl lg:text-6xl`}>
               Every artist is welcome
             </h2>
             <p className="ath-reveal ath-d2 mt-4 text-base leading-relaxed text-[#F1E4DC] sm:text-lg">
@@ -676,16 +755,16 @@ export default function Artists() {
 
             <ul className="ath-reveal ath-d3 mt-6 flex flex-wrap justify-center gap-2" aria-label="Kinds of artists on Athenura">
               {WELCOME.map((w) => (
-                <li key={w} className="ath-chip rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-sm text-white hover:border-[#fbbf24]/60 hover:bg-white/15 transition-all cursor-default">
+                <li key={w} className="ath-chip rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs text-white hover:border-[#fbbf24]/60 hover:bg-white/15 transition-all cursor-default sm:px-4 sm:text-sm">
                   {w}
                 </li>
               ))}
             </ul>
 
-            <div className="ath-reveal ath-d3 mt-8">
+            <div className="ath-reveal ath-d3 mt-8 flex w-full flex-col items-center">
               <Link
                 to={ARTIST_LOGIN_PATH}
-                className="group relative inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-semibold text-[#8F3A22] hover:bg-[#FBEFE9] transition-all hover:-translate-y-0.5 shadow-lg shadow-[#A9462A]/30 hover:shadow-xl hover:shadow-[#A9462A]/40"
+                className="group relative inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-semibold text-[#8F3A22] hover:bg-[#FBEFE9] transition-all hover:-translate-y-0.5 shadow-lg shadow-[#A9462A]/30 hover:shadow-xl hover:shadow-[#A9462A]/40 sm:w-auto"
               >
                 <Icon d={USER} /> Artist login
                 <span className="transition-transform group-hover:translate-x-1">→</span>
