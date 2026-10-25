@@ -695,7 +695,7 @@ export default function CustomArt() {
         localStorage.setItem(
           "artnest_custom_requests",
           JSON.stringify([
-            { ...form, id: newId, owner: user?.name || "", status: "New", requested: new Date().toISOString(), images: files.map((f) => f.name) },
+            { ...form, id: newId, owner: user?.name || "", status: "Not started", requested: new Date().toISOString(), images: files.map((f) => f.name) },
             ...all,
           ])
         );

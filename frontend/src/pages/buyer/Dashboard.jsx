@@ -31,11 +31,11 @@ const ORDERS = [
   { id: "ART-1904", artId: 19, date: "28 Aug 2026", stage: 4, eta: "Delivered 3 Sep" },
 ];
 
-const PROGRESS = ["Not started", "Sketching", "In progress", "Finishing", "Completed"];
+const PROGRESS = ["Not started", "Sketching", "In progress", "Finishing"];
 const REQUESTS = [
   { id: 1, title: "Family portrait in oils", artist: "Elena Voss", status: "accepted", quote: 18000, progress: 2, eta: "Ready by 20 Nov", note: "Sketch approved, colour layers are underway." },
-  { id: 2, title: "Bronze desk piece", artist: "Priya Nair", status: "waiting" },
-  { id: 3, title: "Pet portrait, watercolour", artist: "Julian Cross", status: "declined", note: "Not taking watercolour commissions this month." },
+  { id: 2, title: "Bronze desk piece", artist: "Priya Nair", status: "accepted", quote: 25000, progress: 0, eta: "Starts soon", note: "" },
+  { id: 3, title: "Pet portrait, watercolour", artist: "Julian Cross", status: "accepted", quote: 12000, progress: 1, eta: "Ready by 30 Nov", note: "Initial sketch in progress." },
   { id: 4, title: "Wedding gift sculpture", artist: "Renzo Takahashi", status: "accepted", quote: 32000, progress: 0, eta: "Starts 12 Oct", note: "" },
 ];
 
@@ -57,7 +57,7 @@ function RequestItem({ r }) {
     <li className="border-l-2 border-[#14181F] pl-4">
       <div className="flex items-start justify-between gap-2">
         <p className="text-[14px] font-medium text-[#14181F]">{r.title}</p>
-        <span className={`shrink-0 rounded-md px-2 py-0.5 text-[11px] ${BADGE[r.status]}`}>{BADGE_TEXT[r.status]}</span>
+        <span className={`shrink-0 rounded-md px-2 py-0.5 text-[11px] ${BADGE[r.status]}`}>{PROGRESS[r.progress ?? 0]}</span>
       </div>
       <p className="text-[12px] text-[#6C7480]">{r.artist}</p>
       {r.status === "waiting" && <p className="mt-1.5 text-[12px] text-[#6C7480]">Waiting for {r.artist} to reply.</p>}
