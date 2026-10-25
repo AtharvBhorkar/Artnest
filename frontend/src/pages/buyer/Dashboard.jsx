@@ -313,7 +313,7 @@ function InboxModal({ initialThread, onClose }) {
   );
 }
 
-function OrderDetailsModal({ order, onClose, onChat }) {
+function OrderDetailsModal({ order, onClose, onChat, onReview }) {
   if (!order) return null;
   return (
     <div className="fixed inset-0 z-50 grid place-items-center p-4">
@@ -360,11 +360,105 @@ function OrderDetailsModal({ order, onClose, onChat }) {
           <button type="button" onClick={onClose} className="text-[14px] font-medium text-[#6C7480] hover:text-[#14181F] transition-colors">
             Close
           </button>
+          {order.stage === DELIVERED && (
+            <button type="button" onClick={() => onReview(order)} className="inline-flex items-center gap-2 rounded-md border border-[#D8A53A] bg-[#D8A53A]/15 px-4 py-2.5 text-[14px] font-medium text-[#7A5A10] transition-colors hover:bg-[#D8A53A]/30">
+              <Star size={16} /> {getReview(order.id) ? "View Review" : "Write Review"}
+            </button>
+          )}
           <button type="button" onClick={() => onChat(order)} className="inline-flex items-center gap-2 rounded-md bg-[#14181F] px-5 py-2.5 text-[14px] text-white transition-colors hover:bg-[#1F6F6B]">
             <MessageCircle size={16} /> Message Artist
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function getReview(orderId) {
+  try {
+    const all = JSON.parse(localStorage.getItem("artnest_reviews")) || [];
+    return all.find((r) => r.orderId === orderId) || null;
+  } catch { return null; }
+}
+
+function ReviewModal({ order, onClose }) {
+  const { user } = useAuth();
+  const existing = getReview(order.id);
+  const [rating, setRating] = useState(existing?.rating || 0);
+  const [hover, setHover] = useState(0);
+  const [text, setText] = useState(existing?.text || "");
+  const [done, setDone] = useState(false);
+  const [editing, setEditing] = useState(!existing);
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (!rating) return;
+    try {
+      const all = JSON.parse(localStorage.getItem("artnest_reviews")) || [];
+      const entry = {
+        id: existing?.id || `rv-${Date.now()}`,
+        orderId: order.id,
+        artId: order.art.id,
+        artist: order.art.artist,
+        artwork: order.art.title,
+        name: user?.name || "Verified buyer",
+        rating,
+        text: text.trim(),
+        date: new Date().toISOString(),
+      };
+      const idx = all.findIndex((r) => r.orderId === order.id);
+      if (idx >= 0) all[idx] = { ...all[idx], ...entry }; else all.push(entry);
+      localStorage.setItem("artnest_reviews", JSON.stringify(all));
+    } catch {}
+    setDone(true);
+    setTimeout(onClose, 1200);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] grid place-items-center p-4">
+      <div className="absolute inset-0 bg-[#14181F]/60 backdrop-blur-sm" onClick={onClose} />
+      <form onSubmit={submit} role="dialog" aria-modal="true" className="relative w-full max-w-[440px] rounded-xl bg-white p-6 shadow-2xl">
+        <button type="button" onClick={onClose} aria-label="Close" className="absolute right-4 top-4 text-[#6C7480] hover:text-[#14181F]"><X size={20} /></button>
+        <h2 className="text-[20px] font-semibold text-[#14181F]" style={DISPLAY}>{existing ? "Your review" : "Write a review"}</h2>
+        <div className="mt-4 flex items-center gap-3">
+          <Thumb art={order.art} className="h-14 w-14" />
+          <div className="min-w-0">
+            <p className="truncate text-[15px] font-medium text-[#14181F]">{order.art.title}</p>
+            <p className="text-[12.5px] text-[#6C7480]">by {order.art.artist}</p>
+          </div>
+        </div>
+        {!done && !editing ? (
+          <div className="mt-5">
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <Star key={n} size={24} className={rating >= n ? "fill-[#D8A53A] text-[#D8A53A]" : "text-[#D5D9D2]"} />
+              ))}
+            </div>
+            <p className="mt-3 text-[14px] text-[#14181F]">{text || "No written review."}</p>
+            {existing?.reply && (
+              <div className="mt-4 rounded-md bg-[#EDEFEA] p-3">
+                <p className="text-[11px] font-medium uppercase tracking-wider text-[#1F6F6B]">Reply from {order.art.artist}</p>
+                <p className="mt-1 text-[14px] text-[#14181F]">{existing.reply}</p>
+              </div>
+            )}
+            <button type="button" onClick={() => setEditing(true)} className="mt-5 w-full rounded-md bg-[#14181F] py-2.5 text-[14px] text-white transition-colors hover:bg-[#1F6F6B]">Edit review</button>
+          </div>
+        ) : done ? (
+          <p className="py-8 text-center text-[15px] text-[#1F6F6B]">Thanks! Your review has been submitted.</p>
+        ) : (
+          <>
+            <div className="mt-5 flex gap-1" onMouseLeave={() => setHover(0)}>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button key={n} type="button" onMouseEnter={() => setHover(n)} onClick={() => setRating(n)} aria-label={`${n} star`}>
+                  <Star size={28} className={(hover || rating) >= n ? "fill-[#D8A53A] text-[#D8A53A]" : "text-[#D5D9D2]"} />
+                </button>
+              ))}
+            </div>
+            <textarea value={text} onChange={(e) => setText(e.target.value)} rows={4} placeholder="How was the artwork? Share your experience…" className="mt-4 w-full resize-none rounded-md border border-[#D5D9D2] bg-[#EDEFEA] p-3 text-[14px] outline-none focus:border-[#1F6F6B]" />
+            <button type="submit" disabled={!rating} className="mt-4 w-full rounded-md bg-[#14181F] py-2.5 text-[14px] text-white transition-colors hover:bg-[#1F6F6B] disabled:opacity-50">{existing ? "Update review" : "Submit review"}</button>
+          </>
+        )}
+      </form>
     </div>
   );
 }
@@ -404,6 +498,7 @@ export default function BuyerDashboard() {
   
   const [detailsFor, setDetailsFor] = useState(null); 
   const [inboxOpen, setInboxOpen] = useState(false);
+  const [reviewFor, setReviewFor] = useState(null);
   const [initialChatThread, setInitialChatThread] = useState(null);
 
   const [, setTick] = useState(0);
@@ -488,10 +583,13 @@ export default function BuyerDashboard() {
         />
       )}
       
+      {reviewFor && <ReviewModal order={reviewFor} onClose={() => setReviewFor(null)} />}
+
       {detailsFor && (
         <OrderDetailsModal 
           order={detailsFor} 
           onClose={() => setDetailsFor(null)} 
+          onReview={(o) => { setDetailsFor(null); setReviewFor(o); }} 
           onChat={(o) => openChatWithArtist(o.art.artist, `Order ${o.id} · ${o.art.title}`)} 
         />
       )}

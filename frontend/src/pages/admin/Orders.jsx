@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Search, Eye, ChevronDown } from "lucide-react";
 import { Modal } from "./shared";
+import { ARTWORKS as ADMIN_ARTWORKS } from "./Artworks";
 
 export function formatINR(amount) {
   return new Intl.NumberFormat("en-IN", {
@@ -57,10 +58,109 @@ function StatusBadge({ status }) {
   );
 }
 
+const CAT = {
+  paintings: "Paintings", sculptures: "Sculptures", ceramics: "Ceramics & Pottery", photography: "Photography",
+  digital: "Digital & New Media", textile: "Textile & Fiber Art", printmaking: "Printmaking & Monotype",
+};
+
+function loadPlacedOrders() {
+  try {
+    const list = JSON.parse(localStorage.getItem("artnest_orders")) || [];
+    let stages = {};
+    try { stages = JSON.parse(localStorage.getItem("artnest_order_stage")) || {}; } catch {}
+    return list
+      .filter((o) => o?.items?.length)
+      .map((o) => {
+        const first = o.items[0];
+        const extra = o.items.length - 1;
+        const stage = stages[o.id] ?? o.stage ?? 0;
+        return {
+          id: o.id,
+          buyer: o.address?.name || o.email || "Buyer",
+          piece: extra > 0 ? `${first.title} + ${extra} more` : first.title,
+          artist: first.artist,
+          amount: o.total,
+          status: stage >= 4 ? "Completed" : stage >= 1 ? "Processing" : "Pending",
+          date: new Date(o.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
+          items: o.items,
+          details: {
+            phone: o.address?.phone || "—",
+            payment: o.payment || "—",
+            address: o.address
+              ? [o.address.line, o.address.city, o.address.state, o.address.pin].filter(Boolean).join(", ")
+              : "Address not provided",
+          },
+        };
+      });
+  } catch { return []; }
+}
+
+function findArtwork(title) {
+  let stored = [];
+  try { stored = JSON.parse(localStorage.getItem("artnest_artist_artworks")) || []; } catch {}
+  const s = stored.find((a) => a.title === title);
+  if (s) {
+    return {
+      images: (s.images?.length ? s.images : [s.img]).filter(Boolean).slice(0, 3),
+      rows: [
+        ["Category", CAT[s.category] || s.category],
+        ["Medium", s.medium],
+        ["Dimensions", s.dims],
+        ["Location", s.location],
+        ["Tag", s.tag],
+      ],
+      description: s.description,
+    };
+  }
+  const a = ADMIN_ARTWORKS.find((x) => x.title === title);
+  if (a) {
+    return { images: a.image ? [a.image] : [], rows: [["Category", a.category], ["Medium", a.medium], ["Edition", a.stock]], description: "" };
+  }
+  return null;
+}
+
+function OrderArtwork({ title, artist, fallbackImg }) {
+  const info = findArtwork(title);
+  const images = info?.images?.length ? info.images : [fallbackImg].filter(Boolean);
+  const [active, setActive] = useState(images[0]);
+  const rows = (info?.rows || []).filter(([, v]) => v);
+  return (
+    <div className="rounded-xl border border-[#E8E1DB] p-3">
+      {active ? (
+        <img src={active} alt={title} className="h-56 w-full rounded-lg object-cover" />
+      ) : (
+        <div className="grid h-40 place-items-center rounded-lg bg-[#F9F8F6] text-[13px] text-[#A28F7D]">No photo uploaded</div>
+      )}
+      {images.length > 1 && (
+        <div className="mt-2 grid grid-cols-3 gap-2">
+          {images.map((src, i) => (
+            <button key={src} type="button" onClick={() => setActive(src)} className={`overflow-hidden rounded-md border-2 ${active === src ? "border-[#9F5639]" : "border-transparent"}`}>
+              <img src={src} alt={`${title} view ${i + 1}`} className="h-16 w-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
+      <p className="mt-3 text-[15px] font-medium text-[#362F26]">{title}</p>
+      <p className="text-[12.5px] text-[#A28F7D]">by {artist}</p>
+      {rows.length > 0 && (
+        <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-[13px]">
+          {rows.map(([k, v]) => (
+            <div key={k}>
+              <dt className="text-[11.5px] text-[#A28F7D]">{k}</dt>
+              <dd className="text-[#362F26]">{v}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      {info?.description && <p className="mt-3 text-[13px] leading-relaxed text-[#4A4037]">{info.description}</p>}
+    </div>
+  );
+}
+
 export default function Orders() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState(STATUSES[0]);
-  const [rows, setRows] = useState(ORDERS);
+  const [rows, setRows] = useState(() => [...loadPlacedOrders(), ...ORDERS]);
   const [viewId, setViewId] = useState(null);
 
   const filtered = useMemo(() => {
@@ -76,7 +176,7 @@ export default function Orders() {
   }, [search, status, rows]);
 
   const current = rows.find((o) => o.id === viewId);
-  const d = current ? DETAILS[current.id] || FALLBACK : null;
+  const d = current ? current.details || DETAILS[current.id] || FALLBACK : null;
   const actions = current ? ORDER_ACTIONS[current.status] || [] : [];
 
   const changeStatus = (o, next) => {
@@ -186,6 +286,10 @@ export default function Orders() {
               <StatusBadge status={current.status} />
               <span className="text-[13px] text-[#A28F7D]">{current.date}</span>
             </div>
+
+            {(current.items || [{ title: current.piece, artist: current.artist }]).map((it) => (
+              <OrderArtwork key={it.id ?? it.title} title={it.title} artist={it.artist} fallbackImg={it.img} />
+            ))}
 
             <dl className="grid grid-cols-2 gap-x-6 gap-y-4 text-[14px]">
               {[

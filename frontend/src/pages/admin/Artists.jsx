@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Search, ChevronDown, Eye, ShieldCheck, Ban, X } from "lucide-react";
+import { Search, ChevronDown, Ban, X } from "lucide-react";
 
 const inr = (n) => "₹" + Number(n).toLocaleString("en-IN");
 
@@ -9,13 +9,12 @@ const INITIAL = [
   { id: "A-102", name: "Riya Sharma", specialty: "Digital Art", location: "Bengaluru, IN", artworks: 35, sales: 498000, rating: 4.8, verified: true, status: "Active" },
   { id: "A-104", name: "Ananya Kapoor", specialty: "Abstract Art", location: "Delhi, IN", artworks: 29, sales: 356000, rating: 4.7, verified: true, status: "Active" },
   { id: "A-105", name: "Meera Iyer", specialty: "Photography", location: "Kochi, IN", artworks: 18, sales: 214000, rating: 4.6, verified: false, status: "Active" },
-  { id: "A-106", name: "Devika Rao", specialty: "Paintings", location: "Pune, IN", artworks: 9, sales: 96500, rating: 4.4, verified: false, status: "Under review" },
+  { id: "A-106", name: "Devika Rao", specialty: "Paintings", location: "Pune, IN", artworks: 9, sales: 96500, rating: 4.4, verified: false, status: "Active" },
   { id: "A-107", name: "Farhan Ali", specialty: "Sculpture", location: "Lucknow, IN", artworks: 6, sales: 58200, rating: 4.2, verified: false, status: "Suspended" },
 ];
 
 const TONE = {
   Active: "bg-[#E7EEDD] text-[#4C6B3F]",
-  "Under review": "bg-[#F6E7D0] text-[#8A5A22]",
   Suspended: "bg-[#F6DFDA] text-[#9B3B2E]",
 };
 
@@ -166,7 +165,7 @@ export default function Artists() {
         <table className="w-full min-w-[1000px] border-collapse text-left">
           <thead>
             <tr className="border-b border-[#E8E1DB] text-[11px] uppercase tracking-[0.08em] text-[#A28F7D]">
-              {["Artist", "Location", "Artworks", "Sales", "Rating", "Status", "Actions"].map((h) => (
+              {["Artist", "Location", "Artworks", "Sales", "Rating", "Status", "Action"].map((h) => (
                 <th key={h} className="px-6 py-4 font-medium">{h}</th>
               ))}
             </tr>
@@ -189,18 +188,7 @@ export default function Artists() {
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-1">
-                    <button type="button" title="View" className={iconBtn} onClick={() => setModal({ mode: "view", artist: a })}>
-                      <Eye size={17} />
-                    </button>
-                    <button
-                      type="button"
-                      title={a.verified ? "Already verified" : "Verify artist"}
-                      disabled={a.verified}
-                      className={`${iconBtn} disabled:cursor-not-allowed disabled:opacity-40`}
-                      onClick={() => verify(a)}
-                    >
-                      <ShieldCheck size={17} />
-                    </button>
+
                     <button
                       type="button"
                       title={a.status === "Suspended" ? "Unblock artist" : "Block artist"}

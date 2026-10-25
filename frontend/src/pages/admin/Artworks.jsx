@@ -13,7 +13,7 @@ export function formatINR(amount) {
 }
 
 /* ------------------------- Real online images ------------------------- */
-const ARTWORKS = [
+export const ARTWORKS = [
   {
     id: "AW-1", title: "Golden Silence", artist: "Aarav Mehta", category: "Painting",
     medium: "Acrylic on Canvas", price: 18500, stock: "1 of 1", status: "Approved",
