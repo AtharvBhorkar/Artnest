@@ -6,7 +6,7 @@ import { useWishlist } from "../../context/WishlistContext";
 import { useCart } from "../../context/CartContext";
 import {
   Search, Heart, SlidersHorizontal, X, ChevronDown, ChevronLeft, ChevronRight,
-  LayoutGrid, List, Eye, ArrowUpRight, ShoppingBag, Check, MapPin, Ruler, Sparkles,
+  LayoutGrid, List, Eye, ArrowUpRight, ShoppingBag, Check, MapPin, Ruler, Sparkles, Star, ArrowLeft,
 } from "lucide-react";
 
 const ITEMS_PER_PAGE = 6;
@@ -191,7 +191,7 @@ function Sidebar({ activeCategories, toggleCategory, price, setPrice, mediums, t
         <h4>Maximum price</h4>
         <div className="disc-price-labels">
           <span>₹{price[0].toLocaleString()}</span>
-          <strong>₹{price[1].toLocaleString()}</strong>
+          <strong>₹{price[1].toLocaleString()}{price[1] >= 9500 ? "+" : ""}</strong>
         </div>
         <input
           className="disc-range"
@@ -311,9 +311,82 @@ function ArtworkCard({ art, index, view, favorite, toggleFavorite, onOpen, onPre
   );
 }
 
+function ArtReviewsPanel({ art, onClose }) {
+  let list = [];
+  try {
+    list = (JSON.parse(localStorage.getItem("artnest_reviews")) || [])
+      .filter((r) => r.artId === art.id)
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+  } catch {}
+  const avg = list.length ? (list.reduce((s, r) => s + r.rating, 0) / list.length).toFixed(1) : 0;
+  const stars = (n, size = 15) => (
+    <span style={{ display: "inline-flex", gap: 2 }}>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <Star key={i} size={size} color={i <= n ? "#D8A53A" : "#D5D9D2"} fill={i <= n ? "#D8A53A" : "none"} />
+      ))}
+    </span>
+  );
+
+  return (
+    <div style={{ position: "absolute", inset: 0, zIndex: 30, background: "#F5F0E6", display: "flex", flexDirection: "column", borderRadius: "inherit" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", borderBottom: "1px solid rgba(0,0,0,.1)" }}>
+        <div>
+          <h3 style={{ margin: 0, fontSize: 20, fontWeight: 600, display: "flex", alignItems: "center", gap: 10 }}>
+            <button type="button" onClick={onClose} aria-label="Back" style={{ border: "none", background: "transparent", padding: 0, width: 24, height: 24, display: "grid", placeItems: "center", cursor: "pointer", color: "inherit", opacity: 0.7 }}>
+              <ArrowLeft size={18} />
+            </button>
+            Reviews
+          </h3>
+          <p style={{ margin: "2px 0 0 34px", fontSize: 13, opacity: 0.65 }}>{art.title}</p>
+        </div>
+        <button type="button" onClick={onClose} aria-label="Close reviews" style={{ border: "none", background: "rgba(0,0,0,.06)", width: 36, height: 36, borderRadius: "50%", cursor: "pointer", display: "grid", placeItems: "center" }}>
+          <X size={18} />
+        </button>
+      </div>
+
+      <div style={{ flex: 1, overflowY: "auto", padding: 24 }}>
+        {list.length === 0 ? (
+          <p style={{ textAlign: "center", marginTop: 40, fontSize: 14, opacity: 0.65 }}>No reviews yet for this artwork.</p>
+        ) : (
+          <>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+              <span style={{ fontSize: 32, fontWeight: 700 }}>{avg}</span>
+              {stars(Math.round(avg), 18)}
+              <span style={{ fontSize: 13, opacity: 0.65 }}>({list.length} {list.length === 1 ? "review" : "reviews"})</span>
+            </div>
+            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 14 }}>
+              {list.map((r, i) => (
+                <li key={i} style={{ background: "#fff", borderRadius: 12, padding: 14, border: "1px solid rgba(0,0,0,.08)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                    <strong style={{ fontSize: 14 }}>{r.name || "Verified buyer"}</strong>
+                    <span style={{ fontSize: 12, opacity: 0.6 }}>
+                      {new Date(r.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                    </span>
+                  </div>
+                  <div style={{ margin: "6px 0" }}>{stars(r.rating)}</div>
+                  {r.text && <p style={{ margin: 0, fontSize: 14, lineHeight: 1.5 }}>{r.text}</p>}
+                  {r.reply && (
+                    <div style={{ marginTop: 10, padding: "10px 12px", borderRadius: 10, background: "#F5F0E6", borderLeft: "3px solid #96702f" }}>
+                      <strong style={{ fontSize: 12, color: "#6f5222" }}>Reply from {art.artist}</strong>
+                      <p style={{ margin: "4px 0 0", fontSize: 13.5, lineHeight: 1.5 }}>{r.reply}</p>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ArtworkDetailModal({ art, onClose, favorite, toggleFavorite }) {
   const [showFullImage, setShowFullImage] = useState(false);
   const [toast, setToast] = useState("");
+  const [showReviews, setShowReviews] = useState(false);
+  const gallery = (art?.images?.length ? art.images : [art?.img]).filter(Boolean).slice(0, 3);
+  const [activeImg, setActiveImg] = useState(gallery[0]);
   const { inCart, toggleCart } = useCart();
   const navigate = useNavigate();
 
@@ -327,6 +400,7 @@ function ArtworkDetailModal({ art, onClose, favorite, toggleFavorite }) {
     const onKey = (e) => {
       if (e.key !== "Escape") return;
       if (showFullImage) setShowFullImage(false);
+      else if (showReviews) setShowReviews(false);
       else onClose();
     };
     document.addEventListener("keydown", onKey);
@@ -336,7 +410,7 @@ function ArtworkDetailModal({ art, onClose, favorite, toggleFavorite }) {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
     };
-  }, [showFullImage, onClose]);
+  }, [showFullImage, showReviews, onClose]);
 
   if (!art) return null;
 
@@ -366,9 +440,23 @@ function ArtworkDetailModal({ art, onClose, favorite, toggleFavorite }) {
           transition={{ duration: 0.3, ease: EASE }}
         >
           <button className="disc-modal-close" onClick={onClose} type="button" aria-label="Close"><X size={18} /></button>
+          {showReviews && <ArtReviewsPanel art={art} onClose={() => setShowReviews(false)} />}
 
           <div className="disc-modal-media">
-            <img src={art.img} alt={art.title} />
+            <img src={activeImg} alt={art.title} />
+            <div style={{ position: "absolute", left: 14, right: 14, bottom: 14, zIndex: 2, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+              {gallery.map((image, i) => (
+                <button
+                  key={image}
+                  type="button"
+                  onClick={() => setActiveImg(image)}
+                  aria-label={`View image ${i + 1}`}
+                  style={{ padding: 0, height: 62, overflow: "hidden", borderRadius: 10, cursor: "pointer", background: "#fff", border: activeImg === image ? "2px solid #96702f" : "2px solid rgba(255,255,255,.85)", boxShadow: "0 4px 12px rgba(0,0,0,.25)", opacity: activeImg === image ? 1 : 0.85 }}
+                >
+                  <img src={image} alt={`${art.title} view ${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                </button>
+              ))}
+            </div>
             <button className="disc-modal-preview" type="button" onClick={() => setShowFullImage(true)} aria-label="View full image">
               <Eye size={22} strokeWidth={1.6} />
             </button>
@@ -410,6 +498,13 @@ function ArtworkDetailModal({ art, onClose, favorite, toggleFavorite }) {
                 <span className="disc-modal-value">₹{art.value.toLocaleString()}</span>
               </div>
               <div className="disc-modal-actions">
+                <button
+                  type="button"
+                  onClick={() => setShowReviews(true)}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 44, padding: "0 12px", borderRadius: 999, border: "1px solid rgba(0,0,0,.15)", background: "transparent", fontSize: 12.5, cursor: "pointer", color: "inherit", whiteSpace: "nowrap" }}
+                >
+                  <Star size={15} /> View reviews
+                </button>
                 <AnimatePresence>
                   {toast && (
                     <motion.span key={toast} className="disc-modal-toast" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} transition={{ duration: 0.2 }}>
@@ -441,7 +536,7 @@ function ArtworkDetailModal({ art, onClose, favorite, toggleFavorite }) {
       <AnimatePresence>
         {showFullImage && (
           <motion.div className="disc-fullimage-scrim" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFullImage(false)}>
-            <img src={art.img} alt={art.title} />
+            <img src={activeImg} alt={art.title} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -510,7 +605,7 @@ export default function Discover() {
     const q = query.trim().toLowerCase();
     const list = ARTWORKS.filter((a) => {
       if (activeCategories.length && !activeCategories.includes(a.category)) return false;
-      if (a.value > price[1]) return false;
+      if (price[1] < 9500 && a.value > price[1]) return false;
       if (q && !`${a.title} ${a.artist} ${a.medium}`.toLowerCase().includes(q)) return false;
       if (mediums.length && !mediums.some((m) => a.medium.toLowerCase().includes(m.toLowerCase()))) return false;
       if (size) {
@@ -523,7 +618,7 @@ export default function Discover() {
     });
     if (sort === "Price: Low to High") list.sort((a, b) => a.value - b.value);
     if (sort === "Price: High to Low") list.sort((a, b) => b.value - a.value);
-    if (sort === "Newest Arrivals") list.sort((a, b) => Number(b.id) - Number(a.id));
+    if (sort === "Newest Arrivals") list.sort((a, b) => (b.createdAt ?? Number(b.id)) - (a.createdAt ?? Number(a.id)));
     return list;
   }, [ARTWORKS, activeCategories, price, query, mediums, size, sort]);
 
@@ -890,7 +985,7 @@ export default function Discover() {
         .disc-modal-provenance { display: flex; flex-direction: column; gap: 14px; padding: 16px 0; border-top: 1px solid var(--line); }
         .disc-modal-provenance-label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 3px; }
         .disc-modal-provenance p { margin: 0; font-size: 13px; line-height: 1.6; color: var(--ink); }
-        .disc-modal-footer { margin-top: auto; position: sticky; bottom: -26px; background: linear-gradient(180deg, rgba(246,241,230,0), var(--paper) 22%); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 0 26px; margin-bottom: -26px; border-top: 1px solid var(--line); }
+        .disc-modal-footer { margin-top: auto; position: sticky; bottom: -26px; background: linear-gradient(180deg, rgba(246,241,230,0), var(--paper) 22%); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 0 26px; margin-bottom: -26px; border-top: 1px solid var(--line); }
         .disc-modal-value { font-family: var(--serif); font-size: 26px; font-weight: 500; display: block; }
         .disc-modal-actions { position: relative; display: flex; align-items: center; gap: 10px; }
         .disc-wish-btn { position: relative; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); display: grid; place-items: center; color: var(--ink-soft); cursor: pointer; transition: color .2s, border-color .2s, background .2s; }

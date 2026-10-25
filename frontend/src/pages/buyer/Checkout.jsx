@@ -6,7 +6,14 @@ import { useCart } from "../../context/CartContext";
 
 const inr = (n) => "₹" + Number(n).toLocaleString("en-IN");
 
-const TAX_RATE = 0.05;
+const loadSettings = () => {
+  try { return JSON.parse(localStorage.getItem("artnest_settings")) || {}; } catch { return {}; }
+};
+const METHOD_SETS = {
+  "UPI, Cards, Bank transfer": ["upi", "card", "netbanking"],
+  "UPI only": ["upi"],
+  "Cards only": ["card"],
+};
 const FREE_STANDARD_ABOVE = 5000;
 const SHIPPING = [
   { id: "standard", label: "Standard insured", eta: "5–9 business days", price: 499 },
@@ -93,7 +100,10 @@ export default function Checkout() {
   });
   const [errors, setErrors] = useState({});
   const [shipId, setShipId] = useState("standard");
-  const [method, setMethod] = useState("upi");
+  const settings = loadSettings();
+  const allowed = METHOD_SETS[settings.methods] || ["upi", "card", "netbanking"];
+  const methodList = METHODS.filter((m) => allowed.includes(m.id));
+  const [method, setMethod] = useState(allowed[0]);
   const [placing, setPlacing] = useState(false);
 
   if (!user || user.role !== "buyer") return <Navigate to="/buyer/login" replace />;
@@ -102,7 +112,8 @@ export default function Checkout() {
   const subtotal = items.reduce((s, i) => s + i.value, 0);
   const ship = SHIPPING.find((s) => s.id === shipId);
   const shipping = shipId === "standard" && subtotal >= FREE_STANDARD_ABOVE ? 0 : ship.price;
-  const tax = Math.round(subtotal * TAX_RATE);
+  const taxRate = (Number(settings.tax ?? 5) || 0) / 100;
+  const tax = Math.round(subtotal * taxRate);
   const total = subtotal + shipping + tax;
 
   const set = (name, value) => {
@@ -234,7 +245,7 @@ export default function Checkout() {
 
             <Section n="4" title="Payment" note="Demo checkout: no real payment is taken.">
               <div className="ck-methods" role="radiogroup" aria-label="Payment method">
-                {METHODS.map(({ id, label, icon: Icon }) => (
+                {methodList.map(({ id, label, icon: Icon }) => (
                   <button
                     key={id}
                     type="button"
@@ -299,7 +310,7 @@ export default function Checkout() {
 
             <div className="ck-row"><span>Subtotal</span><span>{inr(subtotal)}</span></div>
             <div className="ck-row"><span>Shipping · {ship.label}</span><span>{shipping === 0 ? "Free" : inr(shipping)}</span></div>
-            <div className="ck-row"><span>Estimated tax</span><span>{inr(tax)}</span></div>
+            <div className="ck-row"><span>Tax ({settings.tax ?? 5}%)</span><span>{inr(tax)}</span></div>
             <div className="ck-total"><span>Total</span><strong>{inr(total)}</strong></div>
 
             <label className={`ck-agree ${errors.agree ? "bad" : ""}`}>

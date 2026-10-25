@@ -90,15 +90,23 @@ export default function Settings() {
     reviews: true,
   });
 
-  const [payment, setPayment] = useState({
-    currency: "INR (₹)",
-    tax: "18",
-    methods: "UPI, Cards, Bank transfer",
+  const [payment, setPayment] = useState(() => {
+    const defaults = { currency: "INR (₹)", tax: "18", methods: "UPI, Cards, Bank transfer" };
+    try {
+      return { ...defaults, ...(JSON.parse(localStorage.getItem("artnest_settings")) || {}) };
+    } catch {
+      return defaults;
+    }
   });
 
   const [saved, setSaved] = useState(false);
 
   function handleSave() {
+    try {
+      const tax = Math.min(100, Math.max(0, Number(payment.tax) || 0));
+      localStorage.setItem("artnest_settings", JSON.stringify({ ...payment, tax: String(tax) }));
+      setPayment((p) => ({ ...p, tax: String(tax) }));
+    } catch {}
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   }
