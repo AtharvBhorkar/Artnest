@@ -98,7 +98,7 @@ const WALLPAPER = [
 export default function Messages() {
   const { user } = useAuth();
   const [threads, setThreads] = useState(() => [...fromStored(user?.name), ...INITIAL]);
-  const [activeId, setActiveId] = useState(() => (fromStored(user?.name)[0] || INITIAL[0]).id);
+  const [activeId, setActiveId] = useState(null);
   const [text, setText] = useState("");
 
   const active = threads.find((t) => t.id === activeId);
@@ -159,8 +159,8 @@ export default function Messages() {
     md:block md:overflow-x-hidden md:overflow-y-auto
     md:border-b-0 md:border-r md:px-0 md:py-0
   ">
-    <div
-  className="
+          <div
+            className="
     flex min-w-[175px] shrink-0 items-center justify-between
     rounded-xl border border-[#E8DDD4] bg-white px-3 py-2
     md:sticky md:top-0 md:z-10 md:w-full
@@ -168,16 +168,16 @@ export default function Messages() {
     md:border-b md:border-[#E8DDD4]
     md:bg-[#FFFCFA] md:px-5 md:py-3
   "
->
-  <span className="font-serif text-[16px] text-[#362F26]">
-    Messages
-  </span>
+          >
+            <span className="font-serif text-[16px] text-[#362F26]">
+              Messages
+            </span>
 
-  <button
-    type="button"
-    title="Clear all chats"
-    onClick={() => setShowClearConfirm(true)}
-    className="
+            <button
+              type="button"
+              title="Clear all chats"
+              onClick={() => setShowClearConfirm(true)}
+              className="
       group inline-flex cursor-pointer items-center gap-1.5
       rounded-full border border-transparent px-2.5 py-2
       text-[11px] font-medium text-[#8A6B5A]
@@ -187,11 +187,11 @@ export default function Messages() {
       hover:shadow-[0_4px_12px_rgba(155,59,46,0.08)]
       active:scale-95
     "
-  >
-    <Trash2 size={14} />
-    <span className="hidden sm:inline">Clear all</span>
-  </button>
-</div>
+            >
+              <Trash2 size={14} />
+              <span className="hidden sm:inline">Clear all</span>
+            </button>
+          </div>
           {threads.map((t, index) => (
             <motion.button
               key={t.id}
@@ -243,153 +243,244 @@ export default function Messages() {
           ))}
 
           {threads.length === 0 && (
-  <p className="min-w-[175px] px-4 py-6 text-center text-[12px] text-[#958073] md:min-w-0">
-    No conversations yet.
-  </p>
-)}
+            <p className="min-w-[175px] px-4 py-6 text-center text-[12px] text-[#958073] md:min-w-0">
+              No conversations yet.
+            </p>
+          )}
         </div>
 
         <div className="flex min-h-0 flex-col">
-          <div className="
-    shrink-0 border-b border-[#E8E1DB]
-    bg-[linear-gradient(110deg,#FFFFFF_0%,#FFFAF6_100%)]
-    px-4 py-3.5
-    shadow-[0_3px_12px_rgba(65,43,31,0.025)]
-    sm:px-6 sm:py-4
-  ">
-            <p className="text-[15px] text-[#362F26]">{active.name}</p>
-            <p className="text-[12.5px] text-[#A28F7D]">{active.subject}</p>
-          </div>
+  {active ? (
+    <>
+      {/* Active Chat Header */}
+      <div
+        className="
+          shrink-0 border-b border-[#E8E1DB]
+          bg-[linear-gradient(110deg,#FFFFFF_0%,#FFFAF6_100%)]
+          px-4 py-3.5
+          shadow-[0_3px_12px_rgba(65,43,31,0.025)]
+          sm:px-6 sm:py-4
+        "
+      >
+        <p className="text-[15px] text-[#362F26]">
+          {active.name}
+        </p>
 
-          <div
-            className="
-    relative min-h-0 flex-1 overflow-y-auto
-    bg-[linear-gradient(135deg,#FCF8F4_0%,#F8F0E9_48%,#FFFCFA_100%)]
-  "
-          >
-            {/* Decorative wallpaper behind messages */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 select-none overflow-hidden"
+        <p className="text-[12.5px] text-[#A28F7D]">
+          {active.subject}
+        </p>
+      </div>
+
+      {/* Messages */}
+      <div
+        className="
+          relative min-h-0 flex-1 overflow-y-auto
+          bg-[linear-gradient(135deg,#FCF8F4_0%,#F8F0E9_48%,#FFFCFA_100%)]
+        "
+      >
+        {/* Decorative wallpaper */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 select-none overflow-hidden"
+        >
+          {WALLPAPER.map((item, index) => (
+            <span
+              key={index}
+              className="absolute text-[20px] opacity-[0.14] sm:text-[23px]"
+              style={{
+                left: item.left,
+                top: item.top,
+                transform: `rotate(${item.rotate})`,
+              }}
             >
-              {WALLPAPER.map((item, index) => (
-                <span
-                  key={index}
-                  className="absolute text-[20px] opacity-[0.14] sm:text-[23px]"
-                  style={{
-                    left: item.left,
-                    top: item.top,
-                    transform: `rotate(${item.rotate})`,
-                  }}
-                >
-                  {item.emoji}
-                </span>
-              ))}
-            </div>
-
-            {/* Messages */}
-            <div className="relative z-10 space-y-3 p-3 sm:space-y-4 sm:p-6">
-              {active.msgs.map((m, i) => (
-                <motion.div
-                  key={`${active.id}-${i}`}
-                  initial={{
-                    opacity: 0,
-                    y: 10,
-                    x: m.from === "me" ? 8 : -8,
-                  }}
-                  animate={{ opacity: 1, y: 0, x: 0 }}
-                  transition={{
-                    duration: 0.3,
-                    delay: Math.min(i * 0.035, 0.18),
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                  className={`flex ${m.from === "me" ? "justify-end" : "justify-start"
-                    }`}
-                >
-                  <div
-                    className={`
-            max-w-[90%] break-words
-            rounded-[18px] px-3.5 py-2.5
-            text-[13px] leading-relaxed
-            shadow-[0_3px_10px_rgba(65,43,31,0.045)]
-            sm:max-w-[80%] sm:px-4 sm:py-3
-            lg:max-w-[72%]
-
-            ${m.from === "me"
-                        ? "rounded-br-[5px] border border-[#975036] bg-[linear-gradient(135deg,#A85D3E_0%,#91472F_100%)] text-white shadow-[0_5px_14px_rgba(145,71,47,0.13)]"
-                        : "rounded-bl-[5px] border border-[#EAE0D8] bg-[linear-gradient(135deg,#FFFFFF_0%,#FFFAF6_100%)] text-[#44352C]"
-                      }
-          `}
-                  >
-                    <p className="whitespace-pre-wrap">{m.text}</p>
-
-                    <p
-                      className={`mt-1.5 text-right text-[10px] ${m.from === "me" ? "text-white/70" : "text-[#9B887A]"
-                        }`}
-                    >
-                      {m.time}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          <form onSubmit={send} className="flex gap-3 border-t border-[#E8E1DB] p-4">
-            <input
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="Type a message…"
-              className="
-  h-11 min-w-0 flex-1 rounded-full
-  border border-[#E6DAD1] bg-[#FFFCFA]
-  px-4 text-[13px] text-[#362F26]
-  outline-none placeholder:text-[#A28F7D]
-  shadow-[inset_0_1px_3px_rgba(65,43,31,0.025)]
-  transition-all duration-200
-  focus:border-[#C69B85] focus:bg-white
-  focus:ring-4 focus:ring-[#9F5639]/[0.08]
-  sm:h-12 sm:px-5 sm:text-[14px]
-"
-            />
-            <motion.button
-              type="submit"
-              disabled={!text.trim()}
-              whileHover={
-                text.trim()
-                  ? {
-                    y: -2,
-                    scale: 1.05,
-                    boxShadow: "0 9px 20px rgba(159,86,57,0.26)",
-                  }
-                  : undefined
-              }
-              whileTap={text.trim() ? { scale: 0.92, y: 0 } : undefined}
-              transition={{ duration: 0.18, ease: "easeOut" }}
-              aria-label="Send message"
-              className="
-    grid h-11 w-11 shrink-0 cursor-pointer
-    place-items-center rounded-full
-    border border-[#9F5639]
-    bg-[linear-gradient(135deg,#A85D3E_0%,#91472F_100%)]
-    text-white
-    shadow-[0_4px_12px_rgba(159,86,57,0.17)]
-    transition-colors duration-200
-    hover:border-[#85432C] hover:bg-[#8A4A30]
-    disabled:cursor-not-allowed
-    disabled:border-[#D8C8BE] disabled:bg-[#E9DED6]
-    disabled:text-[#A28F7D] disabled:shadow-none
-    sm:h-12 sm:w-12
-  "
-            >
-              <Send
-                size={17}
-                strokeWidth={2}
-                className="transition-transform duration-200 hover:translate-x-0.5"
-              />
-            </motion.button>
-          </form>
+              {item.emoji}
+            </span>
+          ))}
         </div>
+
+        {/* Messages */}
+        <div className="relative z-10 space-y-3 p-3 sm:space-y-4 sm:p-6">
+          {active.msgs.map((m, i) => (
+            <motion.div
+              key={`${active.id}-${i}`}
+              initial={{
+                opacity: 0,
+                y: 10,
+                x: m.from === "me" ? 8 : -8,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                x: 0,
+              }}
+              transition={{
+                duration: 0.3,
+                delay: Math.min(i * 0.035, 0.18),
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className={`flex ${
+                m.from === "me"
+                  ? "justify-end"
+                  : "justify-start"
+              }`}
+            >
+              <div
+                className={`
+                  max-w-[90%] break-words
+                  rounded-[18px] px-3.5 py-2.5
+                  text-[13px] leading-relaxed
+                  shadow-[0_3px_10px_rgba(65,43,31,0.045)]
+                  sm:max-w-[80%] sm:px-4 sm:py-3
+                  lg:max-w-[72%]
+
+                  ${
+                    m.from === "me"
+                      ? "rounded-br-[5px] border border-[#975036] bg-[linear-gradient(135deg,#A85D3E_0%,#91472F_100%)] text-white shadow-[0_5px_14px_rgba(145,71,47,0.13)]"
+                      : "rounded-bl-[5px] border border-[#EAE0D8] bg-[linear-gradient(135deg,#FFFFFF_0%,#FFFAF6_100%)] text-[#44352C]"
+                  }
+                `}
+              >
+                <p className="whitespace-pre-wrap">
+                  {m.text}
+                </p>
+
+                <p
+                  className={`mt-1.5 text-right text-[10px] ${
+                    m.from === "me"
+                      ? "text-white/70"
+                      : "text-[#9B887A]"
+                  }`}
+                >
+                  {m.time}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Message Input */}
+      <form
+        onSubmit={send}
+        className="flex gap-3 border-t border-[#E8E1DB] p-4"
+      >
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Type a message…"
+          className="
+            h-11 min-w-0 flex-1 rounded-full
+            border border-[#E6DAD1] bg-[#FFFCFA]
+            px-4 text-[13px] text-[#362F26]
+            outline-none placeholder:text-[#A28F7D]
+            shadow-[inset_0_1px_3px_rgba(65,43,31,0.025)]
+            transition-all duration-200
+            focus:border-[#C69B85] focus:bg-white
+            focus:ring-4 focus:ring-[#9F5639]/[0.08]
+            sm:h-12 sm:px-5 sm:text-[14px]
+          "
+        />
+
+        <motion.button
+          type="submit"
+          disabled={!text.trim()}
+          whileHover={
+            text.trim()
+              ? {
+                  y: -2,
+                  scale: 1.05,
+                  boxShadow:
+                    "0 9px 20px rgba(159,86,57,0.26)",
+                }
+              : undefined
+          }
+          whileTap={
+            text.trim()
+              ? { scale: 0.92, y: 0 }
+              : undefined
+          }
+          aria-label="Send message"
+          className="
+            grid h-11 w-11 shrink-0 cursor-pointer
+            place-items-center rounded-full
+            border border-[#9F5639]
+            bg-[linear-gradient(135deg,#A85D3E_0%,#91472F_100%)]
+            text-white
+            shadow-[0_4px_12px_rgba(159,86,57,0.17)]
+            transition-colors duration-200
+            hover:border-[#85432C] hover:bg-[#8A4A30]
+            disabled:cursor-not-allowed
+            disabled:border-[#D8C8BE]
+            disabled:bg-[#E9DED6]
+            disabled:text-[#A28F7D]
+            disabled:shadow-none
+            sm:h-12 sm:w-12
+          "
+        >
+          <Send
+            size={17}
+            strokeWidth={2}
+          />
+        </motion.button>
+      </form>
+    </>
+  ) : (
+    /* Empty State */
+    <div
+      className="
+        relative flex min-h-0 flex-1 items-center
+        justify-center overflow-hidden
+        bg-[linear-gradient(135deg,#FCF8F4_0%,#F8F0E9_48%,#FFFCFA_100%)]
+      "
+    >
+      {/* Decorative wallpaper */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 select-none overflow-hidden"
+      >
+        {WALLPAPER.map((item, index) => (
+          <span
+            key={index}
+            className="absolute text-[20px] opacity-[0.10] sm:text-[23px]"
+            style={{
+              left: item.left,
+              top: item.top,
+              transform: `rotate(${item.rotate})`,
+            }}
+          >
+            {item.emoji}
+          </span>
+        ))}
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative z-10 px-6 text-center"
+      >
+        <div
+          className="
+            mx-auto grid h-16 w-16 place-items-center
+            rounded-full border border-[#E6D5C8]
+            bg-[#F8EDE5]
+            text-[#9F5639]
+            shadow-[0_8px_24px_rgba(65,43,31,0.07)]
+          "
+        >
+          <Send size={24} strokeWidth={1.6} />
+        </div>
+
+        <h3 className="mt-5 text-[17px] font-medium text-[#362F26]">
+          Your messages
+        </h3>
+
+        <p className="mx-auto mt-2 max-w-[300px] text-[13px] leading-6 text-[#A28F7D]">
+          Select a conversation from the left to view your messages.
+        </p>
+      </motion.div>
+    </div>
+  )}
+</div>
       </div>
     </motion.div>
   );

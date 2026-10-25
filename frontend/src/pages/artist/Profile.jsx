@@ -6,6 +6,8 @@ import {
   Palette,
   RotateCcw,
   Save,
+  ShieldCheck,
+  Send,
 } from "lucide-react";
 import { Card, PAGE, inputCls } from "./shared";
 
@@ -32,6 +34,15 @@ export default function Profile() {
   const [saved, setSaved] = useState(false);
   const [specialtyOpen, setSpecialtyOpen] = useState(false);
 
+  const [emailVerification, setEmailVerification] = useState({
+    required: false,
+    otpSent: false,
+    verified: false,
+  });
+
+  const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState("");
+
   const pageRef = useRef(null);
   const pageEntered = useInView(pageRef, {
     once: true,
@@ -39,11 +50,53 @@ export default function Profile() {
   });
 
   const set = (key) => (e) => {
+    const value = e.target.value;
+
     setForm((current) => ({
       ...current,
-      [key]: e.target.value,
+      [key]: value,
     }));
+
     setSaved(false);
+
+    if (key === "email") {
+      const emailChanged = value.trim() !== START.email;
+
+      setEmailVerification({
+        required: emailChanged,
+        otpSent: false,
+        verified: false,
+      });
+
+      setOtp("");
+      setOtpError("");
+    }
+  };
+
+  const sendOtp = () => {
+    setEmailVerification((current) => ({
+      ...current,
+      otpSent: true,
+    }));
+
+    setOtp("");
+    setOtpError("");
+  };
+
+  const verifyOtp = () => {
+    // Demo OTP only.
+    // In the real application this verification will happen through the backend.
+    if (otp === "123456") {
+      setEmailVerification({
+        required: false,
+        otpSent: true,
+        verified: true,
+      });
+
+      setOtpError("");
+    } else {
+      setOtpError("Invalid OTP. Please try again.");
+    }
   };
 
   const initials = form.name
@@ -55,11 +108,23 @@ export default function Profile() {
     .toUpperCase();
 
   const submit = (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    // TODO: yahan API call aayegi
-    setSaved(true);
-  };
+  if (
+    form.email.trim() !== START.email &&
+    !emailVerification.verified
+  ) {
+    setEmailVerification((current) => ({
+      ...current,
+      required: true,
+    }));
+
+    return;
+  }
+
+  // TODO: yahan API call aayegi
+  setSaved(true);
+};
 
   const reset = () => {
     setForm(START);
@@ -106,20 +171,20 @@ export default function Profile() {
 
       {/* Profile header */}
       <motion.div
-  initial={{ opacity: 0, y: 20 }}
-  animate={
-    pageEntered
-      ? { opacity: 1, y: 0 }
-      : { opacity: 0, y: 20 }
-  }
-  transition={{
-    duration: 0.55,
-    delay: 0.08,
-    ease: "easeOut",
-  }}
->
-  <div
-    className="
+        initial={{ opacity: 0, y: 20 }}
+        animate={
+          pageEntered
+            ? { opacity: 1, y: 0 }
+            : { opacity: 0, y: 20 }
+        }
+        transition={{
+          duration: 0.55,
+          delay: 0.08,
+          ease: "easeOut",
+        }}
+      >
+        <div
+          className="
       relative
       overflow-hidden
       rounded-[18px]
@@ -128,10 +193,10 @@ export default function Profile() {
       p-5
       sm:p-6
     "
-  >
-            {/* Decorative background */}
-            <div
-              className="
+        >
+          {/* Decorative background */}
+          <div
+            className="
                 pointer-events-none
                 absolute
                 -right-16
@@ -142,10 +207,10 @@ export default function Profile() {
                 bg-[#E6CDBD]/30
                 blur-3xl
               "
-            />
+          />
 
-            <div
-              className="
+          <div
+            className="
                 pointer-events-none
                 absolute
                 -bottom-20
@@ -156,21 +221,21 @@ export default function Profile() {
                 bg-[#DCC9AE]/20
                 blur-3xl
               "
-            />
+          />
 
-            <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex min-w-0 items-center gap-4 sm:gap-5">
-                {/* Avatar */}
-                <motion.div
-                  whileHover={{
-                    scale: 1.04,
-                    rotate: 1,
-                  }}
-                  transition={{
-                    duration: 0.25,
-                    ease: "easeOut",
-                  }}
-                  className="
+          <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-4 sm:gap-5">
+              {/* Avatar */}
+              <motion.div
+                whileHover={{
+                  scale: 1.04,
+                  rotate: 1,
+                }}
+                transition={{
+                  duration: 0.25,
+                  ease: "easeOut",
+                }}
+                className="
                     relative
                     grid
                     h-[72px]
@@ -189,23 +254,23 @@ export default function Profile() {
                     sm:w-20
                     sm:text-[21px]
                   "
-                >
-                  {initials}
-                </motion.div>
+              >
+                {initials}
+              </motion.div>
 
-                <div className="min-w-0">
-                  <h2 className="truncate font-serif text-[21px] font-medium text-[#362F26] sm:text-[23px]">
-                    {form.name}
-                  </h2>
+              <div className="min-w-0">
+                <h2 className="truncate font-serif text-[21px] font-medium text-[#362F26] sm:text-[23px]">
+                  {form.name}
+                </h2>
 
-                  <p className="mt-1 text-[12.5px] text-[#9B887A]">
-                    Artist profile
-                  </p>
+                <p className="mt-1 text-[12.5px] text-[#9B887A]">
+                  Artist profile
+                </p>
 
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {/* Specialty */}
-                    <span
-                      className="
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {/* Specialty */}
+                  <span
+                    className="
                         inline-flex
                         items-center
                         gap-1.5
@@ -219,14 +284,14 @@ export default function Profile() {
                         font-medium
                         text-[#7A6255]
                       "
-                    >
-                      <Palette size={12} />
-                      {form.specialty}
-                    </span>
+                  >
+                    <Palette size={12} />
+                    {form.specialty}
+                  </span>
 
-                    {/* Location */}
-                    <span
-                      className="
+                  {/* Location */}
+                  <span
+                    className="
                         inline-flex
                         items-center
                         gap-1.5
@@ -240,15 +305,15 @@ export default function Profile() {
                         font-medium
                         text-[#7A6255]
                       "
-                    >
-                      <MapPin size={12} />
-                      {form.location}
-                    </span>
-                  </div>
+                  >
+                    <MapPin size={12} />
+                    {form.location}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
+        </div>
       </motion.div>
 
       {/* Profile details */}
@@ -276,15 +341,15 @@ export default function Profile() {
             )}
 
             {/* Specialty */}
-<label className="relative block">
-  <span className="mb-1.5 block text-[12px] font-medium text-[#8F7B6E]">
-    Specialty
-  </span>
+            <label className="relative block">
+              <span className="mb-1.5 block text-[12px] font-medium text-[#8F7B6E]">
+                Specialty
+              </span>
 
-  <button
-    type="button"
-    onClick={() => setSpecialtyOpen((prev) => !prev)}
-    className={`
+              <button
+                type="button"
+                onClick={() => setSpecialtyOpen((prev) => !prev)}
+                className={`
       flex h-11 w-full
       cursor-pointer
       items-center justify-between
@@ -298,69 +363,67 @@ export default function Profile() {
       shadow-[0_3px_10px_rgba(65,43,31,0.025)]
       outline-none
       transition-all duration-200 ease-out
-      ${
-        specialtyOpen
-          ? "border-[#B96B4A] shadow-[0_0_0_3px_rgba(159,86,57,0.08),0_5px_14px_rgba(65,43,31,0.05)]"
-          : "border-[#E8E1DB] hover:border-[#D9C5B8] hover:shadow-[0_5px_14px_rgba(65,43,31,0.04)]"
-      }
+      ${specialtyOpen
+                    ? "border-[#B96B4A] shadow-[0_0_0_3px_rgba(159,86,57,0.08),0_5px_14px_rgba(65,43,31,0.05)]"
+                    : "border-[#E8E1DB] hover:border-[#D9C5B8] hover:shadow-[0_5px_14px_rgba(65,43,31,0.04)]"
+                  }
     `}
-  >
-    <span>
-      {form.specialty || "Select specialty"}
-    </span>
+              >
+                <span>
+                  {form.specialty || "Select specialty"}
+                </span>
 
-    <svg
-      className={`
+                <svg
+                  className={`
         h-4 w-4
         text-[#9F5639]
         transition-transform duration-200 ease-out
         ${specialtyOpen ? "rotate-180" : ""}
       `}
-      viewBox="0 0 20 20"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-    >
-      <path
-        d="m5 7.5 5 5 5-5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  </button>
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                >
+                  <path
+                    d="m5 7.5 5 5 5-5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
 
-  {specialtyOpen && (
-    <div className="absolute left-0 right-0 z-30 mt-2 overflow-hidden rounded-xl border border-[#E8E1DB] bg-white p-1.5 shadow-[0_10px_28px_rgba(65,43,31,0.10)]">
-      {SPECIALTIES.map(([value, label]) => (
-        <button
-          key={value}
-          type="button"
-          onClick={() => {
-            setForm((current) => ({
-              ...current,
-              specialty: value,
-            }));
-            setSpecialtyOpen(false);
-            setSaved(false);
-          }}
-          className={`
+              {specialtyOpen && (
+                <div className="absolute left-0 right-0 z-30 mt-2 overflow-hidden rounded-xl border border-[#E8E1DB] bg-white p-1.5 shadow-[0_10px_28px_rgba(65,43,31,0.10)]">
+                  {SPECIALTIES.map(([value, label]) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => {
+                        setForm((current) => ({
+                          ...current,
+                          specialty: value,
+                        }));
+                        setSpecialtyOpen(false);
+                        setSaved(false);
+                      }}
+                      className={`
             flex w-full cursor-pointer items-center
             rounded-lg px-3 py-2.5
             text-left text-[13px]
             transition-colors duration-150
-            ${
-              form.specialty === value
-                ? "bg-[#F8EEE7] font-medium text-[#9F5639]"
-                : "text-[#4A3D34] text-[#4A3D34] hover:bg-[#FCF7F3] hover:text-[#9F5639]"
-            }
+            ${form.specialty === value
+                          ? "bg-[#F8EEE7] font-medium text-[#9F5639]"
+                          : "text-[#4A3D34] hover:bg-[#FCF7F3] hover:text-[#9F5639]"
+                        }
           `}
-        >
-          {label}
-        </button>
-      ))}
-    </div>
-  )}
-</label>
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </label>
 
             {/* Location */}
             {field(
@@ -380,11 +443,236 @@ export default function Profile() {
 
             {/* Email */}
             <div className="sm:col-span-2">
-              {field(
-                "Email",
-                "email",
-                "email",
-                "artist@example.com"
+              <label className="block">
+                <span className="mb-1.5 block text-[12px] font-medium text-[#8F7B6E]">
+                  Email
+                </span>
+
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={set("email")}
+                  placeholder="artist@example.com"
+                  className={`
+        ${inputCls}
+        transition-all duration-200 ease-out
+        hover:border-[#D8C4B7]
+        hover:shadow-[0_3px_10px_rgba(65,43,31,0.035)]
+        focus:border-[#9F5639]
+        focus:shadow-[0_0_0_3px_rgba(159,86,57,0.07)]
+      `}
+                />
+              </label>
+
+              {/* Email verification */}
+              {emailVerification.required && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  className="
+        mt-4
+        overflow-hidden
+        rounded-[15px]
+        border
+        border-[#E7DDD6]
+        bg-[linear-gradient(145deg,#FFFCF9_0%,#F8EEE7_100%)]
+        p-4
+      "
+                >
+                  <div className="flex items-start gap-3">
+                    <div
+                      className="
+            grid
+            h-9
+            w-9
+            shrink-0
+            place-items-center
+            rounded-xl
+            border
+            border-[#E6D5C9]
+            bg-white
+            text-[#9F5639]
+            shadow-[0_3px_10px_rgba(65,43,31,0.05)]
+          "
+                    >
+                      <ShieldCheck size={17} strokeWidth={1.8} />
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13px] font-semibold text-[#4A3D34]">
+                        Verify your new email
+                      </p>
+
+                      <p className="mt-1 text-[11.5px] leading-relaxed text-[#8F7B6E]">
+                        To protect your account, we'll send a verification OTP
+                        to your registered phone number.
+                      </p>
+
+                      <p className="mt-2 text-[12px] font-medium text-[#6F5B4E]">
+                        Registered number:{" "}
+                        <span className="text-[#9F5639]">
+                          +91 XXXXX 43210
+                        </span>
+                      </p>
+
+                      {!emailVerification.otpSent && (
+                        <motion.button
+                          type="button"
+                          onClick={sendOtp}
+                          whileHover={{ y: -1 }}
+                          whileTap={{ scale: 0.97 }}
+                          className="
+                mt-3
+                inline-flex
+                h-9
+                cursor-pointer
+                items-center
+                justify-center
+                gap-2
+                rounded-full
+                bg-[#9F5639]
+                px-4
+                text-[12px]
+                font-semibold
+                text-white
+                shadow-[0_5px_14px_rgba(159,86,57,0.14)]
+                transition-all
+                duration-200
+                hover:bg-[#8A4A30]
+              "
+                        >
+                          <Send size={13} />
+                          Send OTP
+                        </motion.button>
+                      )}
+
+                      {emailVerification.otpSent && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.25 }}
+                          className="mt-4"
+                        >
+                          <p className="mb-1.5 text-[11.5px] font-medium text-[#8F7B6E]">
+                            Enter verification OTP
+                          </p>
+
+                          <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              maxLength={6}
+                              value={otp}
+                              onChange={(e) => {
+                                const value = e.target.value
+                                  .replace(/\D/g, "")
+                                  .slice(0, 6);
+
+                                setOtp(value);
+                                setOtpError("");
+                              }}
+                              placeholder="Enter 6-digit OTP"
+                              className="
+                    h-10
+                    flex-1
+                    rounded-xl
+                    border
+                    border-[#E8E1DB]
+                    bg-white
+                    px-3
+                    text-[13px]
+                    tracking-[3px]
+                    text-[#362F26]
+                    outline-none
+                    transition-all
+                    duration-200
+                    placeholder:text-[#B09C8D]
+                    placeholder:tracking-normal
+                    focus:border-[#9F5639]
+                    focus:shadow-[0_0_0_3px_rgba(159,86,57,0.07)]
+                  "
+                            />
+
+                            <button
+                              type="button"
+                              onClick={verifyOtp}
+                              disabled={otp.length !== 6}
+                              className="
+                    h-10
+                    cursor-pointer
+                    rounded-full
+                    bg-[#9F5639]
+                    px-5
+                    text-[12px]
+                    font-semibold
+                    text-white
+                    transition-all
+                    duration-200
+                    hover:bg-[#8A4A30]
+                    disabled:cursor-not-allowed
+                    disabled:opacity-40
+                  "
+                            >
+                              Verify OTP
+                            </button>
+                          </div>
+
+                          {otpError && (
+                            <p className="mt-2 text-[11.5px] text-[#9B3B2E]">
+                              {otpError}
+                            </p>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={sendOtp}
+                            className="
+                  mt-2
+                  cursor-pointer
+                  text-[11px]
+                  font-medium
+                  text-[#9F5639]
+                  transition-colors
+                  hover:text-[#7F402C]
+                "
+                          >
+                            Resend OTP
+                          </button>
+
+                          <p className="mt-2 text-[10.5px] text-[#B09C8D]">
+                            Demo OTP: 123456
+                          </p>
+                        </motion.div>
+                      )}
+
+                      {emailVerification.verified && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.96 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="
+                mt-3
+                inline-flex
+                items-center
+                gap-1.5
+                rounded-full
+                border
+                border-[#D6E2CC]
+                bg-[#F1F6EC]
+                px-3
+                py-1.5
+                text-[11px]
+                font-medium
+                text-[#4C6B3F]
+              "
+                        >
+                          <CheckCircle2 size={13} />
+                          Email verified
+                        </motion.div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
               )}
             </div>
 

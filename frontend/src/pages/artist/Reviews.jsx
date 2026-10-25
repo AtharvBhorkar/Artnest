@@ -135,9 +135,15 @@ function Stars({ n }) {
 
 export default function Reviews() {
   const [reviews, setReviews] = useState(() => [
-    ...loadNew().filter((r) => r.status !== "Hidden"),
-    ...INITIAL,
-  ]);
+  ...loadNew().filter(
+    (r) =>
+      r.status !== "Hidden" &&
+      r.buyer &&
+      r.artwork &&
+      r.comment
+  ),
+  ...INITIAL,
+]);
 
   const [openId, setOpenId] = useState(null);
   const [text, setText] = useState("");
@@ -252,11 +258,11 @@ export default function Reviews() {
     shadow-[0_3px_8px_rgba(65,43,31,0.08)]
   "
 >
-  {r.buyer
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)}
+  {(r.buyer || "Buyer")
+  .split(" ")
+  .map((w) => w[0])
+  .join("")
+  .slice(0, 2)}
 </div>
 
                 <div className="min-w-0">
