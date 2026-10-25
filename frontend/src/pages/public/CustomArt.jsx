@@ -689,7 +689,18 @@ export default function CustomArt() {
     setPhase("sealing");
     scrollToForm();
     timer.current = setTimeout(() => {
-      setRefId(`CR-${502 + Math.floor(Math.random() * 400)}`);
+      const newId = `CR-${502 + Math.floor(Math.random() * 400)}`;
+      try {
+        const all = JSON.parse(localStorage.getItem("artnest_custom_requests")) || [];
+        localStorage.setItem(
+          "artnest_custom_requests",
+          JSON.stringify([
+            { ...form, id: newId, owner: user?.name || "", status: "New", requested: new Date().toISOString(), images: files.map((f) => f.name) },
+            ...all,
+          ])
+        );
+      } catch {}
+      setRefId(newId);
       setPhase("done");
       scrollToForm();
     }, reduce ? 700 : SEAL_MS);

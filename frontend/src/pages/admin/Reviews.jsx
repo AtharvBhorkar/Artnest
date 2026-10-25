@@ -6,11 +6,13 @@ import {
   Search,
   Trash2,
   MessageSquare,
+  Reply,
+  ChevronDown,
 } from "lucide-react";
 
 const SEED_REVIEWS = [
   { id: "REV-1", customer: "Priya Sharma", piece: "Golden Silence", artist: "Aarav Mehta", rating: 5, review: "Beautifully packed and even better in person.", date: "18 Sep 2026", status: "Published" },
-  { id: "REV-2", customer: "Rahul Kapoor", piece: "Monsoon Reverie", artist: "Riya Sharma", rating: 4, review: "Great print quality, shipping took a little long.", date: "17 Sep 2026", status: "Published" },
+  { id: "REV-2", customer: "Rahul Kapoor", piece: "Monsoon Reverie", artist: "Riya Sharma", rating: 4, review: "Great print quality, shipping took a little long.", date: "17 Sep 2026", status: "Published", reply: "Thank you Rahul! Sorry about the delay, I will ship faster next time." },
   { id: "REV-3", customer: "Sneha Iyer", piece: "Bronze Whisper", artist: "Kabir Verma", rating: 5, review: "Stunning craftsmanship, worth every rupee.", date: "16 Sep 2026", status: "Pending" },
   { id: "REV-4", customer: "Kunal Bose", piece: "Marble Repose", artist: "Kabir Verma", rating: 2, review: "Piece arrived with a small chip on the base.", date: "15 Sep 2026", status: "Hidden" },
 ];
@@ -21,14 +23,18 @@ const FILTERS = ["All", "5 Star", "4 Star", "3 & Below"];
 
 function normalize(raw) {
   return {
+    ...raw,
     id: raw.id ?? `REV-${Math.random().toString(36).slice(2, 9)}`,
-    customer: raw.customer ?? raw.buyer ?? "Anonymous",
+    customer: raw.customer ?? raw.buyer ?? raw.name ?? "Anonymous",
     piece: raw.piece ?? raw.artwork ?? "Untitled",
     artist: raw.artist ?? "Unknown artist",
     rating: Math.max(0, Math.min(5, Number(raw.rating) || 0)),
-    review: raw.review ?? raw.comment ?? "",
-    date: raw.date ?? "—",
-    status: STATUSES.includes(raw.status) ? raw.status : "Pending",
+    review: raw.review ?? raw.comment ?? raw.text ?? "",
+    date: /^\d{4}-\d{2}-\d{2}T/.test(raw.date ?? "")
+      ? new Date(raw.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+      : raw.date ?? "—",
+    status: STATUSES.includes(raw.status) ? raw.status : "Published",
+    reply: typeof raw.reply === "string" ? raw.reply : "",
   };
 }
 
@@ -195,6 +201,16 @@ export default function Reviews() {
   const [query, setQuery] = useState("");
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [toast, setToast] = useState(null);
+  const [openReplies, setOpenReplies] = useState(() => new Set());
+
+  function toggleReply(id) {
+    setOpenReplies((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   useEffect(() => {
     persist(reviews);
@@ -363,7 +379,38 @@ export default function Reviews() {
                     <span className="text-[12.5px] text-[#A28F7D]">
                       {r.date}
                     </span>
+                    <button
+                      onClick={() => toggleReply(r.id)}
+                      aria-expanded={openReplies.has(r.id)}
+                      className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#9F5639] transition-colors hover:text-[#7F432C]"
+                    >
+                      <Reply size={14} strokeWidth={1.8} />
+                      {openReplies.has(r.id) ? "Hide artist reply" : "View artist reply"}
+                      <ChevronDown
+                        size={14}
+                        className={`transition-transform ${
+                          openReplies.has(r.id) ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
                   </div>
+
+                  {openReplies.has(r.id) && (
+                    <div className="mt-3 rounded-xl border border-[#F0EBE6] bg-[#FAF6F2] px-4 py-3.5">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#A28F7D]">
+                        Reply from {r.artist}
+                      </p>
+                      {r.reply ? (
+                        <p className="mt-1.5 text-[13.5px] leading-relaxed text-[#4A3F33]">
+                          {r.reply}
+                        </p>
+                      ) : (
+                        <p className="mt-1.5 text-[13.5px] italic text-[#A28F7D]">
+                          The artist hasn't replied to this review yet.
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </article>

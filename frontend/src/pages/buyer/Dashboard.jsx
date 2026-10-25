@@ -399,11 +399,14 @@ function ReviewModal({ order, onClose }) {
         id: existing?.id || `rv-${Date.now()}`,
         orderId: order.id,
         artId: order.art.id,
+        status: "Published",
         artist: order.art.artist,
         artwork: order.art.title,
         name: user?.name || "Verified buyer",
+        buyer: user?.name || "Verified buyer",
         rating,
         text: text.trim(),
+        comment: text.trim(),
         date: new Date().toISOString(),
       };
       const idx = all.findIndex((r) => r.orderId === order.id);

@@ -90,6 +90,9 @@ export default function OrderDetails() {
     const review = {
       id: `REV-${order.id}`,
       orderId: order.id,
+      artId: firstArt.id,
+      name: user?.name || order.address.name,
+      text: reviewText.trim(),
       buyer: user?.name || order.address.name,
       artwork: firstArt.title,
       artist: firstArt.artist,
