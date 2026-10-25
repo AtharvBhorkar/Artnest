@@ -56,7 +56,7 @@ export default function BuyerLogin() {
             Welcome back to ArtNest
           </motion.p>
           <motion.h1 variants={item} className="font-serif text-[26px] sm:text-[28px] leading-tight text-stone-900 mb-1.5">
-            Sign in to your account
+            Sign in to your Buyer account
           </motion.h1>
           <motion.p variants={item} className="text-[13px] text-stone-500 mb-5 max-w-sm">
             Pick up where you left off — your saved pieces and orders are waiting.
