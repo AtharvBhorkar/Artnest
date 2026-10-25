@@ -6,10 +6,10 @@ import { useAuth } from "../../context/AuthContext";
 
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 48 48">
-    <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
-    <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4c-7.5 0-14 4.2-17.7 10.7z"/>
-    <path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.3-5l-6.6-5.4C29.6 35.4 26.9 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.9 39.7 16.4 44 24 44z"/>
-    <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.2-4 5.6l6.6 5.4C41.3 35.8 44 30.3 44 24c0-1.3-.1-2.7-.4-3.5z"/>
+    <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z" />
+    <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4c-7.5 0-14 4.2-17.7 10.7z" />
+    <path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.3-5l-6.6-5.4C29.6 35.4 26.9 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.9 39.7 16.4 44 24 44z" />
+    <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.2-4 5.6l6.6 5.4C41.3 35.8 44 30.3 44 24c0-1.3-.1-2.7-.4-3.5z" />
   </svg>
 );
 
@@ -25,8 +25,23 @@ const item = {
 export default function BuyerLogin() {
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
   const [showPw, setShowPw] = useState(false);
   const [remember, setRemember] = useState(true);
+
+  const handleLogin = () => {
+    if (!email.trim() || !password.trim()) {
+      setError("Please enter both email and password.");
+      return;
+    }
+    setError("");
+    login("buyer");
+    navigate("/dashboard");
+  };
 
   return (
     <div className="h-screen w-full bg-[#FDF1E8] flex items-center justify-center p-3 sm:p-6 overflow-hidden">
@@ -64,6 +79,8 @@ export default function BuyerLogin() {
             <input
               type="email"
               placeholder="e-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-lg border border-stone-200 bg-[#FBEFE6]/60 px-3 py-2 text-[13px] text-stone-800 placeholder:text-stone-400 outline-none transition focus:border-[#A5522F] focus:bg-white focus:ring-2 focus:ring-[#A5522F]/15"
             />
           </motion.div>
@@ -77,6 +94,8 @@ export default function BuyerLogin() {
               <input
                 type={showPw ? "text" : "password"}
                 placeholder="Please enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-lg border border-stone-200 bg-[#FBEFE6]/60 px-3 py-2 pr-8 text-[13px] outline-none transition focus:border-[#A5522F] focus:bg-white focus:ring-2 focus:ring-[#A5522F]/15"
               />
               <button
@@ -88,6 +107,12 @@ export default function BuyerLogin() {
               </button>
             </div>
           </motion.div>
+
+          {error && (
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[12px] font-medium text-red-500 mb-3">
+              {error}
+            </motion.p>
+          )}
 
           <motion.label variants={item} className="flex items-center gap-2 mb-4 cursor-pointer select-none">
             <input
@@ -104,10 +129,7 @@ export default function BuyerLogin() {
             whileHover={{ y: -1 }}
             whileTap={{ scale: 0.98 }}
             type="button"
-            onClick={() => {
-              login("buyer");
-              navigate("/dashboard");
-            }}
+            onClick={handleLogin}
             className="w-full flex items-center justify-center gap-2 rounded-lg bg-[#A5522F] py-2.5 text-[13px] font-semibold text-white shadow-sm transition hover:bg-[#8f4526]"
           >
             Sign In <ArrowRight size={14} />

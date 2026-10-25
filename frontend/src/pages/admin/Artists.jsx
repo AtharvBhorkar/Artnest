@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Search, ChevronDown, Eye, Pencil, ShieldCheck, Ban, X } from "lucide-react";
+import { Search, ChevronDown, Eye, ShieldCheck, Ban, X } from "lucide-react";
 
 const inr = (n) => "₹" + Number(n).toLocaleString("en-IN");
 
@@ -191,9 +191,6 @@ export default function Artists() {
                   <div className="flex items-center gap-1">
                     <button type="button" title="View" className={iconBtn} onClick={() => setModal({ mode: "view", artist: a })}>
                       <Eye size={17} />
-                    </button>
-                    <button type="button" title="Edit" className={iconBtn} onClick={() => setModal({ mode: "edit", artist: a })}>
-                      <Pencil size={17} />
                     </button>
                     <button
                       type="button"
